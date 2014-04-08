@@ -1,3 +1,11 @@
+buildscript {
+  // inspired by https://github.com/Netflix/gradle-template
+  apply from: file('gradle/buildscript.gradle'), to: buildscript
+}
+
+apply plugin: 'cobertura'
+apply plugin: 'coveralls'
+
 task wrapper(type: Wrapper) {
   gradleVersion = '1.11'
   distributionUrl = 'http://services.gradle.org/distributions/gradle-1.11-all.zip'
