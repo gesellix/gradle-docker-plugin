@@ -1,0 +1,4 @@
+task wrapper(type: Wrapper) {
+  gradleVersion = '1.11'
+  distributionUrl = 'http://services.gradle.org/distributions/gradle-1.11-all.zip'
+}
