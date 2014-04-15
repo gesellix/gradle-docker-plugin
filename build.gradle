@@ -55,6 +55,13 @@ task integrationTest(type: Test) {
 integrationTest.mustRunAfter test
 check.dependsOn(integrationTest)
 
+task aggregateTestReports(type: TestReport) {
+  destinationDir = test.reports.html.destination
+  reportOn test, integrationTest
+}
+aggregateTestReports.mustRunAfter integrationTest
+check.dependsOn aggregateTestReports
+
 task wrapper(type: Wrapper) {
   gradleVersion = '1.11'
   distributionUrl = 'http://services.gradle.org/distributions/gradle-1.11-all.zip'
