@@ -1,8 +1,11 @@
 package de.gesellix.gradle.docker
 
-import groovyx.net.http.RESTClient
+import groovyx.net.http.HTTPBuilder
+import groovyx.net.http.HttpResponseDecorator
+import org.codehaus.groovy.runtime.MethodClosure
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
+import org.mortbay.util.ajax.JSON
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -21,14 +24,29 @@ class DockerDeployTask extends DefaultTask {
     def hostname = "172.17.42.1"
     def port = 4243
 
-    def client = new RESTClient("http://$hostname:$port/")
-    def response = client.post([path : "/images/create",
-                                query: [fromImage: imageName]])
-    if (!response.isSuccess()) {
-      throw new RuntimeException("Failed to pull image '$imageName' on host '$hostname'.")
+    def responseHandler = new ChunkedResponseHandler()
+    def client = new HTTPBuilder("http://$hostname:$port/")
+    client.handler.'200' = new MethodClosure(responseHandler, "handleResponse")
+    client.post([path : "/images/create",
+                 query: [fromImage: imageName]])
+    logger.info("${responseHandler.lastResponseDetail}")
+  }
+
+  static class ChunkedResponseHandler {
+
+    def completeResponse = ""
+
+    def handleResponse(HttpResponseDecorator response) {
+      new InputStreamReader(response.entity.content).each { chunk ->
+        logger.debug("received chunk: '${chunk}'")
+        completeResponse += chunk
+      }
     }
 
-//    logger.info("response: ${response.entity.content}")
-    logger.info("response: ${response.responseData}")
+    def getLastResponseDetail() {
+      logger.debug("find last detail in: '${completeResponse}'")
+      def lastResponseDetail = completeResponse.substring(completeResponse.lastIndexOf("}{") + 1)
+      return JSON.parse(lastResponseDetail)
+    }
   }
 }
