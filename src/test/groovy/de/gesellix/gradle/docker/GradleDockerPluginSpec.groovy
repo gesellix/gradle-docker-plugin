@@ -18,4 +18,13 @@ class GradleDockerPluginSpec extends Specification {
     then:
     project["gradle-docker"] instanceof GradleDockerPluginExtension
   }
+
+  def "DockerDeployTask is available"() {
+    given:
+    project.apply plugin: 'gradle-docker'
+    when: "project is evaluated"
+    project.evaluate()
+    then:
+    project.tasks.findByName("dockerDeploy") in DockerDeployTask
+  }
 }
