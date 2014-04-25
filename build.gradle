@@ -14,6 +14,8 @@ apply plugin: 'idea'
 apply plugin: 'cobertura'
 apply plugin: 'coveralls'
 
+cobertura.coverageFormats = ['html', 'xml']
+
 idea {
   module {
     testSourceDirs += file('src/integrationTest/groovy')
