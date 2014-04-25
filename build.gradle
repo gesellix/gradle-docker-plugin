@@ -14,8 +14,6 @@ apply plugin: 'idea'
 apply plugin: 'cobertura'
 apply plugin: 'coveralls'
 
-cobertura.coverageFormats = ['html', 'xml']
-
 idea {
   module {
     testSourceDirs += file('src/integrationTest/groovy')
@@ -35,6 +33,8 @@ sourceSets {
     }
   }
 }
+
+cobertura.coverageSourceDirs = sourceSets.main.groovy.srcDirs
 
 configurations {
   integrationTestCompile.extendsFrom testCompile
@@ -63,6 +63,8 @@ task aggregateTestReports(type: TestReport) {
 }
 aggregateTestReports.mustRunAfter integrationTest
 check.dependsOn aggregateTestReports
+
+cobertura.coverageFormats = ['html', 'xml']
 
 task wrapper(type: Wrapper) {
   gradleVersion = '1.11'
