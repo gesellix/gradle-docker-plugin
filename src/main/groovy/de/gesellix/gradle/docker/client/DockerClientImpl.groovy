@@ -1,4 +1,4 @@
-package de.gesellix.gradle.docker
+package de.gesellix.gradle.docker.client
 
 import groovyx.net.http.HTTPBuilder
 import groovyx.net.http.HttpResponseDecorator
@@ -13,10 +13,27 @@ class DockerClientImpl implements DockerClient {
 
   def hostname
   def port
+  def HTTPBuilder client
 
   DockerClientImpl(hostname = "172.17.42.1", port = 4243) {
     this.hostname = hostname
     this.port = port
+    this.client = new HTTPBuilder("http://$hostname:$port/")
+  }
+
+  @Override
+  def build() {
+    logger.info "build image"
+  }
+
+  @Override
+  def tag() {
+    logger.info "tag image"
+  }
+
+  @Override
+  def push() {
+    logger.info "push image"
   }
 
   @Override
@@ -24,11 +41,43 @@ class DockerClientImpl implements DockerClient {
     logger.info "pull image '${imageName}'..."
 
     def responseHandler = new ChunkedResponseHandler()
-    def client = new HTTPBuilder("http://$hostname:$port/")
     client.handler.'200' = new MethodClosure(responseHandler, "handleResponse")
     client.post([path : "/images/create",
                  query: [fromImage: imageName]])
-    logger.info("${responseHandler.lastResponseDetail}")
+
+    def lastResponseDetail = responseHandler.lastResponseDetail
+    logger.info("${lastResponseDetail}")
+    return lastResponseDetail.id
+  }
+
+  @Override
+  def stop() {
+    logger.info "stop container"
+  }
+
+  @Override
+  def rm() {
+    logger.info "rm container"
+  }
+
+  @Override
+  def rmi() {
+    logger.info "rm image"
+  }
+
+  @Override
+  def run() {
+    logger.info "run container"
+  }
+
+  @Override
+  def ps() {
+    logger.info "list containers"
+  }
+
+  @Override
+  def images() {
+    logger.info "list images"
   }
 
   static class ChunkedResponseHandler {

@@ -1,5 +1,6 @@
 package de.gesellix.gradle.docker
 
+import de.gesellix.gradle.docker.client.DockerClientImpl
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
@@ -22,7 +23,6 @@ class DockerDeployTask extends DefaultTask {
   @TaskAction
   def deploy() {
     logger.info "running deploy..."
-
     dockerClient.pull(imageName)
   }
 }
