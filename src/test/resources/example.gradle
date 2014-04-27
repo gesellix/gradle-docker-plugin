@@ -1,0 +1,41 @@
+apply plugin: 'maven'
+apply plugin: 'groovy'
+apply plugin: 'gradle-docker'
+
+repositories {
+  mavenLocal()
+}
+
+dockerDeploy {
+  imageName = "scratch"
+//  targetHost = ""
+
+  beforeDeploy {
+    container {
+      stop {
+        name = "scratch"
+      }
+      rm {
+        name = "scratch"
+      }
+    }
+    images {
+      rmi = 'unused'
+    }
+  }
+
+  run {
+    daemon = true
+    container {
+      name = "scratch"
+      volumes = [
+          "/path/on/host": "/path/in/container"
+      ]
+      ports = [
+          "publicPort": "exposedPort"
+      ]
+      environment = [
+      ]
+    }
+  }
+}

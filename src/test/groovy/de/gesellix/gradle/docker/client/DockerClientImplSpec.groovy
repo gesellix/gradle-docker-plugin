@@ -1,61 +1,41 @@
 package de.gesellix.gradle.docker.client
 
-import com.jayway.restassured.RestAssured
-import com.xebialabs.restito.semantics.Action
-import com.xebialabs.restito.semantics.Condition
-import com.xebialabs.restito.server.StubServer
-import spock.lang.Shared
+import co.freeside.betamax.Betamax
+import co.freeside.betamax.Recorder
+import co.freeside.betamax.httpclient.BetamaxRoutePlanner
+import org.junit.Rule
 import spock.lang.Specification
-
-import static com.xebialabs.restito.builder.stub.StubHttp.whenHttp
-import static com.xebialabs.restito.builder.verify.VerifyHttp.verifyHttp
-import static org.glassfish.grizzly.http.Method.POST
-import static org.glassfish.grizzly.http.util.HttpStatus.OK_200
 
 class DockerClientImplSpec extends Specification {
 
-  @Shared
-  StubServer server
-
   DockerClient dockerClient
 
-  def setupSpec() {
-    server = new StubServer().run()
-    RestAssured.port = server.getPort()
-  }
-
-  def cleanupSpec() {
-    server.stop()
-  }
+  @Rule
+  Recorder recorder = new Recorder()
 
   def setup() {
-    dockerClient = new DockerClientImpl("127.0.0.1", server.getPort())
+    dockerClient = new DockerClientImpl()
+    BetamaxRoutePlanner.configure(dockerClient.client.client)
   }
 
+  @Betamax(tape = 'build image')
   def "build image"() {
-    expect:
-    dockerClient.build() == null
+    given:
+    def buildContext = getClass().getResourceAsStream("build/build.tar")
+
+    when:
+    def buildResult = dockerClient.build(buildContext)
+
+    then:
+    buildResult == "Successfully built 3f076777da89"
   }
 
+  @Betamax(tape = 'pull image')
   def "pull image"() {
-    given:
-    whenHttp(server).
-        match(Condition.post("/images/create"),
-              Condition.parameter("fromImage", "scratch")).
-        then(Action.status(OK_200),
-             Action.resourceContent(getClass().getResource("pull_image_responses.chunked.json")));
-
     when:
     def imageId = dockerClient.pull("scratch")
 
     then:
-    verifyHttp(server).once(
-        Condition.method(POST),
-        Condition.uri("/images/create"),
-        Condition.parameter("fromImage", "scratch")
-    )
-
-    and:
     imageId == "511136ea3c5a"
   }
 }

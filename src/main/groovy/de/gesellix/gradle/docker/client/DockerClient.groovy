@@ -2,7 +2,7 @@ package de.gesellix.gradle.docker.client
 
 interface DockerClient {
 
-  def build()
+  def build(InputStream buildContext)
 
   def tag()
 
