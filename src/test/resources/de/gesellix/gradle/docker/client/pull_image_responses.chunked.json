@@ -1,0 +1,28 @@
+{
+  "status": "Pulling repository scratch"
+}
+{
+"status": "Pulling image (latest) from scratch",
+"progressDetail": {},
+"id": "511136ea3c5a"
+}
+{
+"status": "Pulling image (latest) from scratch, endpoint: https://cdn-registry-1.docker.io/v1/",
+"progressDetail": {},
+"id": "511136ea3c5a"
+}
+{
+"status": "Pulling dependent layers",
+"progressDetail": {},
+"id": "511136ea3c5a"
+}
+{
+"status": "Download complete",
+"progressDetail": {},
+"id": "511136ea3c5a"
+}
+{
+"status": "Download complete",
+"progressDetail": {},
+"id": "511136ea3c5a"
+}
