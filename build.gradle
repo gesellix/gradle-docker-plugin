@@ -58,6 +58,8 @@ dependencies {
   compile gradleApi()
   compile localGroovy()
 
+  compile 'org.apache.commons:commons-compress:1.8'
+
   testCompile 'org.spockframework:spock-core:0.7-groovy-1.8'
   testCompile 'com.xebialabs.restito:restito:0.4-beta-2'
   testCompile 'com.jayway.restassured:rest-assured:2.3.1'

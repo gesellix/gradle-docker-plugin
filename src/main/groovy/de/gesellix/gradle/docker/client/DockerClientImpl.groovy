@@ -1,5 +1,6 @@
 package de.gesellix.gradle.docker.client
 
+import groovyx.net.http.ContentType
 import groovyx.net.http.HTTPBuilder
 import groovyx.net.http.HttpResponseDecorator
 import org.codehaus.groovy.runtime.MethodClosure
@@ -23,7 +24,11 @@ class DockerClientImpl implements DockerClient {
 
   @Override
   def build() {
-    logger.info "build image"
+    logger.info "build image..."
+    client.post([path              : "/build",
+                 body              : "tar".bytes,
+                 requestContentType: ContentType.BINARY])
+    return "foo"
   }
 
   @Override

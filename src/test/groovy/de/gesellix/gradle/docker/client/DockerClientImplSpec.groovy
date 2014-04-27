@@ -33,8 +33,24 @@ class DockerClientImplSpec extends Specification {
   }
 
   def "build image"() {
-    expect:
-    dockerClient.build() == null
+    given:
+    whenHttp(server).
+        match(Condition.post("/build"),
+              Condition.withPostBody()).
+        then(Action.status(OK_200),
+             Action.resourceContent(getClass().getResource("pull_image_responses.chunked.json")));
+
+    when:
+    def imageId = dockerClient.build()
+
+    then:
+    verifyHttp(server).once(
+        Condition.method(POST),
+        Condition.uri("/build")
+    )
+
+    and:
+    imageId == "47110815"
   }
 
   def "pull image"() {
