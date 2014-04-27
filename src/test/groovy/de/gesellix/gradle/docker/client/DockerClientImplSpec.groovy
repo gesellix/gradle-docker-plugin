@@ -20,9 +20,6 @@ class DockerClientImplSpec extends Specification {
 
   DockerClient dockerClient
 
-//  @Rule
-//  Recorder recorder = new Recorder()
-
   def setupSpec() {
     server = new StubServer().run()
     RestAssured.port = server.getPort()
@@ -34,18 +31,14 @@ class DockerClientImplSpec extends Specification {
 
   def setup() {
     dockerClient = new DockerClientImpl("127.0.0.1", server.getPort())
-//    BetamaxRoutePlanner.configure(dockerClient.client.client)
   }
 
-//  @Betamax(tape = 'build image', match = [MatchRule.host])
   def "build image"() {
     expect:
     dockerClient.build() == null
   }
 
-//  @Betamax(tape = 'pull image')
   def "pull image"() {
-
     given:
     whenHttp(server).
         match(post("/images/create"),
