@@ -1,6 +1,5 @@
 package de.gesellix.gradle.docker.client
 
-import com.jayway.restassured.RestAssured
 import com.xebialabs.restito.semantics.Action
 import com.xebialabs.restito.semantics.Condition
 import com.xebialabs.restito.server.StubServer
@@ -21,7 +20,6 @@ class DockerClientImplSpec extends Specification {
 
   def setupSpec() {
     server = new StubServer().run()
-    RestAssured.port = server.getPort()
   }
 
   def cleanupSpec() {
