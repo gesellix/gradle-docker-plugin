@@ -4,7 +4,6 @@ import co.freeside.betamax.Betamax
 import co.freeside.betamax.Recorder
 import co.freeside.betamax.httpclient.BetamaxRoutePlanner
 import org.junit.Rule
-import spock.lang.Ignore
 import spock.lang.Specification
 
 class DockerClientImplSpec extends Specification {
@@ -19,14 +18,16 @@ class DockerClientImplSpec extends Specification {
     BetamaxRoutePlanner.configure(dockerClient.client.client)
   }
 
-  @Ignore
   @Betamax(tape = 'build image')
   def "build image"() {
+    given:
+    def buildContext = getClass().getResourceAsStream("build/build.tar")
+
     when:
-    def imageId = dockerClient.build()
+    def buildResult = dockerClient.build(buildContext)
 
     then:
-    imageId == "47110815"
+    buildResult == "Successfully built 3f076777da89"
   }
 
   @Betamax(tape = 'pull image')

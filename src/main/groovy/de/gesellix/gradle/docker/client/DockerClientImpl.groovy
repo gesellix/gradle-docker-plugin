@@ -3,6 +3,7 @@ package de.gesellix.gradle.docker.client
 import groovyx.net.http.ContentType
 import groovyx.net.http.HTTPBuilder
 import groovyx.net.http.HttpResponseDecorator
+import org.apache.commons.io.IOUtils
 import org.codehaus.groovy.runtime.MethodClosure
 import org.mortbay.util.ajax.JSON
 import org.slf4j.Logger
@@ -23,12 +24,17 @@ class DockerClientImpl implements DockerClient {
   }
 
   @Override
-  def build() {
+  def build(InputStream buildContext) {
     logger.info "build image..."
+    def responseHandler = new ChunkedResponseHandler()
+    client.handler.'200' = new MethodClosure(responseHandler, "handleResponse")
     client.post([path              : "/build",
-                 body              : "tar".bytes,
+                 body: IOUtils.toByteArray(buildContext),
                  requestContentType: ContentType.BINARY])
-    return "foo"
+
+    def lastResponseDetail = responseHandler.lastResponseDetail
+    logger.info("${lastResponseDetail}")
+    return lastResponseDetail.stream.trim()
   }
 
   @Override
