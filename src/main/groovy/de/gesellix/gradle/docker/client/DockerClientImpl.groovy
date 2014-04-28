@@ -33,14 +33,19 @@ class DockerClientImpl implements DockerClient {
                  requestContentType: ContentType.BINARY])
 
     def lastResponseDetail = responseHandler.lastResponseDetail
-    logger.info("${lastResponseDetail}")
+    logger.info "${lastResponseDetail}"
     return lastResponseDetail.stream.trim()
   }
 
   @Override
   def tag(imageId, repositoryName) {
     logger.info "tag image"
-    // /images/test/tag?repo=myrepo&force=0
+    client.post([path : "/images/${imageId}/tag".toString(),
+                 query: [repo : repositoryName,
+                         force: 0]]) { response ->
+      logger.info "${response.statusLine}"
+      return response.statusLine.statusCode
+    }
   }
 
   @Override
@@ -58,7 +63,7 @@ class DockerClientImpl implements DockerClient {
                  query: [fromImage: imageName]])
 
     def lastResponseDetail = responseHandler.lastResponseDetail
-    logger.info("${lastResponseDetail}")
+    logger.info "${lastResponseDetail}"
     return lastResponseDetail.id
   }
 
