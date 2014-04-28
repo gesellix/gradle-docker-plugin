@@ -51,4 +51,18 @@ class DockerClientImplSpec extends Specification {
     then:
     imageId == "511136ea3c5a"
   }
+
+  @Betamax(tape = 'list images')
+  def "get images"() {
+    when:
+    def images = dockerClient.images()
+
+    then:
+    ["Created"    : 1371157430,
+     "Id"         : "511136ea3c5a64f264b78b5433614aec563103b4d4702f3ba7d4d2698e22c158",
+     "ParentId"   : "",
+     "RepoTags"   : ["scratch:latest", "yetAnotherTag:latest"],
+     "Size"       : 0,
+     "VirtualSize": 0] in images
+  }
 }

@@ -95,6 +95,11 @@ class DockerClientImpl implements DockerClient {
   @Override
   def images() {
     logger.info "list images"
+    client.get([path : "/images/json",
+                query: [all: 0]]) { response, reader ->
+      logger.info "${response.statusLine}"
+      return reader
+    }
   }
 
   static class ChunkedResponseHandler {
