@@ -38,8 +38,9 @@ class DockerClientImpl implements DockerClient {
   }
 
   @Override
-  def tag() {
+  def tag(imageId, repositoryName) {
     logger.info "tag image"
+    // /images/test/tag?repo=myrepo&force=0
   }
 
   @Override

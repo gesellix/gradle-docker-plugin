@@ -4,7 +4,7 @@ interface DockerClient {
 
   def build(InputStream buildContext)
 
-  def tag()
+  def tag(imageId, repositoryName)
 
   def push()
 
