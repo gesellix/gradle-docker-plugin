@@ -65,4 +65,29 @@ class DockerClientImplSpec extends Specification {
      "Size"       : 0,
      "VirtualSize": 0] in images
   }
+
+  @Betamax(tape = 'create container')
+  def "create container"() {
+    given:
+    def imageId = dockerClient.pull("busybox")
+
+    when:
+    def containerCreateInfo = dockerClient.createContainer(imageId)
+
+    then:
+    containerCreateInfo.Id == "e9acbbf7649f6606e246406d398bb9eae47cdee16d519e5fbf5be64606c10ed9"
+  }
+
+  @Betamax(tape = 'start container')
+  def "start container"() {
+    given:
+    def imageId = dockerClient.pull("busybox")
+    def containerId = dockerClient.createContainer(imageId).Id
+
+    when:
+    def startContainerResult = dockerClient.startContainer(containerId)
+
+    then:
+    startContainerResult == 204
+  }
 }

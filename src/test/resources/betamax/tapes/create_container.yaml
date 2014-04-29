@@ -1,0 +1,41 @@
+!tape
+name: create container
+interactions:
+- recorded: 2014-04-29T19:55:59.406Z
+  request:
+    method: POST
+    uri: http://172.17.42.1:4243/images/create?fromImage=busybox
+    headers:
+      Accept: '*/*'
+      Accept-Encoding: gzip,deflate
+      Content-Length: '0'
+      Host: 172.17.42.1:4243
+      Proxy-Connection: Keep-Alive
+  response:
+    status: 200
+    headers:
+      Content-Type: application/json
+      Date: Tue, 29 Apr 2014 19:55:56 GMT
+    body: "{\"status\":\"Pulling repository busybox\"}\r\n{\"status\":\"Pulling image (latest) from busybox\",\"progressDetail\":{},\"id\":\"2d8e5b282c81\"}{\"status\":\"Pulling image (latest) from busybox, endpoint: https://cdn-registry-1.docker.io/v1/\",\"\
+      progressDetail\":{},\"id\":\"2d8e5b282c81\"}{\"status\":\"Pulling dependent layers\",\"progressDetail\":{},\"id\":\"2d8e5b282c81\"}{\"status\":\"Download complete\",\"progressDetail\":{},\"id\":\"511136ea3c5a\"}{\"status\":\"Download complete\",\"progressDetail\"\
+      :{},\"id\":\"6c991eb93460\"}{\"status\":\"Download complete\",\"progressDetail\":{},\"id\":\"9f4e93171ec5\"}{\"status\":\"Download complete\",\"progressDetail\":{},\"id\":\"2d8e5b282c81\"}{\"status\":\"Download complete\",\"progressDetail\":{},\"id\":\"\
+      2d8e5b282c81\"}"
+- recorded: 2014-04-29T19:55:59.487Z
+  request:
+    method: POST
+    uri: http://172.17.42.1:4243/containers/create
+    headers:
+      Accept: '*/*'
+      Accept-Encoding: gzip,deflate
+      Content-Length: '289'
+      Content-Type: application/json
+      Host: 172.17.42.1:4243
+      Proxy-Connection: Keep-Alive
+    body: '{"Hostname":"","User":"","Memory":0,"MemorySwap":0,"AttachStdin":false,"AttachStdout":true,"AttachStderr":true,"Tty":false,"OpenStdin":false,"StdinOnce":false,"Cmd":["true"],"Image":"2d8e5b282c81","Volumes":[],"WorkingDir":"","DisableNetwork":false,"ExposedPorts":{"DisableNetwork":false}}'
+  response:
+    status: 201
+    headers:
+      Content-Type: application/json
+      Date: Tue, 29 Apr 2014 19:55:59 GMT
+    body: |
+      {"Id":"e9acbbf7649f6606e246406d398bb9eae47cdee16d519e5fbf5be64606c10ed9","Warnings":null}

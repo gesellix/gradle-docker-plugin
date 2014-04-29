@@ -21,4 +21,8 @@ interface DockerClient {
   def ps()
 
   def images()
+
+  def createContainer(fromImage)
+
+  def startContainer(containerId)
 }

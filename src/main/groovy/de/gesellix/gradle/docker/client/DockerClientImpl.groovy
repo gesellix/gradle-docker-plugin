@@ -68,6 +68,48 @@ class DockerClientImpl implements DockerClient {
   }
 
   @Override
+  def createContainer(fromImage) {
+    logger.info "create container..."
+    client.post([path              : "/containers/create".toString(),
+                 body              : ["Hostname"      : "",
+                                      "User"          : "",
+                                      "Memory"        : 0,
+                                      "MemorySwap"    : 0,
+                                      "AttachStdin"   : false,
+                                      "AttachStdout"  : true,
+                                      "AttachStderr"  : true,
+                                      "PortSpecs"     : null,
+                                      "Tty"           : false,
+                                      "OpenStdin"     : false,
+                                      "StdinOnce"     : false,
+                                      "Env"           : null,
+                                      "Cmd"           : ["true"],
+                                      "Image"         : fromImage,
+                                      "Volumes"       : [],
+                                      "WorkingDir"    : "",
+                                      "DisableNetwork": false,
+                                      "ExposedPorts"  : [
+                                          "DisableNetwork": false
+                                      ]
+                 ],
+                 requestContentType: ContentType.JSON]) { response, reader ->
+      logger.info "${response.statusLine}"
+      return reader
+    }
+  }
+
+  @Override
+  def startContainer(containerId) {
+    logger.info "start container..."
+    client.post([path              : "/containers/${containerId}/start".toString(),
+                 body              : [:],
+                 requestContentType: ContentType.JSON]) { response, reader ->
+      logger.info "${response.statusLine}"
+      return response.statusLine.statusCode
+    }
+  }
+
+  @Override
   def stop() {
     logger.info "stop container"
   }
