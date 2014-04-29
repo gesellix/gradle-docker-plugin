@@ -75,7 +75,7 @@ class DockerClientImplSpec extends Specification {
     def containerCreateInfo = dockerClient.createContainer(imageId)
 
     then:
-    containerCreateInfo.Id == "e9acbbf7649f6606e246406d398bb9eae47cdee16d519e5fbf5be64606c10ed9"
+    containerCreateInfo.Id == "5f3510d90e8dea56b8a80f70fad75330dad0aa4d4aea5b2b2ed16f5f766925fd"
   }
 
   @Betamax(tape = 'start container')
