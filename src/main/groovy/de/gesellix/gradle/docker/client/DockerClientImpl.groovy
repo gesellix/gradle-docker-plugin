@@ -20,7 +20,10 @@ class DockerClientImpl implements DockerClient {
   DockerClientImpl(hostname = "172.17.42.1", port = 4243) {
     this.hostname = hostname
     this.port = port
-    this.client = new HTTPBuilder("http://$hostname:$port/")
+
+    def dockerUri = "http://$hostname:$port/"
+    this.client = new HTTPBuilder(dockerUri)
+    logger.info "using docker at '${dockerUri}'"
   }
 
   @Override
