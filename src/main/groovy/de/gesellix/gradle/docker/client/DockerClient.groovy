@@ -22,7 +22,7 @@ interface DockerClient {
 
   def images()
 
-  def createContainer(fromImage)
+  def createContainer(fromImage, cmd)
 
   def startContainer(containerId)
 }

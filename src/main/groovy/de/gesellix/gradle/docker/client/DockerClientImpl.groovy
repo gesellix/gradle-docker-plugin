@@ -71,7 +71,7 @@ class DockerClientImpl implements DockerClient {
   }
 
   @Override
-  def createContainer(fromImage) {
+  def createContainer(fromImage, cmd) {
     logger.info "create container..."
     client.post([path              : "/containers/create".toString(),
                  body              : ["Hostname"      : "",
@@ -86,7 +86,7 @@ class DockerClientImpl implements DockerClient {
                                       "OpenStdin"     : false,
                                       "StdinOnce"     : false,
                                       "Env"           : null,
-                                      "Cmd"           : ["true"],
+                                      "Cmd": cmd,
                                       "Image"         : fromImage,
                                       "Volumes"       : [],
                                       "WorkingDir"    : "",

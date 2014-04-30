@@ -72,7 +72,7 @@ class DockerClientImplSpec extends Specification {
     def imageId = dockerClient.pull("busybox")
 
     when:
-    def containerCreateInfo = dockerClient.createContainer(imageId)
+    def containerCreateInfo = dockerClient.createContainer(imageId, ["true"])
 
     then:
     containerCreateInfo.Id == "5f3510d90e8dea56b8a80f70fad75330dad0aa4d4aea5b2b2ed16f5f766925fd"
@@ -82,7 +82,7 @@ class DockerClientImplSpec extends Specification {
   def "start container"() {
     given:
     def imageId = dockerClient.pull("busybox")
-    def containerId = dockerClient.createContainer(imageId).Id
+    def containerId = dockerClient.createContainer(imageId, ["true"]).Id
 
     when:
     def startContainerResult = dockerClient.startContainer(containerId)
