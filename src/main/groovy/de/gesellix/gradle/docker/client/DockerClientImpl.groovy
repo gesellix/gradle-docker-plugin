@@ -130,6 +130,16 @@ class DockerClientImpl implements DockerClient {
   @Override
   def run() {
     logger.info "run container"
+/*
+    http://docs.docker.io/reference/api/docker_remote_api_v1.10/#3-going-further
+
+    Here are the steps of ‘docker run’ :
+      Create the container
+      If the status code is 404, it means the image doesn’t exists: : - Try to pull it - Then retry to create the container
+      Start the container
+      If you are not in detached mode: : - Attach to the container, using logs=1 (to have stdout and stderr from the container’s start) and stream=1
+      If in detached mode or only stdin is attached: : - Display the container’s id
+*/
   }
 
   @Override
