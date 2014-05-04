@@ -4,13 +4,18 @@ import co.freeside.betamax.Betamax
 import co.freeside.betamax.MatchRule
 import co.freeside.betamax.Recorder
 import co.freeside.betamax.httpclient.BetamaxRoutePlanner
+import groovy.json.JsonBuilder
 import org.junit.Rule
-import spock.lang.Ignore
 import spock.lang.Specification
 
 class DockerClientImplSpec extends Specification {
 
   DockerClient dockerClient
+
+  def authDetails = ["username"     : "gesellix",
+                     "password"     : "-yet-another-password-",
+                     "email"        : "tobias@gesellix.de",
+                     "serveraddress": "https://index.docker.io/v1/"]
 
   @Rule
   Recorder recorder = new Recorder()
@@ -20,16 +25,13 @@ class DockerClientImplSpec extends Specification {
     BetamaxRoutePlanner.configure(dockerClient.client.client)
   }
 
-  @Betamax(tape = 'auth')
+  @Betamax(tape = 'auth', match = [MatchRule.method, MatchRule.path])
   def auth() {
     given:
-    def auth = ["username"     : "gesellix",
-                "password"     : "-yet-another-password-",
-                "email"        : "tobias@gesellix.de",
-                "serveraddress": "https://index.docker.io/v1/"]
+    def authPlain = authDetails
 
     when:
-    def authResult = dockerClient.auth(auth)
+    def authResult = dockerClient.auth(authPlain)
 
     then:
     authResult == 200
@@ -60,19 +62,19 @@ class DockerClientImplSpec extends Specification {
     buildResult == 201
   }
 
-  @Ignore
-  @Betamax(tape = 'push image')
+  @Betamax(tape = 'push image', match = [MatchRule.method, MatchRule.path])
   def "push image"() {
     given:
+    def authBase64Encoded = new JsonBuilder(authDetails).toString().bytes.encodeBase64()
     def imageId = dockerClient.pull("scratch")
     def repositoryName = "gesellix/test"
     dockerClient.tag(imageId, repositoryName)
 
     when:
-    def pushResult = dockerClient.push(repositoryName)
+    def pushResult = dockerClient.push(repositoryName, authBase64Encoded)
 
     then:
-    pushResult == 200
+    pushResult.status == "Pushing tag for rev [511136ea3c5a] on {https://registry-1.docker.io/v1/repositories/gesellix/test/tags/latest}"
   }
 
   @Betamax(tape = 'pull image', match = [MatchRule.method, MatchRule.path])

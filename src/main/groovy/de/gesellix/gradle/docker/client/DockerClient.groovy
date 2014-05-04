@@ -2,13 +2,13 @@ package de.gesellix.gradle.docker.client
 
 interface DockerClient {
 
-  def auth(def authDetails)
+  def auth(authDetails)
 
   def build(InputStream buildContext)
 
   def tag(imageId, repositoryName)
 
-  def push(repositoryName)
+  def push(repositoryName, auth)
 
   def pull(imageName)
 

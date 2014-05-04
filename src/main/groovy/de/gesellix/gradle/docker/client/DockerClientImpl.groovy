@@ -64,12 +64,13 @@ class DockerClientImpl implements DockerClient {
   }
 
   @Override
-  def push(repositoryName) {
+  def push(repositoryName, authBase64Encoded) {
     logger.info "push image '${repositoryName}'"
 
     def responseHandler = new ChunkedResponseHandler()
     client.handler.'200' = new MethodClosure(responseHandler, "handleResponse")
-    client.post([path: "/images/${repositoryName}/push".toString()])
+    client.post([path   : "/images/${repositoryName}/push".toString(),
+                 headers: ["X-Registry-Auth": authBase64Encoded]])
 
     def lastResponseDetail = responseHandler.lastResponseDetail
     logger.info "${lastResponseDetail}"
