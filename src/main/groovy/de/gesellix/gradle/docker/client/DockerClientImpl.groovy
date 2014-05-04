@@ -27,6 +27,18 @@ class DockerClientImpl implements DockerClient {
   }
 
   @Override
+  def auth(def authDetails) {
+    logger.info "auth..."
+    client.post([path              : "/auth",
+                 body              : authDetails,
+                 requestContentType: ContentType.JSON
+    ]) { response ->
+      logger.info "${response.statusLine}"
+      return response.statusLine.statusCode
+    }
+  }
+
+  @Override
   def build(InputStream buildContext) {
     logger.info "build image..."
     def responseHandler = new ChunkedResponseHandler()
@@ -52,8 +64,16 @@ class DockerClientImpl implements DockerClient {
   }
 
   @Override
-  def push() {
-    logger.info "push image"
+  def push(repositoryName) {
+    logger.info "push image '${repositoryName}'"
+
+    def responseHandler = new ChunkedResponseHandler()
+    client.handler.'200' = new MethodClosure(responseHandler, "handleResponse")
+    client.post([path: "/images/${repositoryName}/push".toString()])
+
+    def lastResponseDetail = responseHandler.lastResponseDetail
+    logger.info "${lastResponseDetail}"
+    return lastResponseDetail
   }
 
   @Override

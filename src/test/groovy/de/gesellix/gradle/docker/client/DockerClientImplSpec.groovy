@@ -1,9 +1,11 @@
 package de.gesellix.gradle.docker.client
 
 import co.freeside.betamax.Betamax
+import co.freeside.betamax.MatchRule
 import co.freeside.betamax.Recorder
 import co.freeside.betamax.httpclient.BetamaxRoutePlanner
 import org.junit.Rule
+import spock.lang.Ignore
 import spock.lang.Specification
 
 class DockerClientImplSpec extends Specification {
@@ -14,11 +16,26 @@ class DockerClientImplSpec extends Specification {
   Recorder recorder = new Recorder()
 
   def setup() {
-    dockerClient = new DockerClientImpl()
+    dockerClient = new DockerClientImpl("127.0.0.1", 4243)
     BetamaxRoutePlanner.configure(dockerClient.client.client)
   }
 
-  @Betamax(tape = 'build image')
+  @Betamax(tape = 'auth')
+  def auth() {
+    given:
+    def auth = ["username"     : "gesellix",
+                "password"     : "-yet-another-password-",
+                "email"        : "tobias@gesellix.de",
+                "serveraddress": "https://index.docker.io/v1/"]
+
+    when:
+    def authResult = dockerClient.auth(auth)
+
+    then:
+    authResult == 200
+  }
+
+  @Betamax(tape = 'build image', match = [MatchRule.method, MatchRule.path])
   def "build image"() {
     given:
     def buildContext = getClass().getResourceAsStream("build/build.tar")
@@ -30,7 +47,7 @@ class DockerClientImplSpec extends Specification {
     buildResult == "Successfully built 3f076777da89"
   }
 
-  @Betamax(tape = 'tag image')
+  @Betamax(tape = 'tag image', match = [MatchRule.method, MatchRule.path])
   def "tag image"() {
     given:
     def imageId = dockerClient.pull("scratch")
@@ -43,7 +60,22 @@ class DockerClientImplSpec extends Specification {
     buildResult == 201
   }
 
-  @Betamax(tape = 'pull image')
+  @Ignore
+  @Betamax(tape = 'push image')
+  def "push image"() {
+    given:
+    def imageId = dockerClient.pull("scratch")
+    def repositoryName = "gesellix/test"
+    dockerClient.tag(imageId, repositoryName)
+
+    when:
+    def pushResult = dockerClient.push(repositoryName)
+
+    then:
+    pushResult == 200
+  }
+
+  @Betamax(tape = 'pull image', match = [MatchRule.method, MatchRule.path])
   def "pull image"() {
     when:
     def imageId = dockerClient.pull("scratch")
@@ -52,7 +84,7 @@ class DockerClientImplSpec extends Specification {
     imageId == "511136ea3c5a"
   }
 
-  @Betamax(tape = 'list images')
+  @Betamax(tape = 'list images', match = [MatchRule.method, MatchRule.path])
   def "get images"() {
     when:
     def images = dockerClient.images()
@@ -66,7 +98,7 @@ class DockerClientImplSpec extends Specification {
      "VirtualSize": 0] in images
   }
 
-  @Betamax(tape = 'create container')
+  @Betamax(tape = 'create container', match = [MatchRule.method, MatchRule.path])
   def "create container"() {
     given:
     def imageId = dockerClient.pull("busybox")
@@ -78,7 +110,7 @@ class DockerClientImplSpec extends Specification {
     containerCreateInfo.Id == "5f3510d90e8dea56b8a80f70fad75330dad0aa4d4aea5b2b2ed16f5f766925fd"
   }
 
-  @Betamax(tape = 'start container')
+  @Betamax(tape = 'start container', match = [MatchRule.method, MatchRule.path])
   def "start container"() {
     given:
     def imageId = dockerClient.pull("busybox")
