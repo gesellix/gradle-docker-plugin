@@ -21,7 +21,7 @@ class DockerClientImplSpec extends Specification {
   Recorder recorder = new Recorder()
 
   def setup() {
-    dockerClient = new DockerClientImpl("127.0.0.1", 4243)
+    dockerClient = new DockerClientImpl()
     BetamaxRoutePlanner.configure(dockerClient.client.client)
   }
 
@@ -84,6 +84,30 @@ class DockerClientImplSpec extends Specification {
 
     then:
     imageId == "511136ea3c5a"
+  }
+
+  @Betamax(tape = 'list containers', match = [MatchRule.method, MatchRule.path])
+  def "get containers"() {
+    given:
+    def imageId = dockerClient.pull("busybox")
+    def repositoryName = "list_containers"
+    dockerClient.tag(imageId, repositoryName)
+    def containerId = dockerClient.createContainer("list_containers", ["true || false"]).Id
+    dockerClient.startContainer(containerId)
+
+    when:
+    def containers = dockerClient.ps()
+
+    then:
+    ["Command"   : "true || false",
+     "Created"   : 1399325264,
+     "Id"        : "19bb6aa83a3f2e20b57adc3d70a32fd0d7d7984309bbd1d4908ee0a97645395b",
+     "Image"     : "busybox:latest",
+     "Names"     : ["/elegant_pare"],
+     "Ports"     : [["PublicPort": 0, "Type": "tcp"]],
+     "SizeRootFs": 0,
+     "SizeRw"    : 0,
+     "Status"    : "Up Less than a second"] in containers
   }
 
   @Betamax(tape = 'list images', match = [MatchRule.method, MatchRule.path])

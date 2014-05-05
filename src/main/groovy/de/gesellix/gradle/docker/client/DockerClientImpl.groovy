@@ -1,5 +1,6 @@
 package de.gesellix.gradle.docker.client
 
+import groovy.json.JsonSlurper
 import groovyx.net.http.ContentType
 import groovyx.net.http.HTTPBuilder
 import groovyx.net.http.HttpResponseDecorator
@@ -166,6 +167,16 @@ class DockerClientImpl implements DockerClient {
   @Override
   def ps() {
     logger.info "list containers"
+    def responseHandler = new ChunkedResponseHandler()
+    client.handler.'200' = new MethodClosure(responseHandler, "handleResponse")
+    client.get([path : "/containers/json",
+                query: [all : true,
+                        size: true]])
+
+    def completeResponse = responseHandler.completeResponse
+    def containersAsJson = new JsonSlurper().parseText(completeResponse)
+    logger.info "${containersAsJson}"
+    return containersAsJson
   }
 
   @Override
@@ -187,6 +198,10 @@ class DockerClientImpl implements DockerClient {
         logger.debug("received chunk: '${chunk}'")
         completeResponse += chunk
       }
+    }
+
+    def completeResponse() {
+      return completeResponse
     }
 
     def getLastResponseDetail() {
