@@ -1,6 +1,6 @@
 package de.gesellix.gradle.docker
 
-import de.gesellix.gradle.docker.client.DockerClientImpl
+import de.gesellix.docker.client.DockerClientImpl
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction

@@ -1,7 +1,5 @@
 repositories {
-  maven {
-    url 'http://kt3k.github.io/repository/maven/release'
-  }
+  maven { url 'http://kt3k.github.io/repository/maven/release' }
 
   mavenLocal()
   mavenCentral()

@@ -1,6 +1,6 @@
 package de.gesellix.gradle.docker
 
-import de.gesellix.gradle.docker.client.DockerClient
+import de.gesellix.docker.client.DockerClient
 import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.Specification
 
