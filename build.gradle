@@ -16,6 +16,8 @@ apply plugin: 'idea'
 apply plugin: 'cobertura'
 apply plugin: 'coveralls'
 
+apply plugin: 'versions'
+
 idea {
   module {
     testSourceDirs += file('src/integrationTest/groovy')
@@ -44,13 +46,15 @@ configurations {
 }
 
 def versionOverrides = [
-    'commons-lang:commons-lang'     : '2.4',
-    'org.codehaus.groovy:groovy-all': '2.2.2',
-    'org.hamcrest:hamcrest-core'    : '1.3',
-    'org.slf4j:slf4j-api'           : '1.6.6',
-    'xerces:xmlParserAPIs'          : '2.6.2',
-    'xerces:xercesImpl'             : '2.6.2',
-    'xml-apis:xml-apis'             : '2.0.2'
+    'commons-lang:commons-lang'           : '2.4',
+    'commons-logging:commons-logging'     : '1.1.3',
+    'org.apache.httpcomponents:httpclient': '4.3',
+    'org.codehaus.groovy:groovy-all'      : '2.3.2',
+    'org.hamcrest:hamcrest-core'          : '1.3',
+    'org.slf4j:slf4j-api'                 : '1.6.6',
+    'xerces:xmlParserAPIs'                : '2.6.2',
+    'xerces:xercesImpl'                   : '2.6.2',
+    'xml-apis:xml-apis'                   : '2.0.2'
 ]
 
 dependencies {
@@ -59,22 +63,7 @@ dependencies {
 
   compile 'de.gesellix:docker-client:2014-05-06T12-48-16'
 
-  testCompile 'org.spockframework:spock-core:0.7-groovy-1.8'
-}
-
-// remove dependencies of gradle core/plugins
-sourceSets {
-  main {
-    compileClasspath = compileClasspath.filter {
-      !it.name.contains("groovy-all-1.8.8")
-    }
-  }
-}
-// remove dependencies of gradle core/plugins
-test.doFirst {
-  classpath = classpath.filter {
-    !it.name.contains("groovy-all-1.8.8")
-  }
+  testCompile 'org.spockframework:spock-core:0.7-groovy-2.0'
 }
 
 configurations.all {
@@ -103,6 +92,6 @@ check.dependsOn aggregateTestReports
 cobertura.coverageFormats = ['html', 'xml']
 
 task wrapper(type: Wrapper) {
-  gradleVersion = '1.12'
-  distributionUrl = 'http://services.gradle.org/distributions/gradle-1.12-all.zip'
+  gradleVersion = '2.0-rc-1'
+  distributionUrl = 'http://services.gradle.org/distributions/gradle-2.0-rc-1-all.zip'
 }
