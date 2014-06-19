@@ -1,5 +1,6 @@
 package de.gesellix.gradle.docker
 
+import de.gesellix.gradle.docker.tasks.DockerBuildTask
 import de.gesellix.gradle.docker.tasks.DockerDeployTask
 import org.gradle.api.Project
 import org.gradle.testfixtures.ProjectBuilder
@@ -12,21 +13,34 @@ class GradleDockerIntegrationTest extends Specification {
 
   @Shared
   Project project
-  @Shared
-  def projectDir
 
   def setup() {
-    URL resource = getClass().getResource('/example.gradle')
-    projectDir = new File(resource.toURI()).getParentFile()
-    project = ProjectBuilder.builder().withName('example').withProjectDir(projectDir).build()
+    project = ProjectBuilder.builder().withName('example').build()
+  }
+
+  def "test build"() {
+    given:
+    URL resource = getClass().getResource('build.tar')
+    def task = project.task('testBuild', type: DockerBuildTask)
+    task.imageName = "buildTest"
+    task.buildContext = new File(resource.toURI())
+
+    when:
+    def buildResult = task.build()
+
+    then:
+    buildResult == "foo"
   }
 
   def "test deploy"() {
-    when:
+    given:
     def task = project.task('dockerDeploy', type: DockerDeployTask)
     task.imageName = 'scratch'
 
+    when:
+    def deployResult = task.deploy()
+
     then:
-    task.deploy() == '511136ea3c5a'
+    deployResult == '511136ea3c5a'
   }
 }
