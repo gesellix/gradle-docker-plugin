@@ -1,5 +1,6 @@
 package de.gesellix.gradle.docker
 
+import de.gesellix.gradle.docker.tasks.DockerDeployTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.slf4j.Logger
@@ -12,7 +13,7 @@ public class GradleDockerPlugin implements Plugin<Project> {
   @Override
   void apply(Project project) {
     logger.info("adding gradle-docker extension");
-    def extension = project.extensions.create("gradle-docker", GradleDockerPluginExtension)
+    def extension = project.extensions.create("docker", GradleDockerPluginExtension)
 
     logger.info("adding gradle-docker tasks");
     project.afterEvaluate {

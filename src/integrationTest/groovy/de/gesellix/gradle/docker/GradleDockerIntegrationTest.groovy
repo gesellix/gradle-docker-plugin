@@ -1,5 +1,6 @@
 package de.gesellix.gradle.docker
 
+import de.gesellix.gradle.docker.tasks.DockerDeployTask
 import org.gradle.api.Project
 import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.Ignore
