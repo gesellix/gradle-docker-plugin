@@ -29,7 +29,7 @@ class GradleDockerIntegrationTest extends Specification {
     def buildResult = task.build()
 
     then:
-    buildResult == "foo"
+    buildResult == "2c900eb61913"
   }
 
   def "test deploy"() {

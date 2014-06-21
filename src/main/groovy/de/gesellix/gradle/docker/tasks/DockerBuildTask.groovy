@@ -30,7 +30,10 @@ class DockerBuildTask extends DefaultTask {
   def build() {
     logger.info "running build..."
     def imageId = dockerClient.build(new FileInputStream(getBuildContext()))
-    dockerClient.tag(imageId, getImageName())
+    if (getImageName()) {
+      logger.info "tag $imageId as '${getImageName()}'..."
+      dockerClient.tag(imageId, getImageName())
+    }
     return imageId
   }
 }
