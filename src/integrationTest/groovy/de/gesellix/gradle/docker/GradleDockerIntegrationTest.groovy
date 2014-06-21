@@ -2,6 +2,8 @@ package de.gesellix.gradle.docker
 
 import de.gesellix.gradle.docker.tasks.DockerBuildTask
 import de.gesellix.gradle.docker.tasks.DockerDeployTask
+import de.gesellix.gradle.docker.tasks.DockerPullTask
+import de.gesellix.gradle.docker.tasks.DockerStopTask
 import org.gradle.api.Project
 import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.Ignore
@@ -30,6 +32,30 @@ class GradleDockerIntegrationTest extends Specification {
 
     then:
     buildResult == "2c900eb61913"
+  }
+
+  def "test pull"() {
+    given:
+    def task = project.task('testPull', type: DockerPullTask)
+    task.imageName = 'scratch'
+
+    when:
+    def pullResult = task.pull()
+
+    then:
+    pullResult == '511136ea3c5a'
+  }
+
+  def "test stop"() {
+    given:
+    def task = project.task('testStop', type: DockerStopTask)
+    task.containerId = '4711'
+
+    when:
+    def stopResult = task.stop()
+
+    then:
+    stopResult == 'foo'
   }
 
   def "test deploy"() {

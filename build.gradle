@@ -61,7 +61,7 @@ dependencies {
   compile gradleApi()
   compile localGroovy()
 
-  compile 'de.gesellix:docker-client:2014-06-21T14-14-24'
+  compile 'de.gesellix:docker-client:2014-06-22T00-05-01'
 
   testCompile 'org.spockframework:spock-core:0.7-groovy-2.0'
 }
@@ -80,7 +80,7 @@ task integrationTest(type: Test) {
   classpath = sourceSets.integrationTest.runtimeClasspath
 }
 integrationTest.mustRunAfter test
-check.dependsOn(integrationTest)
+check.dependsOn integrationTest
 
 task aggregateTestReports(type: TestReport) {
   destinationDir = test.reports.html.destination
