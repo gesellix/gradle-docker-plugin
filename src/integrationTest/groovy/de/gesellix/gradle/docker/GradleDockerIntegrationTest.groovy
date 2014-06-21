@@ -20,10 +20,10 @@ class GradleDockerIntegrationTest extends Specification {
 
   def "test build"() {
     given:
-    URL resource = getClass().getResource('build.tar')
+    def resource = getClass().getResourceAsStream('build.tar')
     def task = project.task('testBuild', type: DockerBuildTask)
     task.imageName = "buildTest"
-    task.buildContext = new File(resource.toURI())
+    task.buildContext = resource
 
     when:
     def buildResult = task.build()

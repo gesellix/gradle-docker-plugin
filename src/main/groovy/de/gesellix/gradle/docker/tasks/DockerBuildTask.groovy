@@ -4,7 +4,6 @@ import de.gesellix.docker.client.DockerClient
 import de.gesellix.docker.client.DockerClientImpl
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.TaskAction
 import org.slf4j.Logger
@@ -19,7 +18,7 @@ class DockerBuildTask extends DefaultTask {
   @Input
   @Optional
   def imageName
-  @InputFile
+  @Input
   def buildContext
 
   DockerBuildTask() {
@@ -29,7 +28,7 @@ class DockerBuildTask extends DefaultTask {
   @TaskAction
   def build() {
     logger.info "running build..."
-    def imageId = dockerClient.build(new FileInputStream(getBuildContext()))
+    def imageId = dockerClient.build(getBuildContext())
     if (getImageName()) {
       logger.info "tag $imageId as '${getImageName()}'..."
       dockerClient.tag(imageId, getImageName())
