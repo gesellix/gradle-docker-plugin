@@ -16,8 +16,27 @@ class DockerBuildTaskSpec extends Specification {
     task.dockerClient = dockerClient
   }
 
-  def "delegates to dockerClient"() {
+  def "delegates to dockerClient with buildContextDirectory"() {
+    URL dockerfile = getClass().getResource('/docker/Dockerfile')
+    def baseDir = new File(dockerfile.toURI()).parentFile
+
+    given:
+    task.buildContextDirectory = baseDir
+    task.imageName = "imageName"
+
+    when:
+    task.build()
+
+    then:
+    1 * dockerClient.build(_ as InputStream) >> "4711"
+
+    then:
+    1 * dockerClient.tag("4711", "imageName")
+  }
+
+  def "delegates to dockerClient with buildContext"() {
     def inputStream = new FileInputStream(File.createTempFile("docker", "test"))
+
     given:
     task.buildContext = inputStream
     task.imageName = "imageName"
