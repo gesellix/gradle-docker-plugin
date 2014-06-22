@@ -7,8 +7,7 @@ import org.gradle.api.tasks.TaskAction
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
-import static de.gesellix.docker.client.TarFileBuilder.archiveTarFiles
-import static java.util.Arrays.asList
+import static de.gesellix.docker.client.TarFileBuilder.archiveTarFilesRecursively
 
 class DockerBuildTask extends AbstractDockerTask {
 
@@ -32,7 +31,7 @@ class DockerBuildTask extends AbstractDockerTask {
       // only one of buildContext and buildContextDirectory shall be provided
       assert !getBuildContext()
 
-      def tarFile = archiveTarFiles(buildContextDirectory, asList(buildContextDirectory.listFiles()), "buildContext")
+      def tarFile = archiveTarFilesRecursively(buildContextDirectory, "buildContext")
       buildContext = new FileInputStream(tarFile)
     }
 
