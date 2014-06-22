@@ -4,6 +4,7 @@ import de.gesellix.docker.client.DockerClientImpl
 import de.gesellix.gradle.docker.tasks.*
 import org.gradle.api.Project
 import org.gradle.testfixtures.ProjectBuilder
+import spock.lang.Ignore
 import spock.lang.Shared
 import spock.lang.Specification
 
