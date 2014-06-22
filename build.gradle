@@ -1,3 +1,5 @@
+import java.text.SimpleDateFormat
+
 buildscript {
   // inspired by https://github.com/Netflix/gradle-template
   apply from: file('gradle/buildscript.gradle'), to: buildscript
@@ -16,7 +18,19 @@ apply plugin: 'idea'
 apply plugin: 'cobertura'
 apply plugin: 'coveralls'
 
+apply plugin: 'maven'
+apply plugin: 'maven-publish'
+apply plugin: 'bintray'
+
 apply plugin: 'versions'
+
+group = 'de.gesellix'
+
+task sourcesJar(type: Jar) {
+  dependsOn classes
+  classifier 'sources'
+  from sourceSets.main.allSource
+}
 
 idea {
   module {
@@ -40,21 +54,27 @@ sourceSets {
 
 cobertura.coverageSourceDirs = sourceSets.main.groovy.srcDirs
 
+ext {
+  artifactVersion = new SimpleDateFormat('yyyy-MM-dd\'T\'HH-mm-ss').format(new Date())
+  bintrayDryRun = false
+}
+
 configurations {
   integrationTestCompile.extendsFrom testCompile
   integrationTestRuntime.extendsFrom testRuntime
 }
 
 def versionOverrides = [
-    'commons-lang:commons-lang'           : '2.4',
-    'commons-logging:commons-logging'     : '1.1.3',
-    'org.apache.httpcomponents:httpclient': '4.3',
-    'org.codehaus.groovy:groovy-all'      : '2.3.2',
-    'org.hamcrest:hamcrest-core'          : '1.3',
-    'org.slf4j:slf4j-api'                 : '1.6.6',
-    'xerces:xmlParserAPIs'                : '2.6.2',
-    'xerces:xercesImpl'                   : '2.6.2',
-    'xml-apis:xml-apis'                   : '2.0.2'
+    'commons-lang:commons-lang'                            : '2.4',
+    'commons-logging:commons-logging'                      : '1.1.3',
+    'org.apache.httpcomponents:httpclient'                 : '4.3',
+    'org.codehaus.groovy:groovy-all'                       : '2.3.2',
+    'org.codehaus.groovy.modules.http-builder:http-builder': '0.7.1',
+    'org.hamcrest:hamcrest-core'                           : '1.3',
+    'org.slf4j:slf4j-api'                                  : '1.6.6',
+    'xerces:xmlParserAPIs'                                 : '2.6.2',
+    'xerces:xercesImpl'                                    : '2.6.2',
+    'xml-apis:xml-apis'                                    : '2.0.2'
 ]
 
 dependencies {
@@ -90,6 +110,36 @@ aggregateTestReports.mustRunAfter integrationTest
 check.dependsOn aggregateTestReports
 
 cobertura.coverageFormats = ['html', 'xml']
+
+artifacts {
+  archives sourcesJar
+}
+
+publishing {
+  publications {
+    gradleDockerPlugin(MavenPublication) {
+      version artifactVersion
+      from components.java
+      artifact sourcesJar
+    }
+  }
+}
+
+bintray {
+  user = project["bintray.user"]
+  key = project["bintray.key"]
+  publications = ['gradleDockerPlugin']
+  pkg {
+    repo = 'docker-utils'
+    //userOrg = 'myorg' // an optional organization name when the repo belongs to one of the user's orgs
+    name = 'gradle-docker-plugin'
+    desc = 'A Docker plugin for Gradle'
+    licenses = ['Apache-2.0']
+    labels = ['docker', 'gradle']
+  }
+  dryRun = bintrayDryRun
+}
+bintrayUpload.dependsOn build
 
 task wrapper(type: Wrapper) {
   gradleVersion = '2.0-rc-1'
