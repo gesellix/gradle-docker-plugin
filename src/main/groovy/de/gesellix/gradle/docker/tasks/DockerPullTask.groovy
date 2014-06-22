@@ -11,12 +11,15 @@ class DockerPullTask extends AbstractDockerTask {
   private static Logger logger = LoggerFactory.getLogger(DockerPullTask)
 
   @Input
-  @Optional
   def imageName
+
+  @Input
+  @Optional
+  def tag
 
   @TaskAction
   def pull() {
     logger.info "running pull..."
-    dockerClient.pull(imageName)
+    dockerClient.pull(getImageName(), getTag())
   }
 }

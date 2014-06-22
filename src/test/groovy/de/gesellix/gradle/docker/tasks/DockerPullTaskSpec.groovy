@@ -19,11 +19,12 @@ class DockerPullTaskSpec extends Specification {
   def "delegates to dockerClient"() {
     given:
     task.imageName = "imageName"
+    task.tag = "latest"
 
     when:
     task.pull()
 
     then:
-    1 * dockerClient.pull("imageName")
+    1 * dockerClient.pull("imageName", "latest")
   }
 }

@@ -1,9 +1,7 @@
 package de.gesellix.gradle.docker
 
-import de.gesellix.gradle.docker.tasks.DockerBuildTask
-import de.gesellix.gradle.docker.tasks.DockerDeployTask
-import de.gesellix.gradle.docker.tasks.DockerPullTask
-import de.gesellix.gradle.docker.tasks.DockerStopTask
+import de.gesellix.docker.client.DockerClientImpl
+import de.gesellix.gradle.docker.tasks.*
 import org.gradle.api.Project
 import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.Ignore
@@ -31,31 +29,49 @@ class GradleDockerIntegrationTest extends Specification {
     def buildResult = task.build()
 
     then:
-    buildResult == "2c900eb61913"
+    buildResult ==~ "[a-z0-9]+"
   }
 
   def "test pull"() {
     given:
     def task = project.task('testPull', type: DockerPullTask)
-    task.imageName = 'scratch'
+    task.imageName = 'busybox'
+    task.tag = 'latest'
 
     when:
     def pullResult = task.pull()
 
     then:
-    pullResult == '511136ea3c5a'
+    pullResult == 'a9eb17255234'
+  }
+
+  def "test run"() {
+    given:
+    def task = project.task('testRun', type: DockerRunTask)
+    task.containerConfiguration = ["Cmd": ["true"]]
+    task.imageName = 'busybox'
+    task.tag = 'latest'
+
+    when:
+    def runResult = task.run()
+
+    then:
+    runResult.container.Id ==~ "[a-z0-9]+"
+    and:
+    runResult.status == 204
   }
 
   def "test stop"() {
     given:
     def task = project.task('testStop', type: DockerStopTask)
-    task.containerId = '4711'
+    def runResult = new DockerClientImpl().run(["Cmd": ["true"]], 'busybox', 'latest')
+    task.containerId = runResult.container.Id
 
     when:
     def stopResult = task.stop()
 
     then:
-    stopResult == 'foo'
+    stopResult == 204
   }
 
   def "test deploy"() {

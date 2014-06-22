@@ -1,5 +1,6 @@
 package de.gesellix.gradle.docker.tasks
 
+import de.gesellix.docker.client.DockerClient
 import de.gesellix.docker.client.DockerClientImpl
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.Input
@@ -14,7 +15,7 @@ abstract class AbstractDockerTask extends DefaultTask {
   @Optional
   def dockerPort
 
-  def dockerClient
+  DockerClient dockerClient
 
   def getDockerClient() {
     if (!dockerClient) {
