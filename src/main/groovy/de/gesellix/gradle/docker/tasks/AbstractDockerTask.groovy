@@ -10,22 +10,18 @@ abstract class AbstractDockerTask extends DefaultTask {
 
   @Input
   @Optional
-  def dockerHostname
-  @Input
-  @Optional
-  def dockerPort
+  def dockerHost
 
   DockerClient dockerClient
 
   def getDockerClient() {
     if (!dockerClient) {
-      if (getDockerHostname()) {
-        if (getDockerPort()) {
-          dockerClient = new DockerClientImpl(getDockerHostname(), getDockerPort())
-        }
-        dockerClient = new DockerClientImpl(getDockerHostname())
+      if (getDockerHost()) {
+        dockerClient = new DockerClientImpl(dockerHost: getDockerHost())
       }
-      dockerClient = new DockerClientImpl()
+      else {
+        dockerClient = new DockerClientImpl()
+      }
     }
     dockerClient
   }

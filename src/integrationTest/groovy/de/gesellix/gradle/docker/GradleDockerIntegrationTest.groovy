@@ -14,6 +14,8 @@ class GradleDockerIntegrationTest extends Specification {
   @Shared
   Project project
 
+  def DOCKER_HOST = "http://172.17.42.1:4243/"
+
   def setup() {
     project = ProjectBuilder.builder().withName('example').build()
   }
@@ -23,6 +25,7 @@ class GradleDockerIntegrationTest extends Specification {
 //    def resource = getClass().getResourceAsStream('build.tar')
     def resource = getClass().getResource('/docker/Dockerfile')
     def task = project.task('testBuild', type: DockerBuildTask)
+    task.dockerHost = DOCKER_HOST
     task.imageName = "buildTest"
 //    task.buildContext = resource
     task.buildContextDirectory = new File(resource.toURI()).parentFile
@@ -37,6 +40,7 @@ class GradleDockerIntegrationTest extends Specification {
   def "test pull"() {
     given:
     def task = project.task('testPull', type: DockerPullTask)
+    task.dockerHost = DOCKER_HOST
     task.imageName = 'busybox'
     task.tag = 'latest'
 
@@ -50,6 +54,7 @@ class GradleDockerIntegrationTest extends Specification {
   def "test run"() {
     given:
     def task = project.task('testRun', type: DockerRunTask)
+    task.dockerHost = DOCKER_HOST
     task.containerConfiguration = ["Cmd": ["true"]]
     task.imageName = 'busybox'
     task.tag = 'latest'
@@ -66,7 +71,8 @@ class GradleDockerIntegrationTest extends Specification {
   def "test stop"() {
     given:
     def task = project.task('testStop', type: DockerStopTask)
-    def runResult = new DockerClientImpl().run(["Cmd": ["true"]], 'busybox', 'latest')
+    def runResult = new DockerClientImpl(dockerHost: DOCKER_HOST).run(["Cmd": ["true"]], 'busybox', 'latest')
+    task.dockerHost = DOCKER_HOST
     task.containerId = runResult.container.Id
 
     when:
@@ -79,9 +85,10 @@ class GradleDockerIntegrationTest extends Specification {
   def "test ps"() {
     given:
     def task = project.task('testPs', type: DockerPsTask)
+    task.dockerHost = DOCKER_HOST
     def uuid = UUID.randomUUID().toString()
     def cmd = "true || $uuid".toString()
-    new DockerClientImpl().run(["Cmd": [cmd]], 'busybox', 'latest')
+    new DockerClientImpl(dockerHost: DOCKER_HOST).run(["Cmd": [cmd]], 'busybox', 'latest')
 
     when:
     def psResult = task.ps()
@@ -95,6 +102,7 @@ class GradleDockerIntegrationTest extends Specification {
   def "test deploy"() {
     given:
     def task = project.task('dockerDeploy', type: DockerDeployTask)
+    task.dockerHost = DOCKER_HOST
     task.imageName = 'scratch'
 
     when:
