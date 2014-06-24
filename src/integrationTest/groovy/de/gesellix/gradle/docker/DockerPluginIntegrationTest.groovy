@@ -9,7 +9,7 @@ import spock.lang.Shared
 import spock.lang.Specification
 
 @Ignore("only for exploring the docker api")
-class GradleDockerIntegrationTest extends Specification {
+class DockerPluginIntegrationTest extends Specification {
 
   @Shared
   Project project
@@ -18,6 +18,8 @@ class GradleDockerIntegrationTest extends Specification {
 
   def setup() {
     project = ProjectBuilder.builder().withName('example').build()
+    project.apply plugin: 'docker'
+    project.docker.dockerHost = DOCKER_HOST
   }
 
   def "test build"() {
@@ -25,7 +27,6 @@ class GradleDockerIntegrationTest extends Specification {
 //    def resource = getClass().getResourceAsStream('build.tar')
     def resource = getClass().getResource('/docker/Dockerfile')
     def task = project.task('testBuild', type: DockerBuildTask)
-    task.dockerHost = DOCKER_HOST
     task.imageName = "buildTest"
 //    task.buildContext = resource
     task.buildContextDirectory = new File(resource.toURI()).parentFile
@@ -40,7 +41,6 @@ class GradleDockerIntegrationTest extends Specification {
   def "test pull"() {
     given:
     def task = project.task('testPull', type: DockerPullTask)
-    task.dockerHost = DOCKER_HOST
     task.imageName = 'busybox'
     task.tag = 'latest'
 
@@ -60,7 +60,6 @@ class GradleDockerIntegrationTest extends Specification {
     def authConfig = new DockerClientImpl().encodeAuthConfig(authDetails)
 
     def task = project.task('testPush', type: DockerPushTask)
-    task.dockerHost = DOCKER_HOST
     task.repositoryName = 'gesellix/example'
 //    task.authConfigPlain = authDetails
     task.authConfigEncoded = authConfig
@@ -93,7 +92,6 @@ class GradleDockerIntegrationTest extends Specification {
     given:
     def task = project.task('testStop', type: DockerStopTask)
     def runResult = new DockerClientImpl(dockerHost: DOCKER_HOST).run(["Cmd": ["true"]], 'busybox', 'latest')
-    task.dockerHost = DOCKER_HOST
     task.containerId = runResult.container.Id
 
     when:
@@ -123,7 +121,6 @@ class GradleDockerIntegrationTest extends Specification {
   def "test deploy"() {
     given:
     def task = project.task('dockerDeploy', type: DockerDeployTask)
-    task.dockerHost = DOCKER_HOST
     task.imageName = 'scratch'
 
     when:

@@ -68,7 +68,7 @@ def versionOverrides = [
     'commons-lang:commons-lang'                            : '2.4',
     'commons-logging:commons-logging'                      : '1.1.3',
     'org.apache.httpcomponents:httpclient'                 : '4.3',
-    'org.codehaus.groovy:groovy-all': '2.3.3',
+    'org.codehaus.groovy:groovy-all'                       : '2.3.3',
     'org.codehaus.groovy.modules.http-builder:http-builder': '0.7.1',
     'org.hamcrest:hamcrest-core'                           : '1.3',
     'org.slf4j:slf4j-api'                                  : '1.6.6',
