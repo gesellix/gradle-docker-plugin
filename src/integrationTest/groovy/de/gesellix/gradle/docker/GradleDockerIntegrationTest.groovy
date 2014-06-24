@@ -51,6 +51,26 @@ class GradleDockerIntegrationTest extends Specification {
     pullResult == 'a9eb17255234'
   }
 
+  def "test push"() {
+    given:
+    def authDetails = ["username"     : "gesellix",
+                       "password"     : "-yet-another-password-",
+                       "email"        : "tobias@gesellix.de",
+                       "serveraddress": "https://index.docker.io/v1/"]
+    def authConfig = new DockerClientImpl().encodeAuthConfig(authDetails)
+
+    def task = project.task('testPush', type: DockerPushTask)
+    task.dockerHost = DOCKER_HOST
+    task.repositoryName = 'gesellix/example'
+    task.authConfig = authConfig
+
+    when:
+    def pushResult = task.push()
+
+    then:
+    pushResult.status ==~ "Pushing tag for rev \\[[a-z0-9]+\\] on \\{https://registry-1.docker.io/v1/repositories/gesellix/example/tags/latest\\}"
+  }
+
   def "test run"() {
     given:
     def task = project.task('testRun', type: DockerRunTask)
