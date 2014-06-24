@@ -62,7 +62,8 @@ class GradleDockerIntegrationTest extends Specification {
     def task = project.task('testPush', type: DockerPushTask)
     task.dockerHost = DOCKER_HOST
     task.repositoryName = 'gesellix/example'
-    task.authConfig = authConfig
+//    task.authConfigPlain = authDetails
+    task.authConfigEncoded = authConfig
 
     when:
     def pushResult = task.push()

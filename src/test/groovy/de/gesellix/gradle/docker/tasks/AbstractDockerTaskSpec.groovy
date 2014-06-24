@@ -41,4 +41,29 @@ class AbstractDockerTaskSpec extends Specification {
     then:
     dockerClient.dockerHost == "http://example.org:4243/"
   }
+
+  def "getAuthConfig with plain AuthConfig"() {
+    when:
+    task.authConfigPlain = ["encode": "me"]
+
+    then:
+    task.getAuthConfig() == "eyJlbmNvZGUiOiJtZSJ9"
+  }
+
+  def "getAuthConfig with encoded AuthConfig"() {
+    when:
+    task.authConfigEncoded = "--auth.base64--"
+
+    then:
+    task.getAuthConfig() == "--auth.base64--"
+  }
+
+  def "getAuthConfig without AuthConfig"() {
+    when:
+    task.authConfigPlain = null
+    task.authConfigEncoded = null
+
+    then:
+    task.getAuthConfig() == ''
+  }
 }

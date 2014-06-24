@@ -18,11 +18,19 @@ class DockerPushTaskSpec extends Specification {
 
   def "delegates to dockerClient"() {
     given:
+    def authDetails = ["username"     : "gesellix",
+                       "password"     : "-yet-another-password-",
+                       "email"        : "tobias@gesellix.de",
+                       "serveraddress": "https://index.docker.io/v1/"]
     task.repositoryName = "repositoryName"
-    task.authConfig = "--auth.base64--"
+    task.authConfigPlain = authDetails
+//    task.authConfigEncoded = "--auth.base64--"
 
     when:
     task.push()
+
+    then:
+    1 * dockerClient.encodeAuthConfig(authDetails) >> "--auth.base64--"
 
     then:
     1 * dockerClient.push("repositoryName", "--auth.base64--")

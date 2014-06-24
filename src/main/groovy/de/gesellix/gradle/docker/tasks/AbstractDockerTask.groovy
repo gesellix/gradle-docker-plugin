@@ -11,6 +11,12 @@ abstract class AbstractDockerTask extends DefaultTask {
   @Input
   @Optional
   def dockerHost
+  @Input
+  @Optional
+  def authConfigPlain
+  @Input
+  @Optional
+  def authConfigEncoded
 
   DockerClient dockerClient
 
@@ -24,5 +30,16 @@ abstract class AbstractDockerTask extends DefaultTask {
       }
     }
     dockerClient
+  }
+
+  def getAuthConfig() {
+    if (getAuthConfigPlain()) {
+      assert !getAuthConfigEncoded()
+      return getDockerClient().encodeAuthConfig(getAuthConfigPlain())
+    }
+    if (getAuthConfigEncoded()) {
+      return getAuthConfigEncoded()
+    }
+    ''
   }
 }
