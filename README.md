@@ -8,5 +8,7 @@
 [![Docker logo](img/docker-logo.png)](http://www.docker.com/)
 
 Yet another Gradle plugin making it easy for your build scripts to talk to a Docker daemon.
+Each task delegates to the [Docker-Client](https://github.com/gesellix-docker/docker-client), which connects
+to the Docker remote API via HTTP.
 
 For basic usage please have a look at the tests or the [example project](https://github.com/gesellix-docker/gradle-docker-plugin-example).
