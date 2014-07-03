@@ -16,7 +16,6 @@ class DockerRunTaskSpec extends Specification {
     task.dockerClient = dockerClient
   }
 
-  // docker -H tcp://${targetHost} run -d -p 8889:8889 -p 9300:9300 --name $containerName ${imageName}
   def "delegates to dockerClient"() {
     given:
     task.imageName = "anImage"
