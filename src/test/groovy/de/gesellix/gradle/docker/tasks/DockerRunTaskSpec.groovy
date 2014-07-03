@@ -21,6 +21,7 @@ class DockerRunTaskSpec extends Specification {
     given:
     task.imageName = "anImage"
     task.tag = "aTag"
+    task.containerName = "aContainerName"
     task.containerConfiguration = [
         "ExposedPorts": [
             "8889/tcp": [],
@@ -35,6 +36,6 @@ class DockerRunTaskSpec extends Specification {
         ["ExposedPorts": [
             "8889/tcp": [],
             "9300/tcp": []]],
-        "anImage", "aTag")
+        "anImage", "aTag", "aContainerName")
   }
 }

@@ -17,11 +17,14 @@ class DockerRunTask extends AbstractDockerTask {
   def tag
   @Input
   @Optional
+  def containerName
+  @Input
+  @Optional
   def containerConfiguration
 
   @TaskAction
   def run() {
     logger.info "running run..."
-    getDockerClient().run(getContainerConfiguration() ?: [:], getImageName(), getTag())
+    getDockerClient().run(getContainerConfiguration() ?: [:], getImageName(), getTag(), getContainerName())
   }
 }
