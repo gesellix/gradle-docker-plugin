@@ -17,6 +17,8 @@ public class DockerPlugin implements Plugin<Project> {
 
     project.tasks.withType(AbstractDockerTask) { task ->
       task.dockerHost = extension.dockerHost
+      task.authConfigPlain = extension.authConfigPlain
+      task.authConfigEncoded = extension.authConfigEncoded
     }
 
 //    logger.info("adding gradle-docker tasks");

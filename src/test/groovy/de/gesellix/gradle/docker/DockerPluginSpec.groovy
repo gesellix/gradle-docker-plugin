@@ -26,12 +26,16 @@ class DockerPluginSpec extends Specification {
     given:
     project.apply plugin: 'docker'
     project.docker.dockerHost = "http://example.org:2375"
+    project.docker.authConfigPlain = ["plain auth"]
+    project.docker.authConfigEncoded = ["encoded auth"]
 
     when:
     def task = project.tasks.create("testTask", TestTask)
 
     then:
     task.dockerHost == "http://example.org:2375"
+    task.authConfigPlain == ["plain auth"]
+    task.authConfigEncoded == ["encoded auth"]
   }
 
   @Ignore("we'll see, if we need it")
