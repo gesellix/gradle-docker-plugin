@@ -139,8 +139,9 @@ bintray {
     websiteUrl = 'https://github.com/gesellix-docker/gradle-docker-plugin'
     issueTrackerUrl = 'https://github.com/gesellix-docker/gradle-docker-plugin/issues'
     vcsUrl = 'https://github.com/gesellix-docker/gradle-docker-plugin.git'
+    attributes = ['gradle-plugin': 'de.gesellix.docker:de.gesellix:gradle-docker-plugin']
     version = [
-        name: artifactVersion,
+        name      : artifactVersion,
         attributes: ['gradle-plugin': 'de.gesellix.docker:de.gesellix:gradle-docker-plugin']
     ]
   }
