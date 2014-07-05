@@ -18,7 +18,7 @@ class DockerPluginIntegrationTest extends Specification {
 
   def setup() {
     project = ProjectBuilder.builder().withName('example').build()
-    project.apply plugin: 'docker'
+    project.apply plugin: 'de.gesellix.docker'
     project.docker.dockerHost = DOCKER_HOST
   }
 

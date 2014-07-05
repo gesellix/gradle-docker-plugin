@@ -17,14 +17,14 @@ class DockerPluginSpec extends Specification {
 
   def "DockerPluginExtension is added to project"() {
     when:
-    project.apply plugin: 'docker'
+    project.apply plugin: 'de.gesellix.docker'
     then:
     project["docker"] instanceof DockerPluginExtension
   }
 
   def "configuration is passed to tasks"() {
     given:
-    project.apply plugin: 'docker'
+    project.apply plugin: 'de.gesellix.docker'
     project.docker.dockerHost = "http://example.org:2375"
     project.docker.authConfigPlain = ["plain auth"]
     project.docker.authConfigEncoded = ["encoded auth"]
@@ -41,7 +41,7 @@ class DockerPluginSpec extends Specification {
   @Ignore("we'll see, if we need it")
   def "DockerDeployTask is available"() {
     given:
-    project.apply plugin: 'docker'
+    project.apply plugin: 'de.gesellix.docker'
     when: "project is evaluated"
     project.evaluate()
     then:
