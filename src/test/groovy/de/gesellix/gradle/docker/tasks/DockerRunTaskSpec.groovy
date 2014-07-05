@@ -26,15 +26,27 @@ class DockerRunTaskSpec extends Specification {
             "8889/tcp": [],
             "9300/tcp": []]
     ]
+    task.hostConfiguration = [
+        "PortBindings": [
+            "8889/tcp": [
+                ["HostIp"  : "0.0.0.0",
+                 "HostPort": "8889"]]
+        ]]
 
     when:
     task.run()
 
     then:
     1 * dockerClient.run(
+        "anImage",
         ["ExposedPorts": [
             "8889/tcp": [],
             "9300/tcp": []]],
-        "anImage", "aTag", "aContainerName")
+        ["PortBindings": [
+            "8889/tcp": [
+                ["HostIp"  : "0.0.0.0",
+                 "HostPort": "8889"]]
+        ]],
+        "aTag", "aContainerName")
   }
 }
