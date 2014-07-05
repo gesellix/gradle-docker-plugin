@@ -17,9 +17,13 @@ class DockerPullTask extends AbstractDockerTask {
   @Optional
   def tag
 
+  @Input
+  @Optional
+  def registry
+
   @TaskAction
   def pull() {
     logger.info "running pull..."
-    dockerClient.pull(getImageName(), getTag())
+    dockerClient.pull(getImageName(), getTag(), getRegistry())
   }
 }

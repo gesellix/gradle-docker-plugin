@@ -20,11 +20,12 @@ class DockerPullTaskSpec extends Specification {
     given:
     task.imageName = "imageName"
     task.tag = "latest"
+    task.registry = "registry.example.com:4711"
 
     when:
     task.pull()
 
     then:
-    1 * dockerClient.pull("imageName", "latest")
+    1 * dockerClient.pull("imageName", "latest", "registry.example.com:4711")
   }
 }

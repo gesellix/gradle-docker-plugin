@@ -8,9 +8,15 @@ class DockerPsTask extends AbstractDockerTask {
 
   private static Logger logger = LoggerFactory.getLogger(DockerPsTask)
 
+  def containers
+
+  DockerPsTask() {
+    description = "lists all containers"
+  }
+
   @TaskAction
   def ps() {
     logger.info "running ps..."
-    getDockerClient().ps()
+    containers = getDockerClient().ps()
   }
 }
