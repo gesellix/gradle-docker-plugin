@@ -131,11 +131,16 @@ bintray {
   publications = ['gradleDockerPlugin']
   pkg {
     repo = 'docker-utils'
-    //userOrg = 'myorg' // an optional organization name when the repo belongs to one of the user's orgs
     name = 'gradle-docker-plugin'
     desc = 'A Docker plugin for Gradle'
     licenses = ['Apache-2.0']
     labels = ['docker', 'gradle']
+    websiteUrl = 'https://github.com/gesellix-docker/gradle-docker-plugin'
+    issueTrackerUrl = 'https://github.com/gesellix-docker/gradle-docker-plugin/issues'
+    vcsUrl = 'https://github.com/gesellix-docker/gradle-docker-plugin.git'
+    version = [
+        attributes: ['gradle-plugin': 'de.gesellix.docker:de.gesellix:gradle-docker-plugin']
+    ]
   }
   dryRun = bintrayDryRun
 }
