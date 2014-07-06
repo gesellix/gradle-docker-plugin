@@ -91,7 +91,7 @@ class DockerPluginIntegrationTest extends Specification {
   def "test stop"() {
     given:
     def task = project.task('testStop', type: DockerStopTask)
-    def runResult = new DockerClientImpl(dockerHost: DOCKER_HOST).run(["Cmd": ["true"]], 'busybox', 'latest')
+    def runResult = new DockerClientImpl(dockerHost: DOCKER_HOST).run('busybox', ["Cmd": ["true"]], [:], 'latest')
     task.containerId = runResult.container.Id
 
     when:
@@ -101,13 +101,30 @@ class DockerPluginIntegrationTest extends Specification {
     stopResult == 204
   }
 
+  def "test rm"() {
+    given:
+    def task = project.task('testRm', type: DockerRmTask)
+    def dockerClientImpl = new DockerClientImpl(dockerHost: DOCKER_HOST)
+    def runResult = dockerClientImpl.run('busybox', ["Cmd": ["true"]], [:], 'latest')
+    def containerId = runResult.container.Id
+    dockerClientImpl.stop(containerId)
+    dockerClientImpl.wait(containerId)
+    task.containerId = containerId
+
+    when:
+    def rmResult = task.rm()
+
+    then:
+    rmResult == 204
+  }
+
   def "test ps"() {
     given:
     def task = project.task('testPs', type: DockerPsTask)
     task.dockerHost = DOCKER_HOST
     def uuid = UUID.randomUUID().toString()
     def cmd = "true || $uuid".toString()
-    new DockerClientImpl(dockerHost: DOCKER_HOST).run(["Cmd": [cmd]], 'busybox', 'latest')
+    new DockerClientImpl(dockerHost: DOCKER_HOST).run('busybox', ["Cmd": [cmd]], [:], 'latest')
 
     when:
     def psResult = task.ps()
