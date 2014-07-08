@@ -1,9 +1,6 @@
 package de.gesellix.gradle.docker.tasks
 
-import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.InputDirectory
-import org.gradle.api.tasks.Optional
-import org.gradle.api.tasks.TaskAction
+import org.gradle.api.tasks.*
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -23,6 +20,10 @@ class DockerBuildTask extends AbstractDockerTask {
   @Optional
   File buildContextDirectory
 
+  @OutputFile
+  @Optional
+  File temporaryBuildContext
+
   @TaskAction
   def build() {
     logger.info "running build..."
@@ -31,8 +32,9 @@ class DockerBuildTask extends AbstractDockerTask {
       // only one of buildContext and buildContextDirectory shall be provided
       assert !getBuildContext()
 
-      def tarFile = archiveTarFilesRecursively(buildContextDirectory, "buildContext")
-      buildContext = new FileInputStream(tarFile)
+      temporaryBuildContext = createTemporaryBuildContext()
+      archiveTarFilesRecursively(buildContextDirectory, getTemporaryBuildContext())
+      buildContext = new FileInputStream(getTemporaryBuildContext())
     }
 
     // at this point we need the buildContext
@@ -44,5 +46,12 @@ class DockerBuildTask extends AbstractDockerTask {
       getDockerClient().tag(imageId, getImageName())
     }
     return imageId
+  }
+
+  def createTemporaryBuildContext() {
+    def temporaryBuildContext = new File(project.buildDir, "buildContext")
+    project.buildDir.mkdirs()
+    temporaryBuildContext.createNewFile()
+    return temporaryBuildContext
   }
 }

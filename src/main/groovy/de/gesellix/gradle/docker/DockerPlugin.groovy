@@ -12,6 +12,8 @@ public class DockerPlugin implements Plugin<Project> {
 
   @Override
   void apply(Project project) {
+//    project.plugins.apply(BasePlugin)
+
     logger.info("adding docker extension");
     def extension = project.extensions.create("docker", DockerPluginExtension)
 
