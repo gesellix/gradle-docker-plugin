@@ -22,7 +22,7 @@ class DockerBuildTaskSpec extends Specification {
 
     given:
     task.buildContextDirectory = baseDir
-    task.imageName = "imageName"
+    task.imageName = "user/imageName"
 
     when:
     task.build()
@@ -31,10 +31,10 @@ class DockerBuildTaskSpec extends Specification {
     1 * dockerClient.build(_ as InputStream) >> "4711"
 
     then:
-    1 * dockerClient.tag("4711", "imageName")
+    1 * dockerClient.tag("4711", "user/imageName")
 
     and:
-    task.outputs.files.asPath == "${task.project.buildDir}/buildContext_imageName"
+    task.outputs.files.asPath == "${task.project.buildDir}/buildContext_user_imageName"
   }
 
   def "delegates to dockerClient with buildContext"() {
