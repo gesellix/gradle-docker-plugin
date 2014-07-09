@@ -49,7 +49,7 @@ class DockerBuildTask extends AbstractDockerTask {
   }
 
   def createTemporaryBuildContext() {
-    def temporaryBuildContext = new File(project.buildDir, "buildContext")
+    def temporaryBuildContext = new File(project.buildDir, "buildContext_${getImageName() ?: UUID.randomUUID()}")
     project.buildDir.mkdirs()
     temporaryBuildContext.createNewFile()
     return temporaryBuildContext

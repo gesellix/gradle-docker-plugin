@@ -32,6 +32,9 @@ class DockerBuildTaskSpec extends Specification {
 
     then:
     1 * dockerClient.tag("4711", "imageName")
+
+    and:
+    task.outputs.files.asPath == "${task.project.buildDir}/buildContext_imageName"
   }
 
   def "delegates to dockerClient with buildContext"() {
@@ -49,5 +52,8 @@ class DockerBuildTaskSpec extends Specification {
 
     then:
     1 * dockerClient.tag("4711", "imageName")
+
+    and:
+    task.outputs.files.isEmpty()
   }
 }
