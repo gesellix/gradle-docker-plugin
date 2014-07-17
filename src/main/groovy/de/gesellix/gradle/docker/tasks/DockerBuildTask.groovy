@@ -33,7 +33,7 @@ class DockerBuildTask extends AbstractDockerTask {
       assert !getBuildContext()
 
       temporaryBuildContext = createTemporaryBuildContext()
-      archiveTarFilesRecursively(buildContextDirectory, getTemporaryBuildContext())
+      archiveTarFilesRecursively(getBuildContextDirectory(), getTemporaryBuildContext())
       buildContext = new FileInputStream(getTemporaryBuildContext())
     }
 
