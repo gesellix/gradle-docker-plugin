@@ -21,6 +21,10 @@ class DockerPullTask extends AbstractDockerTask {
   @Optional
   def registry
 
+  DockerPullTask() {
+    description = "pulls a repository from a registry"
+  }
+
   @TaskAction
   def pull() {
     logger.info "running pull..."

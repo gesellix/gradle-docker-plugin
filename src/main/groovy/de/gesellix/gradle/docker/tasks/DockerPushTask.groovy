@@ -16,6 +16,10 @@ class DockerPushTask extends AbstractDockerTask {
   @Optional
   def registry
 
+  DockerPushTask() {
+    description = "pushes a repository to a registry"
+  }
+
   @TaskAction
   def push() {
     logger.info "running push..."

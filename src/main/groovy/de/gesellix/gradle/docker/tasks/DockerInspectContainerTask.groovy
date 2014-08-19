@@ -14,6 +14,10 @@ class DockerInspectContainerTask extends AbstractDockerTask {
 
   def containerInfo
 
+  DockerInspectContainerTask() {
+    description = "inspects a container"
+  }
+
   @TaskAction
   def inspect() {
     logger.info "running inspect container..."

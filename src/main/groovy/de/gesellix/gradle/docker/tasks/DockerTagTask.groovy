@@ -14,6 +14,10 @@ class DockerTagTask extends AbstractDockerTask {
   @Input
   def tag
 
+  DockerTagTask() {
+    description = "tag an image into a repository"
+  }
+
   @TaskAction
   def tag() {
     logger.info "running tag..."

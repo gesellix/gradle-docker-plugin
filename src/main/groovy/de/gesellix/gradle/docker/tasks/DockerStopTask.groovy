@@ -12,6 +12,10 @@ class DockerStopTask extends AbstractDockerTask {
   @Input
   def containerId
 
+  DockerStopTask() {
+    description = "stops a container"
+  }
+
   @TaskAction
   def stop() {
     logger.info "running stop..."
