@@ -49,4 +49,26 @@ class DockerRunTaskSpec extends Specification {
         ]],
         "aTag", "aContainerName")
   }
+
+  def "parses env-file to containerConfig.Env"() {
+    URL envfile = getClass().getResource('/env-files/env-test.properties')
+
+    given:
+    task.imageName = "anImage"
+    task.containerConfiguration = [
+        "Env": null
+    ]
+    task.environmentFiles = [new File(envfile.toURI())]
+
+    when:
+    task.run()
+
+    then:
+    1 * dockerClient.run(
+        "anImage",
+        ["Env": ['THE_WIND=CAUGHT_IT', 'FOO=BAR Baz']],
+        [:],
+        null, null
+    )
+  }
 }

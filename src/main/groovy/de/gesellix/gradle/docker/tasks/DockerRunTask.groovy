@@ -1,5 +1,6 @@
 package de.gesellix.gradle.docker.tasks
 
+import de.gesellix.docker.client.EnvFileParser
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.TaskAction
@@ -24,10 +25,26 @@ class DockerRunTask extends AbstractDockerTask {
   @Input
   @Optional
   def hostConfiguration
+  @Input
+  @Optional
+  def environmentFiles
+
+  def envFileParser = new EnvFileParser()
 
   @TaskAction
   def run() {
     logger.info "running run..."
-    getDockerClient().run(getImageName(), getContainerConfiguration() ?: [:], getHostConfiguration() ?: [:], getTag(), getContainerName())
+    def containerConfig = getContainerConfiguration() ?: [:]
+    def hostConfig = getHostConfiguration() ?: [:]
+    if (getEnvironmentFiles()) {
+      containerConfig.Env = containerConfig.Env ?: []
+      getEnvironmentFiles().each {
+        def parsedEnv = envFileParser.parse(it)
+        containerConfig.Env.addAll(parsedEnv)
+      }
+      logger.info "effective container.env: ${containerConfig.Env}"
+    }
+
+    getDockerClient().run(getImageName(), containerConfig, hostConfig, getTag(), getContainerName())
   }
 }

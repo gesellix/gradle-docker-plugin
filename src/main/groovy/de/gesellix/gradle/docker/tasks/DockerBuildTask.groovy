@@ -4,7 +4,7 @@ import org.gradle.api.tasks.*
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
-import static de.gesellix.docker.client.TarFileBuilder.archiveTarFilesRecursively
+import static de.gesellix.docker.client.BuildContextBuilder.archiveTarFilesRecursively
 
 class DockerBuildTask extends AbstractDockerTask {
 
@@ -23,6 +23,22 @@ class DockerBuildTask extends AbstractDockerTask {
   @OutputFile
   @Optional
   File temporaryBuildContext
+
+  DockerBuildTask() {
+    description = "builds an image from the given build context"
+
+//    addValidator(new TaskValidator() {
+//      @Override
+//      void validate(TaskInternal task, Collection<String> messages) {
+//        if (getBuildContextDirectory() && getBuildContext()) {
+//          messages.add("Please provide only one of buildContext and buildContextDirectory")
+//        }
+//        if (!getBuildContextDirectory() && !getBuildContext()) {
+//          messages.add("Please provide either buildContext or buildContextDirectory")
+//        }
+//      }
+//    })
+  }
 
   @TaskAction
   def build() {
@@ -49,7 +65,7 @@ class DockerBuildTask extends AbstractDockerTask {
   }
 
   def createTemporaryBuildContext() {
-    def temporaryBuildContext = new File(project.buildDir, "buildContext_${getNormalizedImageName()}")
+    def temporaryBuildContext = new File(getTemporaryDir(), "buildContext_${getNormalizedImageName()}")
     project.buildDir.mkdirs()
     temporaryBuildContext.createNewFile()
     return temporaryBuildContext
