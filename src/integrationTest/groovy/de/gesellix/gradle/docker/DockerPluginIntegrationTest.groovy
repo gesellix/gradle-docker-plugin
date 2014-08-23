@@ -5,16 +5,18 @@ import de.gesellix.gradle.docker.tasks.*
 import org.gradle.api.Project
 import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.Ignore
+import spock.lang.IgnoreIf
 import spock.lang.Shared
 import spock.lang.Specification
 
-@Ignore("only for exploring the docker api")
+@IgnoreIf({ !System.env.DOCKER_HOST })
 class DockerPluginIntegrationTest extends Specification {
 
   @Shared
   Project project
 
-  def DOCKER_HOST = "http://172.17.42.1:4243/"
+  def defaultDockerHost = System.env.DOCKER_HOST?.replaceFirst("tcp://", "http://")
+  def DOCKER_HOST = defaultDockerHost
 
   def setup() {
     project = ProjectBuilder.builder().withName('example').build()
@@ -57,18 +59,27 @@ class DockerPluginIntegrationTest extends Specification {
                        "password"     : "-yet-another-password-",
                        "email"        : "tobias@gesellix.de",
                        "serveraddress": "https://index.docker.io/v1/"]
-    def authConfig = new DockerClientImpl().encodeAuthConfig(authDetails)
+    def dockerClient = new DockerClientImpl(dockerHost: DOCKER_HOST)
+    def authConfig = dockerClient.encodeAuthConfig(authDetails)
+    dockerClient.pull("scratch")
+    dockerClient.tag("scratch", "gesellix/example")
 
     def task = project.task('testPush', type: DockerPushTask)
     task.repositoryName = 'gesellix/example'
 //    task.authConfigPlain = authDetails
     task.authConfigEncoded = authConfig
+    // don't access the official registry,
+    // so that we don't try (and fail) to authenticate for each test execution.
+    // for a real test, this line needs to be commented or removed, though.
+    task.registry = 'example.com:5000'
 
     when:
     def pushResult = task.push()
 
     then:
-    pushResult.status ==~ "Pushing tag for rev \\[[a-z0-9]+\\] on \\{https://registry-1.docker.io/v1/repositories/gesellix/example/tags/latest\\}"
+    //pushResult.status ==~ "Pushing tag for rev \\[[a-z0-9]+\\] on \\{https://registry-1.docker.io/v1/repositories/gesellix/example/tags/latest\\}"
+    //pushResult.error ==~ "Error: Status 401 trying to push repository gesellix/example: \"\""
+    pushResult ==~ "Invalid Registry endpoint: Get http://example.com:5000/v1/_ping: dial tcp \\d{1,3}.\\d{1,3}.\\d{1,3}.\\d{1,3}:5000: i/o timeout"
   }
 
   def "test run"() {
@@ -104,11 +115,11 @@ class DockerPluginIntegrationTest extends Specification {
   def "test rm"() {
     given:
     def task = project.task('testRm', type: DockerRmTask)
-    def dockerClientImpl = new DockerClientImpl(dockerHost: DOCKER_HOST)
-    def runResult = dockerClientImpl.run('busybox', ["Cmd": ["true"]], [:], 'latest')
+    def dockerClient = new DockerClientImpl(dockerHost: DOCKER_HOST)
+    def runResult = dockerClient.run('busybox', ["Cmd": ["true"]], [:], 'latest')
     def containerId = runResult.container.Id
-    dockerClientImpl.stop(containerId)
-    dockerClientImpl.wait(containerId)
+    dockerClient.stop(containerId)
+    dockerClient.wait(containerId)
     task.containerId = containerId
 
     when:
@@ -135,6 +146,7 @@ class DockerPluginIntegrationTest extends Specification {
     }.size() == 1
   }
 
+  @Ignore("not yet implemented")
   def "test deploy"() {
     given:
     def task = project.task('dockerDeploy', type: DockerDeployTask)
