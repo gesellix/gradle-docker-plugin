@@ -1,8 +1,21 @@
 import java.text.SimpleDateFormat
 
 buildscript {
-  // inspired by https://github.com/Netflix/gradle-template
-  apply from: file('gradle/buildscript.gradle'), to: buildscript
+  repositories {
+    maven { url 'http://kt3k.github.io/repository/maven/release' }
+    maven { url "https://github.com/ben-manes/gradle-versions-plugin/raw/mvnrepo" }
+    maven { url 'http://jcenter.bintray.com' }
+
+    mavenLocal()
+    mavenCentral()
+  }
+
+  dependencies {
+    classpath 'net.saliman:gradle-cobertura-plugin:2.2.4'
+    classpath 'org.kt3k.gradle.plugin:coveralls-gradle-plugin:2.0.0'
+    classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:0.5'
+    classpath 'com.github.ben-manes:gradle-versions-plugin:0.5-beta-5'
+  }
 }
 
 repositories {
@@ -16,7 +29,7 @@ apply plugin: 'groovy'
 apply plugin: 'idea'
 
 apply plugin: 'cobertura'
-apply plugin: 'coveralls'
+apply plugin: 'com.github.kt3k.coveralls'
 
 apply plugin: 'maven'
 apply plugin: 'maven-publish'
@@ -82,7 +95,7 @@ dependencies {
   compile gradleApi()
   compile localGroovy()
 
-  compile 'de.gesellix:docker-client:2014-08-19T19-57-15'
+  compile 'de.gesellix:docker-client:2014-08-24T13-15-09'
 
   testCompile 'org.spockframework:spock-core:0.7-groovy-2.0'
 }
