@@ -29,9 +29,12 @@ class DockerPluginIntegrationTest extends Specification {
 //    def resource = getClass().getResourceAsStream('build.tar')
     def resource = getClass().getResource('/docker/Dockerfile')
     def task = project.task('testBuild', type: DockerBuildTask)
-    task.imageName = "buildTest"
-//    task.buildContext = resource
-    task.buildContextDirectory = new File(resource.toURI()).parentFile
+    task.configure {
+      imageName = "buildTest"
+//    buildContext = resource
+      buildContextDirectory = new File(resource.toURI()).parentFile
+    }
+    task.tarOfBuildcontextTask.execute()
 
     when:
     def buildResult = task.build()
