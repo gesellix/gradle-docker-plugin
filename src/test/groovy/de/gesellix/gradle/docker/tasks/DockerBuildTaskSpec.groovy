@@ -128,4 +128,9 @@ class DockerBuildTaskSpec extends Specification {
     and:
     exception.cause.message ==~ "assert !getBuildContext\\(\\)\n\\s{7}\\|\\|\n\\s{7}\\|java.io.FileInputStream@\\w+\n\\s{7}false"
   }
+
+  def "normalizedImageName should match [a-z0-9-_.]"() {
+    expect:
+    task.getNormalizedImageName() ==~ "[a-z0-9-_\\.]+"
+  }
 }
