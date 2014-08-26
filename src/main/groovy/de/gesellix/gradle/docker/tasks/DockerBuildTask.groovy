@@ -80,13 +80,6 @@ class DockerBuildTask extends AbstractDockerTask {
     return imageId
   }
 
-  def createTemporaryBuildContext() {
-    def temporaryBuildContext = new File(getTemporaryDir(), "buildContext_${getNormalizedImageName()}")
-    project.buildDir.mkdirs()
-    temporaryBuildContext.createNewFile()
-    return temporaryBuildContext
-  }
-
   def getNormalizedImageName() {
     if (!getImageName()) {
       return UUID.randomUUID().toString()
