@@ -1,10 +1,13 @@
 package de.gesellix.gradle.docker.tasks
 
-import org.gradle.api.tasks.*
+import org.gradle.api.Task
+import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.InputDirectory
+import org.gradle.api.tasks.Optional
+import org.gradle.api.tasks.TaskAction
+import org.gradle.api.tasks.bundling.Tar
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-
-import static de.gesellix.docker.client.BuildContextBuilder.archiveTarFilesRecursively
 
 class DockerBuildTask extends AbstractDockerTask {
 
@@ -20,9 +23,7 @@ class DockerBuildTask extends AbstractDockerTask {
   @Optional
   File buildContextDirectory
 
-  @OutputFile
-  @Optional
-  File temporaryBuildContext
+  def tarOfBuildcontextTask
 
   DockerBuildTask() {
     description = "builds an image from the given build context"
@@ -40,6 +41,21 @@ class DockerBuildTask extends AbstractDockerTask {
 //    })
   }
 
+  @Override
+  Task configure(Closure closure) {
+    def configureResult = super.configure(closure)
+    if (getBuildContextDirectory()) {
+      tarOfBuildcontextTask = project.task(["type": Tar], "tarOfBuildcontext") {
+        description = "tar of buildcontext"
+        from getBuildContextDirectory()
+        baseName = "buildContext_${getNormalizedImageName()}"
+        destinationDir getTemporaryDir()
+      }
+      dependsOn tarOfBuildcontextTask
+    }
+    return configureResult
+  }
+
   @TaskAction
   def build() {
     logger.info "running build..."
@@ -48,9 +64,9 @@ class DockerBuildTask extends AbstractDockerTask {
       // only one of buildContext and buildContextDirectory shall be provided
       assert !getBuildContext()
 
-      temporaryBuildContext = createTemporaryBuildContext()
-      archiveTarFilesRecursively(getBuildContextDirectory(), getTemporaryBuildContext())
-      buildContext = new FileInputStream(getTemporaryBuildContext())
+      assert tarOfBuildcontextTask
+      logger.info "temporary buildContext: ${tarOfBuildcontextTask.archivePath}"
+      buildContext = new FileInputStream(tarOfBuildcontextTask.archivePath as File)
     }
 
     // at this point we need the buildContext

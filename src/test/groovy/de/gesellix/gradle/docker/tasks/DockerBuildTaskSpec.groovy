@@ -16,6 +16,63 @@ class DockerBuildTaskSpec extends Specification {
     task.dockerClient = dockerClient
   }
 
+  def "depends on tar task to archive buildContextDirectory"() {
+    URL dockerfile = getClass().getResource('/docker/Dockerfile')
+    def baseDir = new File(dockerfile.toURI()).parentFile
+
+    given:
+    task.buildContextDirectory = baseDir
+    task.imageName = "user/imageName"
+
+    when:
+    task.configure()
+
+    then:
+    project.getTasksByName("tarOfBuildcontext", false).size() == 1
+
+    and:
+    task.dependsOn.any { it == project.getTasksByName("tarOfBuildcontext", false).first() }
+  }
+
+  def "tar of buildContextDirectory contains buildContextDirectory"() {
+    URL dockerfile = getClass().getResource('/docker/Dockerfile')
+    def baseDir = new File(dockerfile.toURI()).parentFile
+
+    given:
+    task.buildContextDirectory = baseDir
+    task.imageName = "user/imageName"
+
+    when:
+    task.configure()
+
+    then:
+    def tarOfBuildcontextTask = project.getTasksByName("tarOfBuildcontext", false).first()
+    tarOfBuildcontextTask.destinationDir == new File("${tarOfBuildcontextTask.getTemporaryDir()}")
+
+    and:
+    tarOfBuildcontextTask.inputs.files.asPath == project.fileTree(baseDir).asPath
+  }
+
+  // TODO this should become an integration test, so that the 'task dependsOn tarOfBuildcontext' also works
+  def "delegates to dockerClient with tar of buildContextDirectory as buildContext"() {
+    URL dockerfile = getClass().getResource('/docker/Dockerfile')
+    def baseDir = new File(dockerfile.toURI()).parentFile
+
+    given:
+    task.buildContextDirectory = baseDir
+    task.imageName = "user/imageName"
+    task.dockerClient = dockerClient
+    task.configure()
+    def tarOfBuildcontextTask = project.getTasksByName("tarOfBuildcontext", false).first()
+    tarOfBuildcontextTask.execute()
+
+    when:
+    task.execute()
+
+    then:
+    1 * dockerClient.build({ FileInputStream })
+  }
+
   def "delegates to dockerClient with buildContextDirectory"() {
     URL dockerfile = getClass().getResource('/docker/Dockerfile')
     def baseDir = new File(dockerfile.toURI()).parentFile
@@ -57,6 +114,7 @@ class DockerBuildTaskSpec extends Specification {
     task.outputs.files.isEmpty()
   }
 
+  // TODO this should become an integration test
   def "accepts only task configs with at least one of buildContext or buildContextDirectory"() {
     given:
     task.buildContextDirectory = null
@@ -72,6 +130,7 @@ class DockerBuildTaskSpec extends Specification {
     exception.cause.message ==~ "assert getBuildContext\\(\\)\n\\s{7}\\|\n\\s{7}null"
   }
 
+  // TODO this should become an integration test
   def "accepts exactly one of buildContext or buildContextDirectory"() {
     URL dockerfile = getClass().getResource('/docker/Dockerfile')
     def baseDir = new File(dockerfile.toURI()).parentFile
