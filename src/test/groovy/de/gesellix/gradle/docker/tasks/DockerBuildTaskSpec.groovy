@@ -1,6 +1,11 @@
 package de.gesellix.gradle.docker.tasks
 
 import de.gesellix.docker.client.DockerClient
+import org.gradle.api.Action
+import org.gradle.api.file.FileTreeElement
+import org.gradle.api.file.RelativePath
+import org.gradle.api.internal.file.copy.CopySpecResolver
+import org.gradle.api.specs.Spec
 import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.Specification
 
@@ -51,6 +56,38 @@ class DockerBuildTaskSpec extends Specification {
 
     and:
     tarOfBuildcontextTask.inputs.files.asPath == project.fileTree(baseDir).asPath
+  }
+
+  // TODO this test uses Gradle internal code - converting to an integrative test could help?
+  def "tar of buildContextDirectory excludes self"() {
+    URL dockerfile = getClass().getResource('/docker/Dockerfile')
+    def baseDir = new File(dockerfile.toURI()).parentFile
+
+    given:
+    task.buildContextDirectory = baseDir
+    task.imageName = "user/imageName"
+
+    when:
+    task.configure()
+
+    then:
+    def tarOfBuildcontextTask = project.getTasksByName("tarOfBuildcontext", false).first()
+    def tarOfBuildcontextTaskExcludesTargetArchivePath = false
+    tarOfBuildcontextTask.getRootSpec().walk(new Action<CopySpecResolver>() {
+
+      @Override
+      void execute(CopySpecResolver copySpecResolver) {
+        println copySpecResolver
+
+        def excludeSpecs = copySpecResolver.getAllExcludeSpecs()
+        for (Spec<FileTreeElement> excludeSpec : excludeSpecs) {
+          if (excludeSpec.isSatisfiedBy(new TestFileTreeElement(tarOfBuildcontextTask.archivePath as File))) {
+            tarOfBuildcontextTaskExcludesTargetArchivePath = true
+          }
+        }
+      }
+    })
+    assert tarOfBuildcontextTaskExcludesTargetArchivePath
   }
 
   // TODO this should become an integration test, so that the 'task dependsOn tarOfBuildcontext' also works
@@ -132,5 +169,69 @@ class DockerBuildTaskSpec extends Specification {
   def "normalizedImageName should match [a-z0-9-_.]"() {
     expect:
     task.getNormalizedImageName() ==~ "[a-z0-9-_\\.]+"
+  }
+
+  class TestFileTreeElement implements FileTreeElement {
+
+    private File reference
+
+    TestFileTreeElement(File reference) {
+      this.reference = reference
+    }
+
+    @Override
+    File getFile() {
+      return reference
+    }
+
+    @Override
+    boolean isDirectory() {
+      reference.isDirectory()
+    }
+
+    @Override
+    long getLastModified() {
+      reference.lastModified()
+    }
+
+    @Override
+    long getSize() {
+      reference.length()
+    }
+
+    @Override
+    InputStream open() {
+      throw new UnsupportedOperationException()
+    }
+
+    @Override
+    void copyTo(OutputStream outstr) {
+      throw new UnsupportedOperationException()
+    }
+
+    @Override
+    boolean copyTo(File target) {
+      throw new UnsupportedOperationException()
+    }
+
+    @Override
+    String getName() {
+      reference.getName()
+    }
+
+    @Override
+    String getPath() {
+      reference.getPath()
+    }
+
+    @Override
+    RelativePath getRelativePath() {
+      throw new UnsupportedOperationException()
+    }
+
+    @Override
+    int getMode() {
+      throw new UnsupportedOperationException()
+    }
   }
 }

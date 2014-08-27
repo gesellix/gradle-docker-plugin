@@ -46,10 +46,13 @@ class DockerBuildTask extends AbstractDockerTask {
     def configureResult = super.configure(closure)
     if (getBuildContextDirectory()) {
       tarOfBuildcontextTask = project.task(["type": Tar], "tarOfBuildcontext") {
-        description = "tar of buildcontext"
+        description = "creates a tar of the buildcontext"
         from getBuildContextDirectory()
         baseName = "buildContext_${getNormalizedImageName()}"
         destinationDir getTemporaryDir()
+      }
+      tarOfBuildcontextTask.exclude {
+        it.file == tarOfBuildcontextTask.archivePath
       }
       dependsOn tarOfBuildcontextTask
     }
