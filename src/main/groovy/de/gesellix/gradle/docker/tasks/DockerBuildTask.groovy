@@ -9,6 +9,8 @@ import org.gradle.api.tasks.bundling.Tar
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
+import static org.gradle.api.tasks.bundling.Compression.GZIP
+
 class DockerBuildTask extends AbstractDockerTask {
 
   private static Logger logger = LoggerFactory.getLogger(DockerBuildTask)
@@ -48,6 +50,7 @@ class DockerBuildTask extends AbstractDockerTask {
       tarOfBuildcontextTask = project.task(["type": Tar], "tarOfBuildcontext") {
         description = "creates a tar of the buildcontext"
         from getBuildContextDirectory()
+        compression = GZIP
         baseName = "buildContext_${getNormalizedImageName()}"
         destinationDir getTemporaryDir()
       }

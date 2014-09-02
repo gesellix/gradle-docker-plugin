@@ -6,6 +6,7 @@ import org.gradle.api.file.FileTreeElement
 import org.gradle.api.file.RelativePath
 import org.gradle.api.internal.file.copy.CopySpecResolver
 import org.gradle.api.specs.Spec
+import org.gradle.api.tasks.bundling.Compression
 import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.Specification
 
@@ -56,6 +57,9 @@ class DockerBuildTaskSpec extends Specification {
 
     and:
     tarOfBuildcontextTask.inputs.files.asPath == project.fileTree(baseDir).asPath
+
+    and:
+    tarOfBuildcontextTask.compression == Compression.GZIP
   }
 
   // TODO this test uses Gradle internal code - converting to an integrative test could help?
