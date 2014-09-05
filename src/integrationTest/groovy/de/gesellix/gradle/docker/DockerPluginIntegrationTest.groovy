@@ -149,6 +149,20 @@ class DockerPluginIntegrationTest extends Specification {
     }.size() == 1
   }
 
+  def "test images"() {
+    given:
+    def task = project.task('testImages', type: DockerImagesTask)
+    task.dockerHost = DOCKER_HOST
+
+    when:
+    def imagesResult = task.images()
+
+    then:
+    imagesResult.findAll {
+      it.RepoTags.contains "buildTest:latest"
+    }.size() == 1
+  }
+
   @Ignore("not yet implemented")
   def "test deploy"() {
     given:
