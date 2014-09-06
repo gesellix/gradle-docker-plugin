@@ -16,7 +16,7 @@ class DockerImagesTask extends AbstractDockerTask {
 
   @TaskAction
   def images() {
-    logger.info "running ps..."
+    logger.info "running images..."
     images = getDockerClient().images()
   }
 }
