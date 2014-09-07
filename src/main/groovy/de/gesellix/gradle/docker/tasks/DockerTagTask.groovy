@@ -16,6 +16,7 @@ class DockerTagTask extends AbstractDockerTask {
 
   DockerTagTask() {
     description = "tag an image into a repository"
+    group = "Docker"
   }
 
   @TaskAction

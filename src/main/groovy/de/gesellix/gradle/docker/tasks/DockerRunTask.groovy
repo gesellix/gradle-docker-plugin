@@ -31,6 +31,11 @@ class DockerRunTask extends AbstractDockerTask {
 
   def envFileParser = new EnvFileParser()
 
+  DockerRunTask() {
+    description = "creates and starts a container"
+    group = "Docker"
+  }
+
   @TaskAction
   def run() {
     logger.info "running run..."

@@ -18,6 +18,7 @@ class DockerPushTask extends AbstractDockerTask {
 
   DockerPushTask() {
     description = "pushes a repository to a registry"
+    group = "Docker"
   }
 
   @TaskAction

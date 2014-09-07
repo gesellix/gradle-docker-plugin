@@ -16,6 +16,7 @@ class DockerInspectContainerTask extends AbstractDockerTask {
 
   DockerInspectContainerTask() {
     description = "inspects a container"
+    group = "Docker"
   }
 
   @TaskAction

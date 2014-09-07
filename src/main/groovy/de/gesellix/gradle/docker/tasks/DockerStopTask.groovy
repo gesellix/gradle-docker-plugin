@@ -14,6 +14,7 @@ class DockerStopTask extends AbstractDockerTask {
 
   DockerStopTask() {
     description = "stops a container"
+    group = "Docker"
   }
 
   @TaskAction

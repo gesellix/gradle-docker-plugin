@@ -14,6 +14,7 @@ class DockerRmTask extends AbstractDockerTask {
 
   DockerRmTask() {
     description = "removes a container"
+    group = "Docker"
   }
 
   @TaskAction

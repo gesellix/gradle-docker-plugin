@@ -12,6 +12,7 @@ class DockerImagesTask extends AbstractDockerTask {
 
   DockerImagesTask() {
     description = "lists all images"
+    group = "Docker"
   }
 
   @TaskAction

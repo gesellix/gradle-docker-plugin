@@ -23,6 +23,7 @@ class DockerPullTask extends AbstractDockerTask {
 
   DockerPullTask() {
     description = "pulls a repository from a registry"
+    group = "Docker"
   }
 
   @TaskAction

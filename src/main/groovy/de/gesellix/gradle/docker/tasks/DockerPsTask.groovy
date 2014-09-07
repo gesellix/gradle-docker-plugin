@@ -12,6 +12,7 @@ class DockerPsTask extends AbstractDockerTask {
 
   DockerPsTask() {
     description = "lists all containers"
+    group = "Docker"
   }
 
   @TaskAction

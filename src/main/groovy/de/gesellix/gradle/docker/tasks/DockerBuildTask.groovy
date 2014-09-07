@@ -29,6 +29,7 @@ class DockerBuildTask extends AbstractDockerTask {
 
   DockerBuildTask() {
     description = "builds an image from the given build context"
+    group = "Docker"
 
 //    addValidator(new TaskValidator() {
 //      @Override

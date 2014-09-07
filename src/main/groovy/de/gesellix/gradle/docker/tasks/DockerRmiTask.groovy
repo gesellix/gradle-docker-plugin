@@ -14,6 +14,7 @@ class DockerRmiTask extends AbstractDockerTask {
 
   DockerRmiTask() {
     description = "removes an image or tag"
+    group = "Docker"
   }
 
   @TaskAction
