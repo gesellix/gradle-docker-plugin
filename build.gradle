@@ -82,7 +82,7 @@ def versionOverrides = [
     'commons-logging:commons-logging'                      : '1.1.3',
     'org.apache.httpcomponents:httpclient'                 : '4.3',
     'org.apache.httpcomponents:httpmime'                   : '4.3',
-    'org.codehaus.groovy:groovy-all'                       : '2.3.3',
+    'org.codehaus.groovy:groovy-all'                       : '2.3.6',
     'org.codehaus.groovy.modules.http-builder:http-builder': '0.7.1',
     'org.hamcrest:hamcrest-core'                           : '1.3',
     'org.slf4j:slf4j-api'                                  : '1.6.6',
@@ -95,7 +95,7 @@ dependencies {
   compile gradleApi()
   compile localGroovy()
 
-  compile 'de.gesellix:docker-client:2014-08-24T13-15-09'
+  compile 'de.gesellix:docker-client:2014-09-11T18-43-34'
 
   testCompile 'org.spockframework:spock-core:0.7-groovy-2.0'
 }
@@ -165,6 +165,6 @@ bintray {
 bintrayUpload.dependsOn build
 
 task wrapper(type: Wrapper) {
-  gradleVersion = '2.0'
+  gradleVersion = '2.1'
   distributionUrl = "http://services.gradle.org/distributions/gradle-${gradleVersion}-all.zip"
 }
