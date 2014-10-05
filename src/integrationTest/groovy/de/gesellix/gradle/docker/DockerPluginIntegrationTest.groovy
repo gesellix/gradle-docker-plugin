@@ -53,7 +53,7 @@ class DockerPluginIntegrationTest extends Specification {
     def pullResult = task.pull()
 
     then:
-    pullResult == 'a9eb17255234'
+    pullResult == 'e72ac664f4f0'
   }
 
   def "test push"() {
