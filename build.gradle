@@ -95,7 +95,7 @@ dependencies {
   compile gradleApi()
   compile localGroovy()
 
-  compile 'de.gesellix:docker-client:2014-10-21T21-27-54'
+  compile 'de.gesellix:docker-client:2014-10-22T19-01-20'
 
   testCompile 'org.spockframework:spock-core:0.7-groovy-2.0'
 }
