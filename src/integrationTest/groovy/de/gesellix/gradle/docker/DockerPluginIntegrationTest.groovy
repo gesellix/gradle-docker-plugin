@@ -15,6 +15,7 @@ class DockerPluginIntegrationTest extends Specification {
   @Shared
   Project project
 
+//  def defaultDockerHost = "unix:///var/run/docker.sock"
   def defaultDockerHost = System.env.DOCKER_HOST?.replaceFirst("tcp://", "http://")
   def DOCKER_HOST = defaultDockerHost
 

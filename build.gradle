@@ -11,9 +11,9 @@ buildscript {
   }
 
   dependencies {
-    classpath 'net.saliman:gradle-cobertura-plugin:2.2.4'
-    classpath 'org.kt3k.gradle.plugin:coveralls-gradle-plugin:2.0.0'
-    classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:0.5'
+    classpath 'net.saliman:gradle-cobertura-plugin:2.2.5'
+    classpath 'org.kt3k.gradle.plugin:coveralls-gradle-plugin:2.0.1'
+    classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:0.6'
     classpath 'com.github.ben-manes:gradle-versions-plugin:0.5-beta-5'
   }
 }
@@ -28,7 +28,7 @@ apply plugin: 'groovy'
 
 apply plugin: 'idea'
 
-apply plugin: 'cobertura'
+apply plugin: 'net.saliman.cobertura'
 apply plugin: 'com.github.kt3k.coveralls'
 
 apply plugin: 'maven'
@@ -95,7 +95,7 @@ dependencies {
   compile gradleApi()
   compile localGroovy()
 
-  compile 'de.gesellix:docker-client:2014-10-22T19-01-20'
+  compile 'de.gesellix:docker-client:2014-11-06T22-49-01'
 
   testCompile 'org.spockframework:spock-core:0.7-groovy-2.0'
 }
