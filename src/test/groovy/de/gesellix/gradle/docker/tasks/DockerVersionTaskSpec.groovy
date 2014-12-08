@@ -18,7 +18,7 @@ class DockerVersionTaskSpec extends Specification {
 
   def "delegates to dockerClient and saves result"() {
     when:
-    task.version()
+    task.execute()
 
     then:
     1 * dockerClient.version() >> ["some docker version"]

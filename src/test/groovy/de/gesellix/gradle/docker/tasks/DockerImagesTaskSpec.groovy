@@ -18,7 +18,7 @@ class DockerImagesTaskSpec extends Specification {
 
   def "delegates to dockerClient and saves result"() {
     when:
-    task.images()
+    task.execute()
 
     then:
     1 * dockerClient.images() >> ["image"]

@@ -26,6 +26,7 @@ class DockerPublishTask extends AbstractDockerTask {
   def imageTag
 
   @Input
+  @Optional
   def targetRegistries
 
   DockerPublishTask() {
@@ -36,12 +37,19 @@ class DockerPublishTask extends AbstractDockerTask {
   @Override
   Task configure(Closure closure) {
     def configureResult = super.configure(closure)
-    def newRepositoryName = "${configureResult.getImageName()}:${configureResult.getImageTag()}"
+
+    def newRepositoryName = "${configureResult.getImageName()}"
+    if (configureResult.getImageTag()) {
+      newRepositoryName += ":${configureResult.getImageTag()}"
+    }
+
     def buildImageTask = project.task(["type": DockerBuildTask, "overwrite": true], "buildImageInternal") {
       imageName = newRepositoryName
       buildContext = configureResult.getBuildContext()
       buildContextDirectory = configureResult.getBuildContextDirectory()
     }
+    configureResult.dependsOn buildImageTask
+
     getTargetRegistries().each { name, targetRegistry ->
       def pushTask = project.task(["type": DockerPushTask], "pushImageTo${name.capitalize()}Internal") {
         repositoryName = newRepositoryName
@@ -55,6 +63,7 @@ class DockerPublishTask extends AbstractDockerTask {
       }
       pushTask.finalizedBy rmiTask
     }
+
     return configureResult
   }
 

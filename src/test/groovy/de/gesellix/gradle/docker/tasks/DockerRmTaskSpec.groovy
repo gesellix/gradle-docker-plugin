@@ -21,7 +21,7 @@ class DockerRmTaskSpec extends Specification {
     task.containerId = "4712"
 
     when:
-    task.rm()
+    task.execute()
 
     then:
     1 * dockerClient.rm("4712")

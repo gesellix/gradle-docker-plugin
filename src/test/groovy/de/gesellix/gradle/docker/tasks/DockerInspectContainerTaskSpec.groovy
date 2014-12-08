@@ -21,7 +21,7 @@ class DockerInspectContainerTaskSpec extends Specification {
     task.containerId = "4711"
 
     when:
-    task.inspect()
+    task.execute()
 
     then:
     1 * dockerClient.inspectContainer("4711") >> ["container": "details"]

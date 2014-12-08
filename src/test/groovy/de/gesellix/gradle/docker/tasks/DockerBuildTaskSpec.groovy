@@ -122,7 +122,7 @@ class DockerBuildTaskSpec extends Specification {
     task.imageName = "imageName"
 
     when:
-    task.build()
+    task.execute()
 
     then:
     1 * dockerClient.build(inputStream) >> "4711"

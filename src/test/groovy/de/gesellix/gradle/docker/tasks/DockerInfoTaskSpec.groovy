@@ -18,7 +18,7 @@ class DockerInfoTaskSpec extends Specification {
 
   def "delegates to dockerClient and saves result"() {
     when:
-    task.info()
+    task.execute()
 
     then:
     1 * dockerClient.info() >> ["some system info"]

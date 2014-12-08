@@ -4,7 +4,6 @@ import de.gesellix.docker.client.DockerClientImpl
 import de.gesellix.gradle.docker.tasks.*
 import org.gradle.api.Project
 import org.gradle.testfixtures.ProjectBuilder
-import spock.lang.Ignore
 import spock.lang.IgnoreIf
 import spock.lang.Shared
 import spock.lang.Specification
@@ -162,18 +161,5 @@ class DockerPluginIntegrationTest extends Specification {
     imagesResult.findAll {
       it.RepoTags.contains "buildTest:latest"
     }.size() == 1
-  }
-
-  @Ignore("not yet implemented")
-  def "test deploy"() {
-    given:
-    def task = project.task('dockerDeploy', type: DockerDeployTask)
-    task.imageName = 'scratch'
-
-    when:
-    def deployResult = task.deploy()
-
-    then:
-    deployResult == '511136ea3c5a'
   }
 }

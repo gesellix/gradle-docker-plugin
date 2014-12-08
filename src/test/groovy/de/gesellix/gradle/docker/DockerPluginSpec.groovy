@@ -1,10 +1,8 @@
 package de.gesellix.gradle.docker
 
-import de.gesellix.gradle.docker.tasks.DockerDeployTask
 import de.gesellix.gradle.docker.tasks.TestTask
 import org.gradle.api.Project
 import org.gradle.testfixtures.ProjectBuilder
-import spock.lang.Ignore
 import spock.lang.Specification
 
 class DockerPluginSpec extends Specification {
@@ -36,15 +34,5 @@ class DockerPluginSpec extends Specification {
     task.dockerHost == "http://example.org:2375"
     task.authConfigPlain == ["plain auth"]
     task.authConfigEncoded == ["encoded auth"]
-  }
-
-  @Ignore("we'll see, if we need it")
-  def "DockerDeployTask is available"() {
-    given:
-    project.apply plugin: 'de.gesellix.docker'
-    when: "project is evaluated"
-    project.evaluate()
-    then:
-    project.tasks.findByName("dockerDeploy") in DockerDeployTask
   }
 }

@@ -34,7 +34,7 @@ class DockerRunTaskSpec extends Specification {
         ]]
 
     when:
-    task.run()
+    task.execute()
 
     then:
     1 * dockerClient.run(
@@ -61,7 +61,7 @@ class DockerRunTaskSpec extends Specification {
     task.environmentFiles = [new File(envfile.toURI())]
 
     when:
-    task.run()
+    task.execute()
 
     then:
     1 * dockerClient.run(

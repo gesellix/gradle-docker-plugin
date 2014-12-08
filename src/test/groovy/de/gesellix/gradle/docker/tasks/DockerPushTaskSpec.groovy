@@ -30,7 +30,7 @@ class DockerPushTaskSpec extends Specification {
 //    task.authConfigEncoded = "--auth.base64--"
 
     when:
-    task.push()
+    task.execute()
 
     then:
     1 * dockerClient.encodeAuthConfig(authDetails) >> "--auth.base64--"

@@ -23,7 +23,7 @@ class DockerPullTaskSpec extends Specification {
     task.registry = "registry.example.com:4711"
 
     when:
-    task.pull()
+    task.execute()
 
     then:
     1 * dockerClient.pull("imageName", "latest", "registry.example.com:4711")

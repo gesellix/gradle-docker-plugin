@@ -18,7 +18,7 @@ class DockerPsTaskSpec extends Specification {
 
   def "delegates to dockerClient and saves result"() {
     when:
-    task.ps()
+    task.execute()
 
     then:
     1 * dockerClient.ps() >> ["container"]
