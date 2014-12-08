@@ -2,9 +2,20 @@ import java.text.SimpleDateFormat
 
 buildscript {
   repositories {
-    jcenter()
     mavenLocal()
-    mavenCentral()
+    if (project["nexus.public.url"]) {
+      maven {
+        url project["nexus.public.url"]
+        credentials {
+          username project["nexus.username"]
+          password project["nexus.password"]
+        }
+      }
+    }
+    else {
+      jcenter()
+      mavenCentral()
+    }
   }
 
   dependencies {
@@ -16,9 +27,20 @@ buildscript {
 }
 
 repositories {
-  jcenter()
   mavenLocal()
-  mavenCentral()
+  if (project["nexus.public.url"]) {
+    maven {
+      url project["nexus.public.url"]
+      credentials {
+        username project["nexus.username"]
+        password project["nexus.password"]
+      }
+    }
+  }
+  else {
+    jcenter()
+    mavenCentral()
+  }
 }
 
 apply plugin: 'groovy'
