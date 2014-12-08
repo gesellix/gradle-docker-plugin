@@ -3,7 +3,7 @@ import java.text.SimpleDateFormat
 buildscript {
   repositories {
     mavenLocal()
-    if (project["nexus.public.url"]) {
+    if (hasProperty("nexus.public.url") && project["nexus.public.url"]) {
       maven {
         url project["nexus.public.url"]
         credentials {
@@ -28,7 +28,7 @@ buildscript {
 
 repositories {
   mavenLocal()
-  if (project["nexus.public.url"]) {
+  if (hasProperty("nexus.public.url") && project["nexus.public.url"]) {
     maven {
       url project["nexus.public.url"]
       credentials {
