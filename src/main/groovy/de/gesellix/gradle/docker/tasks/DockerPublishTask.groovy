@@ -48,6 +48,9 @@ class DockerPublishTask extends AbstractDockerTask {
       buildContext = configureResult.getBuildContext()
       buildContextDirectory = configureResult.getBuildContextDirectory()
     }
+    configureResult.getTaskDependencies().values.each { parentTaskDependency ->
+      buildImageTask.mustRunAfter parentTaskDependency
+    }
     configureResult.dependsOn buildImageTask
 
     getTargetRegistries().each { name, targetRegistry ->
