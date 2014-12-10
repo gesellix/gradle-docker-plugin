@@ -136,12 +136,9 @@ class DockerPluginIntegrationTest extends Specification {
     given:
     def task = project.task('testStart', type: DockerStartTask)
     def dockerClient = new DockerClientImpl(dockerHost: DOCKER_HOST)
-    def runResult = dockerClient.run('busybox', ["Cmd": ["true"]], [:],
-'latest')
-    def containerId = runResult.container.Id
-    dockerClient.stop(containerId)
-    dockerClient.wait(containerId)
-    task.containerId = containerId
+    dockerClient.pull("busybox", "latest")
+    def containerInfo = dockerClient.createContainer(["Image": "busybox:latest", "Cmd": ["true"]])
+    task.containerId = containerInfo.Id
 
     when:
     def startResult = task.start()
