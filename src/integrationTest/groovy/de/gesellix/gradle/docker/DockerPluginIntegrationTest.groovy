@@ -132,6 +132,21 @@ class DockerPluginIntegrationTest extends Specification {
     rmResult == 204
   }
 
+  def "test start"() {
+    given:
+    def task = project.task('testStart', type: DockerStartTask)
+    def dockerClient = new DockerClientImpl(dockerHost: DOCKER_HOST)
+    dockerClient.pull("busybox", "latest")
+    def containerInfo = dockerClient.createContainer(["Image": "busybox:latest", "Cmd": ["true"]])
+    task.containerId = containerInfo.Id
+
+    when:
+    def startResult = task.start()
+
+    then:
+    startResult == 204
+  }
+
   def "test ps"() {
     given:
     def task = project.task('testPs', type: DockerPsTask)

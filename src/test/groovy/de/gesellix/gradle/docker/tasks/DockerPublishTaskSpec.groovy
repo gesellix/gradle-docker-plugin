@@ -35,6 +35,23 @@ class DockerPublishTaskSpec extends Specification {
     project.tasks.findByName("dockerPublish").getDependsOn().contains project.tasks.findByName("buildImageInternal")
   }
 
+  def "buildImageInternal must run after dockerPublish dependencies"() {
+    given:
+    def publishTaskDependency = project.task('publishTaskDependency', type: TestTask)
+    task.configure {
+      imageName = "busybox"
+      dependsOn publishTaskDependency
+    }
+
+    when:
+    task.execute()
+
+    then:
+    project.tasks.findByName("dockerPublish").getDependsOn().contains project.tasks.findByName("buildImageInternal")
+    and:
+    project.tasks.findByName("buildImageInternal").getMustRunAfter().values.contains project.tasks.findByName("publishTaskDependency")
+  }
+
   def "delegates to DockerPushTask when targetRegistries are configured"() {
     given:
     task.configure {
