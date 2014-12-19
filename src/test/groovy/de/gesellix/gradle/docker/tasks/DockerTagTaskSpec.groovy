@@ -20,11 +20,24 @@ class DockerTagTaskSpec extends Specification {
     given:
     task.imageId = "4711"
     task.tag = "aTag"
+    task.force = true
 
     when:
     task.execute()
 
     then:
-    1 * dockerClient.tag("4711", "aTag")
+    1 * dockerClient.tag("4711", "aTag", true)
+  }
+
+  def "'force' defaults to false"() {
+    given:
+    task.imageId = "4711"
+    task.tag = "aTag"
+
+    when:
+    task.execute()
+
+    then:
+    1 * dockerClient.tag("4711", "aTag", false)
   }
 }
