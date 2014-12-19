@@ -128,7 +128,7 @@ class DockerBuildTaskSpec extends Specification {
     1 * dockerClient.build(inputStream) >> "4711"
 
     then:
-    1 * dockerClient.tag("4711", "imageName")
+    1 * dockerClient.tag("4711", "imageName", true)
 
     and:
     task.outputs.files.isEmpty()

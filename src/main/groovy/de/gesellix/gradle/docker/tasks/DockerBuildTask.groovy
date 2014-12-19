@@ -82,7 +82,7 @@ class DockerBuildTask extends AbstractDockerTask {
     def imageId = getDockerClient().build(getBuildContext())
     if (getImageName()) {
       logger.info "tag $imageId as '${getImageName()}'..."
-      getDockerClient().tag(imageId, getImageName())
+      getDockerClient().tag(imageId, getImageName(), true)
     }
     return imageId
   }
