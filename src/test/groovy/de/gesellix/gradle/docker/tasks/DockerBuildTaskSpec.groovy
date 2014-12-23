@@ -34,10 +34,10 @@ class DockerBuildTaskSpec extends Specification {
     task.configure()
 
     then:
-    project.getTasksByName("tarBuildcontextForTestDockerBuild", false).size() == 1
+    project.getTasksByName("tarBuildcontextForDockerBuild", false).size() == 1
 
     and:
-    task.dependsOn.any { it == project.getTasksByName("tarBuildcontextForTestDockerBuild", false).first() }
+    task.dependsOn.any { it == project.getTasksByName("tarBuildcontextForDockerBuild", false).first() }
   }
 
   def "tar of buildContextDirectory contains buildContextDirectory"() {
@@ -52,7 +52,7 @@ class DockerBuildTaskSpec extends Specification {
     task.configure()
 
     then:
-    def tarOfBuildcontextTask = project.getTasksByName("tarBuildcontextForTestDockerBuild", false).first()
+    def tarOfBuildcontextTask = project.getTasksByName("tarBuildcontextForDockerBuild", false).first()
     tarOfBuildcontextTask.destinationDir == new File("${tarOfBuildcontextTask.getTemporaryDir()}")
 
     and:
@@ -75,7 +75,7 @@ class DockerBuildTaskSpec extends Specification {
     task.configure()
 
     then:
-    def tarOfBuildcontextTask = project.getTasksByName("tarBuildcontextForTestDockerBuild", false).first()
+    def tarOfBuildcontextTask = project.getTasksByName("tarBuildcontextForDockerBuild", false).first()
     def tarOfBuildcontextTaskExcludesTargetArchivePath = false
     tarOfBuildcontextTask.getRootSpec().walk(new Action<CopySpecResolver>() {
 
@@ -104,7 +104,7 @@ class DockerBuildTaskSpec extends Specification {
     task.imageName = "user/imageName"
     task.dockerClient = dockerClient
     task.configure()
-    def tarOfBuildcontextTask = project.getTasksByName("tarBuildcontextForTestDockerBuild", false).first()
+    def tarOfBuildcontextTask = project.getTasksByName("tarBuildcontextForDockerBuild", false).first()
     tarOfBuildcontextTask.execute()
 
     when:
