@@ -28,11 +28,11 @@ class DockerPublishTaskSpec extends Specification {
     then:
     project.tasks.findByName("dockerPublish") instanceof DockerPublishTask
     and:
-    project.tasks.findByName("buildImageInternal") instanceof DockerBuildTask
+    project.tasks.findByName("buildImageForDockerPublish") instanceof DockerBuildTask
     and:
-    project.tasks.findByName("buildImageInternal").imageName == "busybox"
+    project.tasks.findByName("buildImageForDockerPublish").imageName == "busybox"
     and:
-    project.tasks.findByName("dockerPublish").getDependsOn().contains project.tasks.findByName("buildImageInternal")
+    project.tasks.findByName("dockerPublish").getDependsOn().contains project.tasks.findByName("buildImageForDockerPublish")
   }
 
   def "buildImageInternal must run after dockerPublish dependencies"() {
@@ -47,9 +47,9 @@ class DockerPublishTaskSpec extends Specification {
     task.execute()
 
     then:
-    project.tasks.findByName("dockerPublish").getDependsOn().contains project.tasks.findByName("buildImageInternal")
+    project.tasks.findByName("dockerPublish").getDependsOn().contains project.tasks.findByName("buildImageForDockerPublish")
     and:
-    project.tasks.findByName("buildImageInternal").getMustRunAfter().values.contains project.tasks.findByName("publishTaskDependency")
+    project.tasks.findByName("buildImageForDockerPublish").getMustRunAfter().values.contains project.tasks.findByName("publishTaskDependency")
   }
 
   def "delegates to DockerPushTask when targetRegistries are configured"() {
@@ -65,17 +65,17 @@ class DockerPublishTaskSpec extends Specification {
     then:
     project.tasks.findByName("dockerPublish") instanceof DockerPublishTask
     and:
-    project.tasks.findByName("buildImageInternal") instanceof DockerBuildTask
+    project.tasks.findByName("buildImageForDockerPublish") instanceof DockerBuildTask
     and:
     project.tasks.findByName("pushImageToPrivateInternal") instanceof DockerPushTask
     and:
     project.tasks.findByName("rmiPrivateImage") instanceof DockerRmiTask
     and:
-    project.tasks.findByName("pushImageToPrivateInternal").getDependsOn().contains project.tasks.findByName("buildImageInternal")
+    project.tasks.findByName("pushImageToPrivateInternal").getDependsOn().contains project.tasks.findByName("buildImageForDockerPublish")
     and:
     project.tasks.findByName("pushImageToPrivateInternal").getFinalizedBy().values.contains project.tasks.findByName("rmiPrivateImage")
     and:
-    project.tasks.findByName("dockerPublish").getDependsOn().contains project.tasks.findByName("buildImageInternal")
+    project.tasks.findByName("dockerPublish").getDependsOn().contains project.tasks.findByName("buildImageForDockerPublish")
     project.tasks.findByName("dockerPublish").getDependsOn().contains project.tasks.findByName("pushImageToPrivateInternal")
   }
 }
