@@ -21,7 +21,7 @@ class DockerExecTaskSpec extends Specification {
     def containerId = 'foo'
     task.containerId = containerId
 
-    def commandLine = 'touch /tmp/foo.txt'
+    def commandLine = 'echo "foo" > /bar.txt && cat /bar.txt'
     task.commandLine = commandLine
 
     when:
@@ -49,7 +49,7 @@ class DockerExecTaskSpec extends Specification {
     def containerId = 'foo'
     task.containerId = containerId
 
-    def commands = ['sh', '-c', 'echo "foo" > /bar.txt && cat /bar.txt']
+    def commands = ['sh', '-c', 'echo "foo" > /baz.txt && cat /baz.txt']
     task.commandLine = commands
 
     when:
