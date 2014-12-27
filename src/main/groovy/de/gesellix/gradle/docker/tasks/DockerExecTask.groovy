@@ -24,12 +24,13 @@ class DockerExecTask extends AbstractDockerTask {
   @TaskAction
   def exec() {
     logger.info "running exec..."
+    def actualCommand = commandLine instanceof Collection<String> ? commandLine : "sh -c '$commandLine'"
     def execCreateResult = dockerClient.createExec(containerId, [
         "AttachStdin" : false,
         "AttachStdout": true,
         "AttachStderr": true,
         "Tty"         : false,
-        "Cmd"         : commandLine instanceof Collection<String> ? commandLine : commandLine.toString().split(' ')
+        "Cmd": actualCommand
     ])
     result = dockerClient.startExec(execCreateResult.Id, [
         "Detach": false,
