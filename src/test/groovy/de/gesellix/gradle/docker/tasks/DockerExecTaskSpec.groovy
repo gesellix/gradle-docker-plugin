@@ -33,7 +33,7 @@ class DockerExecTaskSpec extends Specification {
         "AttachStdout": true,
         "AttachStderr": true,
         "Tty"         : false,
-        "Cmd": "sh -c '$commandLine'"
+        "Cmd"         : "sh -c '$commandLine'"
     ]) >> [Id: "exec-id"]
 
     1 * dockerClient.startExec("exec-id", [
