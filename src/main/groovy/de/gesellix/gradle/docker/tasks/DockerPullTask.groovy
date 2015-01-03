@@ -12,14 +12,14 @@ class DockerPullTask extends AbstractDockerTask {
 
   @Input
   def imageName
-
   @Input
   @Optional
   def tag
-
   @Input
   @Optional
   def registry
+
+  def imageId
 
   DockerPullTask() {
     description = "pulls a repository from a registry"
@@ -29,6 +29,7 @@ class DockerPullTask extends AbstractDockerTask {
   @TaskAction
   def pull() {
     logger.info "running pull..."
-    dockerClient.pull(getImageName(), getTag(), getRegistry())
+    imageId = dockerClient.pull(getImageName(), getTag(), getRegistry())
+    return imageId
   }
 }

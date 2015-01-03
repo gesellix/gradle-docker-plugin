@@ -31,6 +31,8 @@ class DockerRunTask extends AbstractDockerTask {
 
   def envFileParser = new EnvFileParser()
 
+  def result
+
   DockerRunTask() {
     description = "creates and starts a container"
     group = "Docker"
@@ -50,6 +52,7 @@ class DockerRunTask extends AbstractDockerTask {
       logger.info "effective container.env: ${containerConfig.Env}"
     }
 
-    getDockerClient().run(getImageName(), containerConfig, hostConfig, getTag(), getContainerName())
+    result = getDockerClient().run(getImageName(), containerConfig, hostConfig, getTag(), getContainerName())
+    return result
   }
 }

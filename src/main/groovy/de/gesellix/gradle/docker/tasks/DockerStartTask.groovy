@@ -12,6 +12,8 @@ class DockerStartTask extends AbstractDockerTask {
   @Input
   def containerId
 
+  def result
+
   DockerStartTask() {
     description = "starts a container"
     group = "Docker"
@@ -20,6 +22,7 @@ class DockerStartTask extends AbstractDockerTask {
   @TaskAction
   def start() {
     logger.info "running start..."
-    getDockerClient().startContainer(getContainerId())
+    result = getDockerClient().startContainer(getContainerId())
+    return result
   }
 }

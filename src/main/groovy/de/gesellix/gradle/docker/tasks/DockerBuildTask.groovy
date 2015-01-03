@@ -27,6 +27,8 @@ class DockerBuildTask extends AbstractDockerTask {
 
   def tarOfBuildcontextTask
 
+  def imageId
+
   DockerBuildTask() {
     description = "builds an image from the given build context"
     group = "Docker"
@@ -79,7 +81,7 @@ class DockerBuildTask extends AbstractDockerTask {
     // at this point we need the buildContext
     assert getBuildContext()
 
-    def imageId = getDockerClient().build(getBuildContext())
+    imageId = getDockerClient().build(getBuildContext())
     if (getImageName()) {
       logger.info "tag $imageId as '${getImageName()}'..."
       getDockerClient().tag(imageId, getImageName(), true)

@@ -28,8 +28,7 @@ class DockerPluginIntegrationTest extends Specification {
     given:
 //    def resource = getClass().getResourceAsStream('build.tar')
     def resource = getClass().getResource('/docker/Dockerfile')
-    def task = project.task('testBuild', type: DockerBuildTask)
-    task.configure {
+    def task = project.task('testBuild', type: DockerBuildTask) {
       imageName = "buildTest"
 //    buildContext = resource
       buildContextDirectory = new File(resource.toURI()).parentFile
@@ -37,23 +36,24 @@ class DockerPluginIntegrationTest extends Specification {
     task.tarOfBuildcontextTask.execute()
 
     when:
-    def buildResult = task.build()
+    task.execute()
 
     then:
-    buildResult ==~ "[a-z0-9]+"
+    task.imageId ==~ "[a-z0-9]+"
   }
 
   def "test pull"() {
     given:
-    def task = project.task('testPull', type: DockerPullTask)
-    task.imageName = 'busybox'
-    task.tag = 'latest'
+    def task = project.task('testPull', type: DockerPullTask) {
+      imageName = 'busybox'
+      tag = 'latest'
+    }
 
     when:
-    def pullResult = task.pull()
+    task.execute()
 
     then:
-    pullResult == 'e72ac664f4f0'
+    task.imageId == '4986bf8c1536'
   }
 
   def "test push"() {
@@ -67,113 +67,120 @@ class DockerPluginIntegrationTest extends Specification {
     dockerClient.pull("scratch")
     dockerClient.tag("scratch", "gesellix/example")
 
-    def task = project.task('testPush', type: DockerPushTask)
-    task.repositoryName = 'gesellix/example'
-//    task.authConfigPlain = authDetails
-    task.authConfigEncoded = authConfig
-    // don't access the official registry,
-    // so that we don't try (and fail) to authenticate for each test execution.
-    // for a real test, this line needs to be commented or removed, though.
-    task.registry = 'example.com:5000'
+    def task = project.task('testPush', type: DockerPushTask) {
+      repositoryName = 'gesellix/example'
+//    authConfigPlain = authDetails
+      authConfigEncoded = authConfig
+      // don't access the official registry,
+      // so that we don't try (and fail) to authenticate for each test execution.
+      // for a real test, this line needs to be commented or removed, though.
+      registry = 'example.com:5000'
+    }
 
     when:
-    def pushResult = task.push()
+    task.execute()
 
     then:
     //pushResult.status ==~ "Pushing tag for rev \\[[a-z0-9]+\\] on \\{https://registry-1.docker.io/v1/repositories/gesellix/example/tags/latest\\}"
     //pushResult.error ==~ "Error: Status 401 trying to push repository gesellix/example: \"\""
-    pushResult ==~ "Invalid Registry endpoint: Get http://example.com:5000/v1/_ping: dial tcp \\d{1,3}.\\d{1,3}.\\d{1,3}.\\d{1,3}:5000: i/o timeout"
+    task.result =~ "Invalid registry endpoint https://example.com:5000/v1/: Get https://example.com:5000/v1/_ping: dial tcp \\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}:5000: i/o timeout. If this private registry supports only HTTP or HTTPS with an unknown CA certificate, please add `--insecure-registry example.com:5000` to the daemon's arguments. In the case of HTTPS, if you have access to the registry's CA certificate, no need for the flag; simply place the CA certificate at /etc/docker/certs.d/example.com:5000/ca.crt"
   }
 
   def "test run"() {
     given:
-    def task = project.task('testRun', type: DockerRunTask)
-    task.dockerHost = DOCKER_HOST
-    task.containerConfiguration = ["Cmd": ["true"]]
-    task.imageName = 'busybox'
-    task.tag = 'latest'
+    def task = project.task('testRun', type: DockerRunTask) {
+      dockerHost = DOCKER_HOST
+      containerConfiguration = ["Cmd": ["true"]]
+      imageName = 'busybox'
+      tag = 'latest'
+    }
 
     when:
-    def runResult = task.run()
+    task.execute()
 
     then:
-    runResult.container.Id ==~ "[a-z0-9]+"
+    task.result.container.Id ==~ "[a-z0-9]+"
     and:
-    runResult.status == 204
+    task.result.status == 204
   }
 
   def "test stop"() {
     given:
-    def task = project.task('testStop', type: DockerStopTask)
     def runResult = new DockerClientImpl(dockerHost: DOCKER_HOST).run('busybox', ["Cmd": ["true"]], [:], 'latest')
-    task.containerId = runResult.container.Id
+    def task = project.task('testStop', type: DockerStopTask) {
+      containerId = runResult.container.Id
+    }
 
     when:
-    def stopResult = task.stop()
+    task.execute()
 
     then:
-    stopResult == 204
+    task.result == 204
   }
 
   def "test rm"() {
     given:
-    def task = project.task('testRm', type: DockerRmTask)
     def dockerClient = new DockerClientImpl(dockerHost: DOCKER_HOST)
     def runResult = dockerClient.run('busybox', ["Cmd": ["true"]], [:], 'latest')
-    def containerId = runResult.container.Id
-    dockerClient.stop(containerId)
-    dockerClient.wait(containerId)
-    task.containerId = containerId
+    def runningContainerId = runResult.container.Id
+    dockerClient.stop(runningContainerId)
+    dockerClient.wait(runningContainerId)
+    def task = project.task('testRm', type: DockerRmTask) {
+      containerId = runningContainerId
+    }
 
     when:
-    def rmResult = task.rm()
+    task.execute()
 
     then:
-    rmResult == 204
+    task.result == 204
   }
 
   def "test start"() {
     given:
-    def task = project.task('testStart', type: DockerStartTask)
     def dockerClient = new DockerClientImpl(dockerHost: DOCKER_HOST)
     dockerClient.pull("busybox", "latest")
     def containerInfo = dockerClient.createContainer(["Image": "busybox:latest", "Cmd": ["true"]])
-    task.containerId = containerInfo.Id
+    def task = project.task('testStart', type: DockerStartTask) {
+      containerId = containerInfo.Id
+    }
 
     when:
-    def startResult = task.start()
+    task.execute()
 
     then:
-    startResult == 204
+    task.result == 204
   }
 
   def "test ps"() {
     given:
-    def task = project.task('testPs', type: DockerPsTask)
-    task.dockerHost = DOCKER_HOST
+    def task = project.task('testPs', type: DockerPsTask) {
+      dockerHost = DOCKER_HOST
+    }
     def uuid = UUID.randomUUID().toString()
     def cmd = "true || $uuid".toString()
     new DockerClientImpl(dockerHost: DOCKER_HOST).run('busybox', ["Cmd": [cmd]], [:], 'latest')
 
     when:
-    def psResult = task.ps()
+    task.execute()
 
     then:
-    psResult.findAll {
+    task.containers.findAll {
       it.Command == cmd
     }.size() == 1
   }
 
   def "test images"() {
     given:
-    def task = project.task('testImages', type: DockerImagesTask)
-    task.dockerHost = DOCKER_HOST
+    def task = project.task('testImages', type: DockerImagesTask) {
+      dockerHost = DOCKER_HOST
+    }
 
     when:
-    def imagesResult = task.images()
+    task.execute()
 
     then:
-    imagesResult.findAll {
+    task.images.findAll {
       it.RepoTags.contains "buildTest:latest"
     }.size() == 1
   }
