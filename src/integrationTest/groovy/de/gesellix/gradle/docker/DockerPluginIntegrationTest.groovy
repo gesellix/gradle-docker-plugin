@@ -102,6 +102,9 @@ class DockerPluginIntegrationTest extends Specification {
     task.result.container.Id ==~ "[a-z0-9]+"
     and:
     task.result.status == 204
+
+    cleanup:
+    new DockerClientImpl(dockerHost: DOCKER_HOST).rm(task.result.container.Id)
   }
 
   def "test stop"() {
@@ -116,6 +119,9 @@ class DockerPluginIntegrationTest extends Specification {
 
     then:
     task.result == 204
+
+    cleanup:
+    new DockerClientImpl(dockerHost: DOCKER_HOST).rm(runResult.container.Id)
   }
 
   def "test rm"() {
@@ -150,6 +156,9 @@ class DockerPluginIntegrationTest extends Specification {
 
     then:
     task.result == 204
+
+    cleanup:
+    new DockerClientImpl(dockerHost: DOCKER_HOST).rm(containerInfo.Id)
   }
 
   def "test ps"() {
@@ -159,7 +168,7 @@ class DockerPluginIntegrationTest extends Specification {
     }
     def uuid = UUID.randomUUID().toString()
     def cmd = "true || $uuid".toString()
-    new DockerClientImpl(dockerHost: DOCKER_HOST).run('busybox', ["Cmd": [cmd]], [:], 'latest')
+    def containerInfo = new DockerClientImpl(dockerHost: DOCKER_HOST).run('busybox', ["Cmd": [cmd]], [:], 'latest')
 
     when:
     task.execute()
@@ -168,6 +177,9 @@ class DockerPluginIntegrationTest extends Specification {
     task.containers.findAll {
       it.Command == cmd
     }.size() == 1
+
+    cleanup:
+    new DockerClientImpl(dockerHost: DOCKER_HOST).rm(containerInfo.container.Id)
   }
 
   def "test images"() {
