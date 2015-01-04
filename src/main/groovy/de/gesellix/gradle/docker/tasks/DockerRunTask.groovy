@@ -34,13 +34,13 @@ class DockerRunTask extends AbstractDockerTask {
   def result
 
   DockerRunTask() {
-    description = "creates and starts a container"
+    description = "Run a command in a new container"
     group = "Docker"
   }
 
   @TaskAction
   def run() {
-    logger.info "running run..."
+    logger.info "docker run"
     def containerConfig = getContainerConfiguration() ?: [:]
     def hostConfig = getHostConfiguration() ?: [:]
     if (getEnvironmentFiles()) {

@@ -30,7 +30,7 @@ class DockerBuildTask extends AbstractDockerTask {
   def imageId
 
   DockerBuildTask() {
-    description = "builds an image from the given build context"
+    description = "Build an image from a Dockerfile"
     group = "Docker"
 
 //    addValidator(new TaskValidator() {
@@ -67,7 +67,7 @@ class DockerBuildTask extends AbstractDockerTask {
 
   @TaskAction
   def build() {
-    logger.info "running build..."
+    logger.info "docker build"
 
     if (getBuildContextDirectory()) {
       // only one of buildContext and buildContextDirectory shall be provided

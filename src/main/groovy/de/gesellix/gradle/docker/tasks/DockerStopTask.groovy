@@ -15,13 +15,13 @@ class DockerStopTask extends AbstractDockerTask {
   def result
 
   DockerStopTask() {
-    description = "stops a container"
+    description = "Stop a running container"
     group = "Docker"
   }
 
   @TaskAction
   def stop() {
-    logger.info "running stop..."
+    logger.info "docker stop"
     result = getDockerClient().stop(getContainerId())
     return result
   }

@@ -17,13 +17,13 @@ class DockerTagTask extends AbstractDockerTask {
   def force = false
 
   DockerTagTask() {
-    description = "tag an image into a repository"
+    description = "Tag an image into a repository"
     group = "Docker"
   }
 
   @TaskAction
   def tag() {
-    logger.info "running tag..."
+    logger.info "docker tag"
     return getDockerClient().tag(getImageId(), getTag(), getForce())
   }
 }

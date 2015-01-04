@@ -19,13 +19,13 @@ class DockerPushTask extends AbstractDockerTask {
   def result
 
   DockerPushTask() {
-    description = "pushes a repository to a registry"
+    description = "Push an image or a repository to a Docker registry server"
     group = "Docker"
   }
 
   @TaskAction
   def push() {
-    logger.info "running push..."
+    logger.info "docker push"
     result = dockerClient.push(getRepositoryName(), getAuthConfig(), getRegistry())
     return result
   }

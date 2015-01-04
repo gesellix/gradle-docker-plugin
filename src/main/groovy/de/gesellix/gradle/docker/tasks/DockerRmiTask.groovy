@@ -13,13 +13,13 @@ class DockerRmiTask extends AbstractDockerTask {
   def imageId
 
   DockerRmiTask() {
-    description = "removes an image or tag"
+    description = "Remove one or more images"
     group = "Docker"
   }
 
   @TaskAction
   def rmi() {
-    logger.info "running rmi..."
+    logger.info "docker rmi"
     getDockerClient().rmi(getImageId())
   }
 }

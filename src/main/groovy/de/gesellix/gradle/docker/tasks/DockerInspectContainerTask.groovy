@@ -15,13 +15,13 @@ class DockerInspectContainerTask extends AbstractDockerTask {
   def containerInfo
 
   DockerInspectContainerTask() {
-    description = "inspects a container"
+    description = "Return low-level information on a container"
     group = "Docker"
   }
 
   @TaskAction
   def inspect() {
-    logger.info "running inspect container..."
+    logger.info "docker inspect"
 
     containerInfo = getDockerClient().inspectContainer(getContainerId())
   }

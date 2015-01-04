@@ -17,13 +17,13 @@ class DockerExecTask extends AbstractDockerTask {
   def result
 
   DockerExecTask() {
-    description = "run a command in a running container"
+    description = "Run a command in a running container"
     group = "Docker"
   }
 
   @TaskAction
   def exec() {
-    logger.info "running exec..."
+    logger.info "docker exec"
 
     def execCreateConfig = [
         "AttachStdin" : false,

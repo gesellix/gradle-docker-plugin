@@ -15,13 +15,13 @@ class DockerRmTask extends AbstractDockerTask {
   def result
 
   DockerRmTask() {
-    description = "removes a container"
+    description = "Remove one or more containers"
     group = "Docker"
   }
 
   @TaskAction
   def rm() {
-    logger.info "running rm..."
+    logger.info "docker rm"
     result = getDockerClient().rm(getContainerId())
     return result
   }
