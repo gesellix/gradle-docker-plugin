@@ -42,7 +42,7 @@ class DockerRunTask extends AbstractDockerTask {
   def run() {
     logger.info "docker run"
     def containerConfig = getContainerConfiguration() ?: [:]
-    def hostConfig = getHostConfiguration() ?: [:]
+    containerConfig.HostConfig = getHostConfiguration() ?: containerConfig.HostConfig
     if (getEnvironmentFiles()) {
       containerConfig.Env = containerConfig.Env ?: []
       getEnvironmentFiles().each {
@@ -52,7 +52,7 @@ class DockerRunTask extends AbstractDockerTask {
       logger.info "effective container.env: ${containerConfig.Env}"
     }
 
-    result = getDockerClient().run(getImageName(), containerConfig, hostConfig, getTag(), getContainerName())
+    result = getDockerClient().run(getImageName(), containerConfig, getTag(), getContainerName())
     return result
   }
 }

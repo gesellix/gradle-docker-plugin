@@ -41,12 +41,13 @@ class DockerRunTaskSpec extends Specification {
         "anImage",
         ["ExposedPorts": [
             "8889/tcp": [],
-            "9300/tcp": []]],
-        ["PortBindings": [
-            "8889/tcp": [
-                ["HostIp"  : "0.0.0.0",
-                 "HostPort": "8889"]]
-        ]],
+            "9300/tcp": []],
+         "HostConfig"  : [
+             "PortBindings": [
+                 "8889/tcp": [
+                     ["HostIp"  : "0.0.0.0",
+                      "HostPort": "8889"]]
+             ]]],
         "aTag", "aContainerName")
   }
 
@@ -56,7 +57,8 @@ class DockerRunTaskSpec extends Specification {
     given:
     task.imageName = "anImage"
     task.containerConfiguration = [
-        "Env": null
+        "Env"       : null,
+        "HostConfig": ["PublishAllPorts": false]
     ]
     task.environmentFiles = [new File(envfile.toURI())]
 
@@ -66,8 +68,8 @@ class DockerRunTaskSpec extends Specification {
     then:
     1 * dockerClient.run(
         "anImage",
-        ["Env": ['THE_WIND=CAUGHT_IT', 'FOO=BAR Baz']],
-        [:],
+        ["Env"       : ['THE_WIND=CAUGHT_IT', 'FOO=BAR Baz'],
+         "HostConfig": ["PublishAllPorts": false]],
         null, null
     )
   }
