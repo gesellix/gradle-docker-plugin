@@ -118,7 +118,7 @@ class DockerPluginIntegrationTest extends Specification {
     task.execute()
 
     then:
-    task.result == 204
+    task.result == 204 || task.result == 304
 
     cleanup:
     new DockerClientImpl(dockerHost: DOCKER_HOST).rm(runResult.container.Id)
