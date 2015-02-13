@@ -45,7 +45,7 @@ class DockerPluginIntegrationTest extends Specification {
   def "test pull"() {
     given:
     def task = project.task('testPull', type: DockerPullTask) {
-      imageName = 'busybox'
+      imageName = 'gesellix/docker-client-testimage'
       tag = 'latest'
     }
 
@@ -53,7 +53,7 @@ class DockerPluginIntegrationTest extends Specification {
     task.execute()
 
     then:
-    task.imageId == '4986bf8c1536'
+    task.imageId == '3eb19b6d9332'
   }
 
   def "test push"() {
@@ -64,8 +64,8 @@ class DockerPluginIntegrationTest extends Specification {
                        "serveraddress": "https://index.docker.io/v1/"]
     def dockerClient = new DockerClientImpl(dockerHost: DOCKER_HOST)
     def authConfig = dockerClient.encodeAuthConfig(authDetails)
-    dockerClient.pull("scratch")
-    dockerClient.tag("scratch", "gesellix/example")
+    dockerClient.pull("gesellix/docker-client-testimage")
+    dockerClient.tag("gesellix/docker-client-testimage", "gesellix/example", true)
 
     def task = project.task('testPush', type: DockerPushTask) {
       repositoryName = 'gesellix/example'
@@ -83,7 +83,9 @@ class DockerPluginIntegrationTest extends Specification {
     then:
     //pushResult.status ==~ "Pushing tag for rev \\[[a-z0-9]+\\] on \\{https://registry-1.docker.io/v1/repositories/gesellix/example/tags/latest\\}"
     //pushResult.error ==~ "Error: Status 401 trying to push repository gesellix/example: \"\""
-    task.result =~ "Invalid registry endpoint https://example.com:5000/v1/: Get https://example.com:5000/v1/_ping: dial tcp \\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}:5000: i/o timeout. If this private registry supports only HTTP or HTTPS with an unknown CA certificate, please add `--insecure-registry example.com:5000` to the daemon's arguments. In the case of HTTPS, if you have access to the registry's CA certificate, no need for the flag; simply place the CA certificate at /etc/docker/certs.d/example.com:5000/ca.crt"
+    def exc = thrown(Exception)
+    exc.cause.cause.message == "docker push failed"
+    exc.cause.detail =~ " v1 ping attempt failed with error: Get https://example.com:5000/v1/_ping: dial tcp \\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}:5000: i/o timeout. If this private registry supports only HTTP or HTTPS with an unknown CA certificate, please add `--insecure-registry example.com:5000` to the daemon's arguments. In the case of HTTPS, if you have access to the registry's CA certificate, no need for the flag; simply place the CA certificate at /etc/docker/certs.d/example.com:5000/ca.crt"
   }
 
   def "test run"() {
@@ -91,7 +93,7 @@ class DockerPluginIntegrationTest extends Specification {
     def task = project.task('testRun', type: DockerRunTask) {
       dockerHost = DOCKER_HOST
       containerConfiguration = ["Cmd": ["true"]]
-      imageName = 'busybox'
+      imageName = 'gesellix/docker-client-testimage'
       tag = 'latest'
     }
 
@@ -109,7 +111,8 @@ class DockerPluginIntegrationTest extends Specification {
 
   def "test stop"() {
     given:
-    def runResult = new DockerClientImpl(dockerHost: DOCKER_HOST).run('busybox', ["Cmd": ["true"]], [:], 'latest')
+    def runResult = new DockerClientImpl(dockerHost: DOCKER_HOST).run('gesellix/docker-client-testimage',
+                                                                      ["Cmd": ["true"]], [:], 'latest')
     def task = project.task('testStop', type: DockerStopTask) {
       containerId = runResult.container.Id
     }
@@ -127,7 +130,7 @@ class DockerPluginIntegrationTest extends Specification {
   def "test rm"() {
     given:
     def dockerClient = new DockerClientImpl(dockerHost: DOCKER_HOST)
-    def runResult = dockerClient.run('busybox', ["Cmd": ["true"]], [:], 'latest')
+    def runResult = dockerClient.run('gesellix/docker-client-testimage', ["Cmd": ["true"]], [:], 'latest')
     def runningContainerId = runResult.container.Id
     dockerClient.stop(runningContainerId)
     dockerClient.wait(runningContainerId)
@@ -145,8 +148,8 @@ class DockerPluginIntegrationTest extends Specification {
   def "test start"() {
     given:
     def dockerClient = new DockerClientImpl(dockerHost: DOCKER_HOST)
-    dockerClient.pull("busybox", "latest")
-    def containerInfo = dockerClient.createContainer(["Image": "busybox:latest", "Cmd": ["true"]])
+    dockerClient.pull("gesellix/docker-client-testimage", "latest")
+    def containerInfo = dockerClient.createContainer(["Image": "gesellix/docker-client-testimage:latest", "Cmd": ["true"]])
     def task = project.task('testStart', type: DockerStartTask) {
       containerId = containerInfo.Id
     }
@@ -168,7 +171,7 @@ class DockerPluginIntegrationTest extends Specification {
     }
     def uuid = UUID.randomUUID().toString()
     def cmd = "true || $uuid".toString()
-    def containerInfo = new DockerClientImpl(dockerHost: DOCKER_HOST).run('busybox', ["Cmd": [cmd]], [:], 'latest')
+    def containerInfo = new DockerClientImpl(dockerHost: DOCKER_HOST).run('gesellix/docker-client-testimage', ["Cmd": [cmd]], [:], 'latest')
 
     when:
     task.execute()
