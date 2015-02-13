@@ -19,6 +19,7 @@ class DockerPluginIntegrationTest extends Specification {
   def DOCKER_HOST = defaultDockerHost
 
   def setup() {
+    //System.setProperty("docker.cert.path", "C:\\Users\\gesellix\\.boot2docker\\certs\\boot2docker-vm")
     project = ProjectBuilder.builder().withName('example').build()
     project.apply plugin: 'de.gesellix.docker'
     project.docker.dockerHost = DOCKER_HOST
