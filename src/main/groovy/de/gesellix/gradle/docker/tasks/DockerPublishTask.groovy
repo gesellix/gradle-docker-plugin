@@ -25,7 +25,7 @@ class DockerPublishTask extends AbstractDockerTask {
   @Optional
   def imageTag
 
-  def imageNameWithTag
+  String imageNameWithTag
 
   @Input
   @Optional
@@ -46,7 +46,7 @@ class DockerPublishTask extends AbstractDockerTask {
     }
 
     def buildImageTask = configureBuildImageTask()
-    configureResult.getTaskDependencies().values.each { parentTaskDependency ->
+    configureResult.getDependsOn().each { parentTaskDependency ->
       if (buildImageTask != parentTaskDependency) {
         buildImageTask.mustRunAfter parentTaskDependency
       }
@@ -54,48 +54,49 @@ class DockerPublishTask extends AbstractDockerTask {
     configureResult.dependsOn buildImageTask
 
     getTargetRegistries().each { name, targetRegistry ->
-      def pushTask = project.task(["type": DockerPushTask], "pushImageTo${name.capitalize()}Internal") {
-        repositoryName = imageNameWithTag
-        registry = targetRegistry
-        dependsOn buildImageTask
-      }
+      def pushTask = createUniquePushTask(name, targetRegistry, imageNameWithTag)
+      pushTask.dependsOn buildImageTask
       configureResult.dependsOn pushTask
-
-      def rmiTask = project.task(["type": DockerRmiTask], "rmi${name.capitalize()}Image") {
-        imageId = "${targetRegistry}/${imageNameWithTag}"
-      }
-      pushTask.finalizedBy rmiTask
     }
 
     return configureResult
   }
 
+  def createUniquePushTask(name, targetRegistry, imageNameWithTag) {
+    def pushTask = createUniqueTask(DockerPushTask, "pushImageTo${name.capitalize()}Internal").configure {
+      repositoryName = imageNameWithTag
+      registry = targetRegistry
+    }
+    def rmiTask = createUniqueTask(DockerRmiTask, "rmi${name.capitalize()}Image").configure {
+      imageId = "${targetRegistry}/${imageNameWithTag}"
+    }
+    pushTask.finalizedBy rmiTask
+  }
+
   private def configureBuildImageTask() {
     def buildImageTaskName = "buildImageFor${this.name.capitalize()}"
-
-    def existingBuildTasks = project.tasks.findAll {
-      it instanceof DockerBuildTask && it.name == buildImageTaskName
-    }
-    if (existingBuildTasks.size() > 1) {
-      throw new IllegalStateException("unique build task expected, found ${existingBuildTasks.size()}.")
-    }
-
-    def buildImageTask
-
-    if (existingBuildTasks) {
-      buildImageTask = existingBuildTasks.first()
-    }
-    else {
-      buildImageTask = project.task(["type": DockerBuildTask, "overwrite": true], buildImageTaskName)
-    }
-
-    def buildImageConfiguration = {
+    def buildImageTask = createUniqueTask(DockerBuildTask, buildImageTaskName).configure {
       imageName = imageNameWithTag
       buildContext = this.getBuildContext()
       buildContextDirectory = this.getBuildContextDirectory()
     }
-    buildImageTask.configure(buildImageConfiguration)
     return buildImageTask
+  }
+
+  def createUniqueTask(taskType, String name) {
+    def existingTasks = project.tasks.findAll {
+      taskType.isInstance(it) && it.name == name
+    }
+    if (existingTasks.size() > 1) {
+      throw new IllegalStateException("unique task expected, found ${existingTasks.size()}.")
+    }
+
+    if (existingTasks) {
+      return existingTasks.first()
+    }
+    else {
+      return project.task(["type": taskType], name)
+    }
   }
 
   @TaskAction
