@@ -50,7 +50,19 @@ class DockerBuildTask extends AbstractDockerTask {
   Task configure(Closure closure) {
     def configureResult = super.configure(closure)
     if (getBuildContextDirectory()) {
-      tarOfBuildcontextTask = project.task(["type": Tar], "tarBuildcontextFor${configureResult.name.capitalize()}") {
+      configureTarBuildContextTask()
+      configureResult.getDependsOn().each { parentTaskDependency ->
+        if (tarOfBuildcontextTask != parentTaskDependency) {
+          tarOfBuildcontextTask.mustRunAfter parentTaskDependency
+        }
+      }
+    }
+    return configureResult
+  }
+
+  private def configureTarBuildContextTask() {
+    if (tarOfBuildcontextTask == null) {
+      tarOfBuildcontextTask = project.task(["type": Tar], "tarBuildcontextFor${name.capitalize()}") {
         description = "creates a tar of the buildcontext"
         from getBuildContextDirectory()
         compression = GZIP
@@ -62,7 +74,6 @@ class DockerBuildTask extends AbstractDockerTask {
       }
       dependsOn tarOfBuildcontextTask
     }
-    return configureResult
   }
 
   @TaskAction

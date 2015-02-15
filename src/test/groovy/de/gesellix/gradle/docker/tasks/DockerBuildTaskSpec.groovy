@@ -40,6 +40,25 @@ class DockerBuildTaskSpec extends Specification {
     task.dependsOn.any { it == project.getTasksByName("tarBuildcontextForDockerBuild", false).first() }
   }
 
+  def "tar task must run after dockerBuild dependencies"() {
+    URL dockerfile = getClass().getResource('/docker/Dockerfile')
+    def baseDir = new File(dockerfile.toURI()).parentFile
+
+    given:
+    def buildTaskDependency = project.task('buildTaskDependency', type: TestTask)
+    task.dependsOn buildTaskDependency
+    task.buildContextDirectory = baseDir
+    task.imageName = "busybox"
+
+    when:
+    task.configure()
+
+    then:
+    project.tasks.findByName("dockerBuild").getDependsOn().contains project.tasks.findByName("buildTaskDependency")
+    and:
+    project.tasks.findByName("tarBuildcontextForDockerBuild").getMustRunAfter().values.contains project.tasks.findByName("buildTaskDependency")
+  }
+
   def "tar of buildContextDirectory contains buildContextDirectory"() {
     URL dockerfile = getClass().getResource('/docker/Dockerfile')
     def baseDir = new File(dockerfile.toURI()).parentFile
