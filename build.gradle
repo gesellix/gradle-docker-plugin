@@ -99,6 +99,7 @@ configurations {
 def versionOverrides = [
     'commons-lang:commons-lang'                            : '2.4',
     'commons-logging:commons-logging'                      : '1.1.3',
+    'junit:junit': '4.11',
     'org.apache.httpcomponents:httpclient'                 : '4.3',
     'org.apache.httpcomponents:httpmime'                   : '4.3',
     'org.codehaus.groovy:groovy-all'                       : '2.3.6',
@@ -114,7 +115,7 @@ dependencies {
   compile gradleApi()
   compile localGroovy()
 
-  compile 'de.gesellix:docker-client:2015-03-07T19-55-13'
+  compile 'de.gesellix:docker-client:2015-03-07T20-14-56'
 
   testCompile 'org.spockframework:spock-core:0.7-groovy-2.0'
 }
