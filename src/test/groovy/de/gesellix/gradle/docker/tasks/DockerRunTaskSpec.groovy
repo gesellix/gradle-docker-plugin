@@ -70,7 +70,7 @@ class DockerRunTaskSpec extends Specification {
         "anImage",
         ["Env"       : ['THE_WIND=CAUGHT_IT', 'FOO=BAR Baz'],
          "HostConfig": ["PublishAllPorts": false]],
-        null, null
+        '', ''
     )
   }
 }

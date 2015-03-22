@@ -41,6 +41,10 @@ class DockerPluginIntegrationTest extends Specification {
 
     then:
     task.imageId ==~ "[a-z0-9]+"
+
+    cleanup:
+    def dockerClient = new DockerClientImpl(dockerHost: DOCKER_HOST)
+    dockerClient.rmi("buildTest")
   }
 
   def "test pull"() {
@@ -86,7 +90,11 @@ class DockerPluginIntegrationTest extends Specification {
     //pushResult.error ==~ "Error: Status 401 trying to push repository gesellix/example: \"\""
     def exc = thrown(Exception)
     exc.cause.cause.message == "docker push failed"
-    exc.cause.detail =~ " v1 ping attempt failed with error: Get https://example.com:5000/v1/_ping: dial tcp \\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}:5000: i/o timeout. If this private registry supports only HTTP or HTTPS with an unknown CA certificate, please add `--insecure-registry example.com:5000` to the daemon's arguments. In the case of HTTPS, if you have access to the registry's CA certificate, no need for the flag; simply place the CA certificate at /etc/docker/certs.d/example.com:5000/ca.crt"
+    exc.cause.detail?.contains "/images/example.com:5000/gesellix/example/push?registry=example.com%3A5000&tag="
+
+    cleanup:
+    dockerClient.rmi("gesellix/example")
+    dockerClient.rmi("example.com:5000/gesellix/example")
   }
 
   def "test run"() {
@@ -102,37 +110,42 @@ class DockerPluginIntegrationTest extends Specification {
     task.execute()
 
     then:
-    task.result.container.Id ==~ "[a-z0-9]+"
+    task.result.container.content.Id ==~ "[a-z0-9]+"
     and:
-    task.result.status == 204
+    task.result.status.status.code == 204
 
     cleanup:
-    new DockerClientImpl(dockerHost: DOCKER_HOST).rm(task.result.container.Id)
+    def dockerClient = new DockerClientImpl(dockerHost: DOCKER_HOST)
+    dockerClient.stop(task.result.container.content.Id)
+    dockerClient.wait(task.result.container.content.Id)
+    dockerClient.rm(task.result.container.content.Id)
   }
 
   def "test stop"() {
     given:
     def runResult = new DockerClientImpl(dockerHost: DOCKER_HOST).run('gesellix/docker-client-testimage',
-                                                                      ["Cmd": ["true"]], [:], 'latest')
+                                                                      ["Cmd": ["true"]], 'latest')
     def task = project.task('testStop', type: DockerStopTask) {
-      containerId = runResult.container.Id
+      containerId = runResult.container.content.Id
     }
 
     when:
     task.execute()
 
     then:
-    task.result == 204 || task.result == 304
+    task.result.status.code == 204 || task.result.status.code == 304
 
     cleanup:
-    new DockerClientImpl(dockerHost: DOCKER_HOST).rm(runResult.container.Id)
+    def dockerClient = new DockerClientImpl(dockerHost: DOCKER_HOST)
+    dockerClient.wait(runResult.container.content.Id)
+    dockerClient.rm(runResult.container.content.Id)
   }
 
   def "test rm"() {
     given:
     def dockerClient = new DockerClientImpl(dockerHost: DOCKER_HOST)
-    def runResult = dockerClient.run('gesellix/docker-client-testimage', ["Cmd": ["true"]], [:], 'latest')
-    def runningContainerId = runResult.container.Id
+    def runResult = dockerClient.run('gesellix/docker-client-testimage', ["Cmd": ["true"]], 'latest')
+    def runningContainerId = runResult.container.content.Id
     dockerClient.stop(runningContainerId)
     dockerClient.wait(runningContainerId)
     def task = project.task('testRm', type: DockerRmTask) {
@@ -143,7 +156,7 @@ class DockerPluginIntegrationTest extends Specification {
     task.execute()
 
     then:
-    task.result == 204
+    task.result.status.code == 204
   }
 
   def "test start"() {
@@ -152,17 +165,19 @@ class DockerPluginIntegrationTest extends Specification {
     dockerClient.pull("gesellix/docker-client-testimage", "latest")
     def containerInfo = dockerClient.createContainer(["Image": "gesellix/docker-client-testimage:latest", "Cmd": ["true"]])
     def task = project.task('testStart', type: DockerStartTask) {
-      containerId = containerInfo.Id
+      containerId = containerInfo.content.Id
     }
 
     when:
     task.execute()
 
     then:
-    task.result == 204
+    task.result.status.code == 204
 
     cleanup:
-    new DockerClientImpl(dockerHost: DOCKER_HOST).rm(containerInfo.Id)
+    dockerClient.stop(containerInfo.content.Id)
+    dockerClient.wait(containerInfo.content.Id)
+    dockerClient.rm(containerInfo.content.Id)
   }
 
   def "test ps"() {
@@ -172,22 +187,28 @@ class DockerPluginIntegrationTest extends Specification {
     }
     def uuid = UUID.randomUUID().toString()
     def cmd = "true || $uuid".toString()
-    def containerInfo = new DockerClientImpl(dockerHost: DOCKER_HOST).run('gesellix/docker-client-testimage', ["Cmd": [cmd]], [:], 'latest')
+    def containerInfo = new DockerClientImpl(dockerHost: DOCKER_HOST).run('gesellix/docker-client-testimage', ["Cmd": [cmd]], 'latest')
 
     when:
     task.execute()
 
     then:
-    task.containers.findAll {
+    task.containers.content.findAll {
       it.Command == cmd
     }.size() == 1
 
     cleanup:
-    new DockerClientImpl(dockerHost: DOCKER_HOST).rm(containerInfo.container.Id)
+    def dockerClient = new DockerClientImpl(dockerHost: DOCKER_HOST)
+    dockerClient.stop(containerInfo.container.content.Id)
+    dockerClient.wait(containerInfo.container.content.Id)
+    dockerClient.rm(containerInfo.container.content.Id)
   }
 
   def "test images"() {
     given:
+    def dockerClient = new DockerClientImpl(dockerHost: DOCKER_HOST)
+    dockerClient.pull("gesellix/docker-client-testimage")
+    dockerClient.tag("gesellix/docker-client-testimage", "gesellix/images-list", true)
     def task = project.task('testImages', type: DockerImagesTask) {
       dockerHost = DOCKER_HOST
     }
@@ -196,8 +217,11 @@ class DockerPluginIntegrationTest extends Specification {
     task.execute()
 
     then:
-    task.images.findAll {
-      it.RepoTags.contains "buildTest:latest"
+    task.images.content.findAll {
+      it.RepoTags.contains "gesellix/images-list:latest"
     }.size() == 1
+
+    cleanup:
+    dockerClient.rmi("gesellix/images-list:latest")
   }
 }

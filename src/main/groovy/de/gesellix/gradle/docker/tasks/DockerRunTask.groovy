@@ -15,19 +15,19 @@ class DockerRunTask extends AbstractDockerTask {
   def imageName
   @Input
   @Optional
-  def tag
+  def tag = ""
   @Input
   @Optional
-  def containerName
+  def containerName = ""
   @Input
   @Optional
-  def containerConfiguration
+  def containerConfiguration = [:]
   @Input
   @Optional
-  def hostConfiguration
+  def hostConfiguration = [:]
   @Input
   @Optional
-  def environmentFiles
+  def environmentFiles = []
 
   def envFileParser = new EnvFileParser()
 
