@@ -67,6 +67,7 @@ class DockerBuildTask extends AbstractDockerTask {
         BuildContextBuilder.archiveTarFilesRecursively(getBuildContextDirectory(), targetFile)
       }
       tarOfBuildcontextTask.outputs.file(targetFile.absolutePath)
+      tarOfBuildcontextTask.outputs.upToDateWhen { false }
       dependsOn tarOfBuildcontextTask
     }
   }
