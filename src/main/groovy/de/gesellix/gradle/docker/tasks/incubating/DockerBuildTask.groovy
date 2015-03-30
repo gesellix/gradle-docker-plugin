@@ -62,10 +62,11 @@ class DockerBuildTask extends AbstractDockerTask {
 
   private def configureTarBuildContextTask() {
     if (tarOfBuildcontextTask == null) {
-      targetFile = new File(getTemporaryDir(), "buildContext_${getNormalizedImageName()}.tar")
-      tarOfBuildcontextTask = project.task([:], "tarBuildcontextFor${name.capitalize()}").doLast {
+      targetFile = new File(getTemporaryDir(), "buildContext_${getNormalizedImageName()}.tar.gz")
+      tarOfBuildcontextTask = project.task([group: getGroup()], "tarBuildcontextFor${name.capitalize()}").doLast {
         BuildContextBuilder.archiveTarFilesRecursively(getBuildContextDirectory(), targetFile)
       }
+      tarOfBuildcontextTask.outputs.file(targetFile.absolutePath)
       dependsOn tarOfBuildcontextTask
     }
   }

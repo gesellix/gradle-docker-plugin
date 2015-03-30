@@ -95,7 +95,7 @@ class DockerPublishTask extends AbstractDockerTask {
       return existingTasks.first()
     }
     else {
-      return project.task(["type": taskType], name)
+      return project.task([type: taskType, group: getGroup()], name)
     }
   }
 
