@@ -14,7 +14,7 @@ public class DockerPlugin implements Plugin<Project> {
   void apply(Project project) {
 //    project.plugins.apply(BasePlugin)
 
-    logger.info("adding docker extension");
+    logger.debug("adding docker extension");
     def extension = project.extensions.create("docker", DockerPluginExtension)
 
     project.tasks.withType(AbstractDockerTask) { task ->
