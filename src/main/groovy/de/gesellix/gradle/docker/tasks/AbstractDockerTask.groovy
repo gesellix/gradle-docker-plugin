@@ -13,6 +13,9 @@ abstract class AbstractDockerTask extends DefaultTask {
   def dockerHost
   @Input
   @Optional
+  def proxy
+  @Input
+  @Optional
   def authConfigPlain
   @Input
   @Optional
@@ -23,7 +26,7 @@ abstract class AbstractDockerTask extends DefaultTask {
   def getDockerClient() {
     if (!dockerClient) {
       if (getDockerHost()) {
-        dockerClient = new DockerClientImpl(dockerHost: getDockerHost())
+        dockerClient = new DockerClientImpl(dockerHost: getDockerHost(), proxy: getProxy() ?: Proxy.NO_PROXY)
       }
       else {
         dockerClient = new DockerClientImpl()

@@ -19,6 +19,7 @@ public class DockerPlugin implements Plugin<Project> {
 
     project.tasks.withType(AbstractDockerTask) { task ->
       task.dockerHost = extension.dockerHost
+      task.proxy = extension.proxy
       task.authConfigPlain = extension.authConfigPlain
       task.authConfigEncoded = extension.authConfigEncoded
     }
