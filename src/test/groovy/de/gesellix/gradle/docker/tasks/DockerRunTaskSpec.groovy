@@ -24,14 +24,13 @@ class DockerRunTaskSpec extends Specification {
     task.containerConfiguration = [
         "ExposedPorts": [
             "8889/tcp": [],
-            "9300/tcp": []]
-    ]
-    task.hostConfiguration = [
-        "PortBindings": [
+            "9300/tcp": []],
+        HostConfig    : ["PortBindings": [
             "8889/tcp": [
                 ["HostIp"  : "0.0.0.0",
                  "HostPort": "8889"]]
         ]]
+    ]
 
     when:
     task.execute()
@@ -72,5 +71,35 @@ class DockerRunTaskSpec extends Specification {
          "HostConfig": ["PublishAllPorts": false]],
         '', ''
     )
+  }
+
+  def "maps env and port properties to actual containerConfig"() {
+    given:
+    task.imageName = "anImage"
+    task.tag = "aTag"
+    task.containerName = "aContainerName"
+    task.env = ["foo=bar"]
+    task.ports = ["8080:80", "8889:8889"]
+
+    when:
+    task.execute()
+
+    then:
+    1 * dockerClient.run(
+        "anImage",
+        [Env         : ["foo=bar"],
+         ExposedPorts: [
+             "80/tcp"  : [:],
+             "8889/tcp": [:]],
+         HostConfig  : [
+             PortBindings: [
+                 "80/tcp"  : [
+                     [HostIp  : "0.0.0.0",
+                      HostPort: "8080"]],
+                 "8889/tcp": [
+                     [HostIp  : "0.0.0.0",
+                      HostPort: "8889"]]
+             ]]],
+        "aTag", "aContainerName")
   }
 }
