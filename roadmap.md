@@ -30,7 +30,7 @@ on the [Java Docker API Client](https://github.com/docker-java/docker-java) avai
 * [ ] `docker unpause <container>`: Unpause a container
 * [ ] `docker attach <container>`: Attach to a container
 * [ ] Attach to a container (websocket)
-* [ ] `docker wait <container>`: Wait a container
+* [x] `docker wait <container>`: Wait a container
 * [x] `docker rm <container>`: Remove a container
 * [x] `docker cp <container>:<path> <hostpath>`: Copy files or folders from a container
 
