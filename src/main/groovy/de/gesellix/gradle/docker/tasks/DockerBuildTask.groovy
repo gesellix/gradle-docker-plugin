@@ -1,15 +1,13 @@
 package de.gesellix.gradle.docker.tasks
 
+import de.gesellix.docker.client.BuildContextBuilder
 import org.gradle.api.Task
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.TaskAction
-import org.gradle.api.tasks.bundling.Tar
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-
-import static org.gradle.api.tasks.bundling.Compression.GZIP
 
 class DockerBuildTask extends AbstractDockerTask {
 
@@ -26,6 +24,7 @@ class DockerBuildTask extends AbstractDockerTask {
   File buildContextDirectory
 
   def tarOfBuildcontextTask
+  def targetFile
 
   def imageId
 
@@ -62,16 +61,12 @@ class DockerBuildTask extends AbstractDockerTask {
 
   private def configureTarBuildContextTask() {
     if (tarOfBuildcontextTask == null) {
-      tarOfBuildcontextTask = project.task([type: Tar, group: getGroup()], "tarBuildcontextFor${name.capitalize()}") {
-        description = "creates a tar of the buildcontext"
-        from getBuildContextDirectory()
-        compression = GZIP
-        baseName = "buildContext_${getNormalizedImageName()}"
-        destinationDir getTemporaryDir()
+      targetFile = new File(getTemporaryDir(), "buildContext_${getNormalizedImageName()}.tar.gz")
+      tarOfBuildcontextTask = project.task([group: getGroup()], "tarBuildcontextFor${name.capitalize()}").doLast {
+        BuildContextBuilder.archiveTarFilesRecursively(getBuildContextDirectory(), targetFile)
       }
-      tarOfBuildcontextTask.exclude {
-        it.file == tarOfBuildcontextTask.archivePath
-      }
+      tarOfBuildcontextTask.outputs.file(targetFile.absolutePath)
+      tarOfBuildcontextTask.outputs.upToDateWhen { false }
       dependsOn tarOfBuildcontextTask
     }
   }
@@ -85,8 +80,8 @@ class DockerBuildTask extends AbstractDockerTask {
       assert !getBuildContext()
 
       assert tarOfBuildcontextTask
-      logger.info "temporary buildContext: ${tarOfBuildcontextTask.archivePath}"
-      buildContext = new FileInputStream(tarOfBuildcontextTask.archivePath as File)
+      logger.info "temporary buildContext: ${targetFile}"
+      buildContext = new FileInputStream(targetFile as File)
     }
 
     // at this point we need the buildContext
