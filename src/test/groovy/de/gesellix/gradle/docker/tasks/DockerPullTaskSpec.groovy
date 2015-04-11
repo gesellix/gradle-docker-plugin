@@ -18,6 +18,7 @@ class DockerPullTaskSpec extends Specification {
 
   def "delegates to dockerClient"() {
     given:
+    task.authConfigPlain = [username: "user", password: "pass"]
     task.imageName = "imageName"
     task.tag = "latest"
     task.registry = "registry.example.com:4711"
@@ -26,6 +27,8 @@ class DockerPullTaskSpec extends Specification {
     task.execute()
 
     then:
-    1 * dockerClient.pull("imageName", "latest", "registry.example.com:4711")
+    1 * dockerClient.encodeAuthConfig(['username': 'user', 'password': 'pass']) >> "-foo-"
+    then:
+    1 * dockerClient.pull("imageName", "latest", "-foo-", "registry.example.com:4711")
   }
 }
