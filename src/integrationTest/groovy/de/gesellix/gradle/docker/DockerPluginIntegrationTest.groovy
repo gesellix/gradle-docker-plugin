@@ -4,6 +4,7 @@ import de.gesellix.docker.client.DockerClientImpl
 import de.gesellix.gradle.docker.tasks.*
 import org.gradle.api.Project
 import org.gradle.testfixtures.ProjectBuilder
+import spock.lang.Ignore
 import spock.lang.IgnoreIf
 import spock.lang.Shared
 import spock.lang.Specification
@@ -51,6 +52,23 @@ class DockerPluginIntegrationTest extends Specification {
     given:
     def task = project.task('testPull', type: DockerPullTask) {
       imageName = 'gesellix/docker-client-testimage'
+      tag = 'latest'
+    }
+
+    when:
+    task.execute()
+
+    then:
+    task.imageId == '3eb19b6d9332'
+  }
+
+  @Ignore
+  def "test pull with auth"() {
+    given:
+    def dockerClient = new DockerClientImpl(dockerHost: DOCKER_HOST)
+    def task = project.task('testPull', type: DockerPullTask) {
+      authConfigPlain = dockerClient.readAuthConfig(null, null)
+      imageName = 'gesellix/private-repo'
       tag = 'latest'
     }
 

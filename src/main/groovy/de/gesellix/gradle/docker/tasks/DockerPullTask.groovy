@@ -29,7 +29,7 @@ class DockerPullTask extends AbstractDockerTask {
   @TaskAction
   def pull() {
     logger.info "docker pull"
-    imageId = dockerClient.pull(getImageName(), getTag(), getRegistry())
+    imageId = dockerClient.pull(getImageName(), getTag(), getAuthConfig(), getRegistry())
     return imageId
   }
 }
