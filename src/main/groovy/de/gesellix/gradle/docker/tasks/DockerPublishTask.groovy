@@ -54,7 +54,7 @@ class DockerPublishTask extends AbstractDockerTask {
     configureResult.dependsOn buildImageTask
 
     getTargetRegistries().each { name, targetRegistry ->
-      def pushTask = createUniquePushTask(name, targetRegistry, imageNameWithTag)
+      def pushTask = createUniquePushTask(name, targetRegistry, imageNameWithTag, getAuthConfig())
       pushTask.dependsOn buildImageTask
       configureResult.dependsOn pushTask
     }
@@ -62,10 +62,11 @@ class DockerPublishTask extends AbstractDockerTask {
     return configureResult
   }
 
-  def createUniquePushTask(name, targetRegistry, imageNameWithTag) {
+  def createUniquePushTask(name, targetRegistry, imageNameWithTag, authConfig) {
     def pushTask = createUniqueTask(DockerPushTask, "pushImageTo${name.capitalize()}Internal").configure {
       repositoryName = imageNameWithTag
       registry = targetRegistry
+      authConfigEncoded = authConfig
     }
     def rmiTask = createUniqueTask(DockerRmiTask, "rmi${name.capitalize()}Image").configure {
       imageId = "${targetRegistry}/${imageNameWithTag}"
