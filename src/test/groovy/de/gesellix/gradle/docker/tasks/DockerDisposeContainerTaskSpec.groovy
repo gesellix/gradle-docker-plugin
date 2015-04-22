@@ -1,6 +1,7 @@
 package de.gesellix.gradle.docker.tasks
 
 import de.gesellix.docker.client.DockerClient
+import de.gesellix.docker.client.DockerClientException
 import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.Specification
 
@@ -50,5 +51,18 @@ class DockerDisposeContainerTaskSpec extends Specification {
     1 * dockerClient.rm("4712")
     then:
     1 * dockerClient.rmi("an-image-id")
+  }
+
+  def "catches DockerClientException when container is not present"() {
+    given:
+    task.containerId = "4711"
+
+    when:
+    task.execute()
+
+    then:
+    1 * dockerClient.inspectContainer("4711") >> { throw new DockerClientException(new IllegalArgumentException("foo"), [ status: [ code:404]])}
+    then:
+    0 * dockerClient._
   }
 }
