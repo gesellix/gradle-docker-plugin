@@ -30,7 +30,7 @@ class AbstractDockerTaskSpec extends Specification {
     def dockerClient = task.dockerClient
 
     then:
-    dockerClient.dockerHost == "http://127.0.0.1:2375/"
+    dockerClient.dockerHost == "http://127.0.0.1:2375"
   }
 
   def "delegates to dockerClient with configured dockerHost"() {

@@ -61,7 +61,9 @@ class DockerDisposeContainerTaskSpec extends Specification {
     task.execute()
 
     then:
-    1 * dockerClient.inspectContainer("4711") >> { throw new DockerClientException(new IllegalArgumentException("foo"), [ status: [ code:404]])}
+    1 * dockerClient.inspectContainer("4711") >> {
+      throw new DockerClientException(new IllegalArgumentException("foo"), [status: [code: 404]])
+    }
     then:
     0 * dockerClient._
   }
