@@ -32,7 +32,7 @@ class DockerDisposeContainerTask extends AbstractDockerTask {
       containerDetails = getDockerClient().inspectContainer(containerId)
     }
     catch (DockerClientException e) {
-      if (e.detail.status.code == 404) {
+      if (e.detail?.status?.code == 404) {
         logger.info("couldn't dispose container because it doesn't exists")
         return
       }
