@@ -108,7 +108,7 @@ class DockerPluginIntegrationTest extends Specification {
     //pushResult.error ==~ "Error: Status 401 trying to push repository gesellix/example: \"\""
     def exc = thrown(Exception)
     exc.cause.cause.message == "docker push failed"
-    exc.cause.detail?.contains "/images/example.com:5000/gesellix/example/push?registry=example.com%3A5000&tag="
+    exc.cause.detail?.content?.contains "/images/example.com:5000/gesellix/example/push?tag="
 
     cleanup:
     dockerClient.rmi("gesellix/example")
