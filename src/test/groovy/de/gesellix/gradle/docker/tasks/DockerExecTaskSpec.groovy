@@ -34,7 +34,7 @@ class DockerExecTaskSpec extends Specification {
         "AttachStderr": true,
         "Tty"         : false,
         "Cmd"         : ["sh", "-c", commandLine]
-    ]) >> [Id: "exec-id"]
+    ]) >> [content: [Id: "exec-id"]]
 
     1 * dockerClient.startExec("exec-id", [
         "Detach": false,
@@ -62,7 +62,7 @@ class DockerExecTaskSpec extends Specification {
         "AttachStderr": true,
         "Tty"         : false,
         "Cmd"         : commands
-    ]) >> [Id: "exec-id"]
+    ]) >> [content: [Id: "exec-id"]]
 
     1 * dockerClient.startExec("exec-id", [
         "Detach": false,
