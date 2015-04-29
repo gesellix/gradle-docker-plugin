@@ -41,6 +41,6 @@ class DockerExecTask extends AbstractDockerTask {
     def execStartConfig = [
         "Detach": false,
         "Tty"   : false]
-    result = dockerClient.startExec(execCreateResult.Id, execStartConfig)
+    result = dockerClient.startExec(execCreateResult.content.Id, execStartConfig)
   }
 }
