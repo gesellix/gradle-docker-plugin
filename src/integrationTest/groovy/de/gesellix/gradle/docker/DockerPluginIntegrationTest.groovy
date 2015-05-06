@@ -26,6 +26,17 @@ class DockerPluginIntegrationTest extends Specification {
     project.docker.dockerHost = DOCKER_HOST
   }
 
+  def "test info"() {
+    given:
+    def task = project.task('testInfo', type: DockerInfoTask)
+
+    when:
+    task.execute()
+
+    then:
+    task.info.status.code == 200
+  }
+
   def "test build"() {
     given:
 //    def resource = getClass().getResourceAsStream('build.tar')
