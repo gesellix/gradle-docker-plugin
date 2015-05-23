@@ -21,8 +21,8 @@ buildscript {
 
   dependencies {
     classpath 'net.saliman:gradle-cobertura-plugin:2.2.8'
-    classpath 'org.kt3k.gradle.plugin:coveralls-gradle-plugin:2.3.1'
-    classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.1'
+    classpath 'org.kt3k.gradle.plugin:coveralls-gradle-plugin:2.4.0'
+    classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.2'
     classpath 'com.gradle.publish:plugin-publish-plugin:0.9.0'
     classpath 'com.github.ben-manes:gradle-versions-plugin:0.9'
   }
@@ -107,7 +107,7 @@ def versionOverrides = [
     'junit:junit'                                          : '4.11',
     'org.apache.httpcomponents:httpclient'                 : '4.3',
     'org.apache.httpcomponents:httpmime'                   : '4.3',
-    'org.codehaus.groovy:groovy-all'                       : '2.3.9',
+    'org.codehaus.groovy:groovy-all'                       : '2.3.10',
     'org.codehaus.groovy.modules.http-builder:http-builder': '0.7.1',
     'org.hamcrest:hamcrest-core'                           : '1.3',
     'org.slf4j:slf4j-api'                                  : '1.6.6',
@@ -120,7 +120,7 @@ dependencies {
   compile gradleApi()
   compile localGroovy()
 
-  compile 'de.gesellix:docker-client:2015-05-06T06-12-20'
+  compile 'de.gesellix:docker-client:2015-05-23T13-14-49'
 
   testCompile 'org.spockframework:spock-core:1.0-groovy-2.3'
 }
@@ -211,6 +211,6 @@ pluginBundle {
 }
 
 task wrapper(type: Wrapper) {
-  gradleVersion = '2.3'
+  gradleVersion = '2.4'
   distributionUrl = "http://services.gradle.org/distributions/gradle-${gradleVersion}-all.zip"
 }
