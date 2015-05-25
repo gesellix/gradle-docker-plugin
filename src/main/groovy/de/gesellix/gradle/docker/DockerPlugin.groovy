@@ -10,23 +10,21 @@ public class DockerPlugin implements Plugin<Project> {
 
   def Logger logger = LoggerFactory.getLogger(DockerPlugin)
 
+  final def EXTENSION_NAME = 'docker'
+
   @Override
   void apply(Project project) {
 //    project.plugins.apply(BasePlugin)
 
-    logger.debug("adding docker extension");
-    def extension = project.extensions.create("docker", DockerPluginExtension)
+    logger.debug "ensure '${EXTENSION_NAME}' extension exists"
+    def extension = project.extensions.findByName(EXTENSION_NAME) ?: project.extensions.create(EXTENSION_NAME, DockerPluginExtension)
 
     project.tasks.withType(AbstractDockerTask) { task ->
+      logger.debug "apply '${EXTENSION_NAME}' extension config to $task"
       task.dockerHost = extension.dockerHost
       task.proxy = extension.proxy
       task.authConfigPlain = extension.authConfigPlain
       task.authConfigEncoded = extension.authConfigEncoded
     }
-
-//    logger.info("adding gradle-docker tasks");
-//    project.afterEvaluate {
-//      project.task("dockerDeploy", type: DockerDeployTask)
-//    }
   }
 }
