@@ -24,7 +24,7 @@ buildscript {
     classpath 'org.kt3k.gradle.plugin:coveralls-gradle-plugin:2.4.0'
     classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.2'
     classpath 'com.gradle.publish:plugin-publish-plugin:0.9.0'
-    classpath 'com.github.ben-manes:gradle-versions-plugin:0.9'
+    classpath 'com.github.ben-manes:gradle-versions-plugin:0.11.3'
   }
 }
 
@@ -120,7 +120,7 @@ dependencies {
   compile gradleApi()
   compile localGroovy()
 
-  compile 'de.gesellix:docker-client:2015-05-23T13-14-49'
+  compile 'de.gesellix:docker-client:2015-07-05T14-48-26'
 
   testCompile 'org.spockframework:spock-core:1.0-groovy-2.3'
 }
