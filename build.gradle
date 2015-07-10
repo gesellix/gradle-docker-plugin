@@ -167,9 +167,9 @@ bintray {
     desc = 'A Docker plugin for Gradle'
     licenses = ['Apache-2.0']
     labels = ['docker', 'gradle']
-    websiteUrl = 'https://github.com/gesellix-docker/gradle-docker-plugin'
-    issueTrackerUrl = 'https://github.com/gesellix-docker/gradle-docker-plugin/issues'
-    vcsUrl = 'https://github.com/gesellix-docker/gradle-docker-plugin.git'
+    websiteUrl = 'https://github.com/gesellix/gradle-docker-plugin'
+    issueTrackerUrl = 'https://github.com/gesellix/gradle-docker-plugin/issues'
+    vcsUrl = 'https://github.com/gesellix/gradle-docker-plugin.git'
     attributes = ['gradle-plugin': 'de.gesellix.docker:de.gesellix:gradle-docker-plugin']
     version = [
         name      : artifactVersion,
@@ -181,8 +181,8 @@ bintray {
 bintrayUpload.dependsOn build
 
 pluginBundle {
-  website = 'https://github.com/gesellix-docker/gradle-docker-plugin'
-  vcsUrl = 'https://github.com/gesellix-docker/gradle-docker-plugin.git'
+  website = 'https://github.com/gesellix/gradle-docker-plugin'
+  vcsUrl = 'https://github.com/gesellix/gradle-docker-plugin.git'
   description = 'A Docker plugin for Gradle'
   tags = ['docker', 'gradle']
 
