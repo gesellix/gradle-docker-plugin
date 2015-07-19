@@ -2,7 +2,7 @@
 
 *feature set based on the [Docker Remote API v1.17](https://docs.docker.com/reference/api/docker_remote_api_v1.17/)*
 
-Current api coverage (18/44): ![Remote API Coverage Status](http://progressed.io/bar/41)
+Current api coverage (22/44): ![Remote API Coverage Status](http://progressed.io/bar/50)
 
 This project tends to support most api endpoints, but only if there's an actual use case. If you're missing a feature, please file
 a [new issue](https://github.com/gesellix/gradle-docker-plugin/issues) or a [pull request](https://github.com/gesellix/gradle-docker-plugin/pulls) 
@@ -23,11 +23,11 @@ on the [Java Docker API Client](https://github.com/docker-java/docker-java) avai
 * [ ] Resize a container TTY
 * [x] `docker start <container>`: Start a container
 * [x] `docker stop <container>`: Stop a container
-* [ ] `docker restart <container>`: Restart a container
-* [ ] `docker kill <container>`: Kill a container
+* [x] `docker restart <container>`: Restart a container
+* [x] `docker kill <container>`: Kill a container
 * [x] `docker rename <container>`: Rename a container
-* [ ] `docker pause <container>`: Pause a container
-* [ ] `docker unpause <container>`: Unpause a container
+* [x] `docker pause <container>`: Pause a container
+* [x] `docker unpause <container>`: Unpause a container
 * [ ] `docker attach <container>`: Attach to a container
 * [ ] Attach to a container (websocket)
 * [x] `docker wait <container>`: Wait a container
