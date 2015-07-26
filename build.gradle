@@ -22,7 +22,7 @@ buildscript {
     classpath 'net.saliman:gradle-cobertura-plugin:2.2.8'
     classpath 'org.kt3k.gradle.plugin:coveralls-gradle-plugin:2.4.0'
     classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.2'
-    classpath 'com.gradle.publish:plugin-publish-plugin:0.9.0'
+    classpath 'com.gradle.publish:plugin-publish-plugin:0.9.1'
     classpath 'com.github.ben-manes:gradle-versions-plugin:0.11.3'
   }
 }
@@ -166,7 +166,7 @@ bintray {
     name = 'gradle-docker-plugin'
     desc = 'A Docker plugin for Gradle'
     licenses = ['Apache-2.0']
-    labels = ['docker', 'gradle']
+    labels = ['docker', 'gradle', 'remote api', 'plugin']
     websiteUrl = 'https://github.com/gesellix/gradle-docker-plugin'
     issueTrackerUrl = 'https://github.com/gesellix/gradle-docker-plugin/issues'
     vcsUrl = 'https://github.com/gesellix/gradle-docker-plugin.git'
