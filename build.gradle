@@ -111,7 +111,7 @@ dependencies {
   compile gradleApi()
   compile localGroovy()
 
-  compile 'de.gesellix:docker-client:2015-07-07T09-27-56'
+  compile 'de.gesellix:docker-client:2015-07-26T20-03-28'
 
   testCompile 'org.spockframework:spock-core:1.0-groovy-2.3'
 }
@@ -184,7 +184,7 @@ pluginBundle {
   website = 'https://github.com/gesellix/gradle-docker-plugin'
   vcsUrl = 'https://github.com/gesellix/gradle-docker-plugin.git'
   description = 'A Docker plugin for Gradle'
-  tags = ['docker', 'gradle']
+  tags = ['docker', 'gradle', 'remote api', 'plugin']
 
   plugins {
     gradleDockerPlugin {
@@ -202,6 +202,6 @@ pluginBundle {
 }
 
 task wrapper(type: Wrapper) {
-  gradleVersion = '2.4'
+  gradleVersion = '2.5'
   distributionUrl = "http://services.gradle.org/distributions/gradle-${gradleVersion}-all.zip"
 }
