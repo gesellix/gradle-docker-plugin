@@ -20,7 +20,8 @@ class DockerPluginIntegrationTest extends Specification {
   def DOCKER_HOST = defaultDockerHost
 
   def setup() {
-    //System.setProperty("docker.cert.path", "C:\\Users\\gesellix\\.boot2docker\\certs\\boot2docker-vm")
+//    System.setProperty("docker.cert.path", "/Users/gesellix/.boot2docker/certs/boot2docker-vm")
+//    DOCKER_HOST = "tcp://192.168.59.103:2376"
     project = ProjectBuilder.builder().withName('example').build()
     project.apply plugin: 'de.gesellix.docker'
     project.docker.dockerHost = DOCKER_HOST
@@ -152,8 +153,11 @@ class DockerPluginIntegrationTest extends Specification {
 
   def "test stop"() {
     given:
-    def runResult = new DockerClientImpl(dockerHost: DOCKER_HOST).run('gesellix/docker-client-testimage',
-                                                                      ["Cmd": ["true"]], 'latest')
+    def dockerClient = new DockerClientImpl(dockerHost: DOCKER_HOST)
+    def runResult = dockerClient.run(
+        'gesellix/docker-client-testimage',
+        ["Cmd": ["ping", "127.0.0.1"]],
+        'latest')
     def task = project.task('testStop', type: DockerStopTask) {
       containerId = runResult.container.content.Id
     }
@@ -165,7 +169,6 @@ class DockerPluginIntegrationTest extends Specification {
     task.result.status.code == 204 || task.result.status.code == 304
 
     cleanup:
-    def dockerClient = new DockerClientImpl(dockerHost: DOCKER_HOST)
     dockerClient.wait(runResult.container.content.Id)
     dockerClient.rm(runResult.container.content.Id)
   }
