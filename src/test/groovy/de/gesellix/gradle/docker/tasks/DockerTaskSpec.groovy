@@ -4,7 +4,7 @@ import de.gesellix.docker.client.DockerClient
 import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.Specification
 
-class AbstractDockerTaskSpec extends Specification {
+class DockerTaskSpec extends Specification {
 
   def task
 
@@ -35,11 +35,11 @@ class AbstractDockerTaskSpec extends Specification {
 
   def "delegates to dockerClient with configured dockerHost"() {
     when:
-    task.dockerHost = "http://example.org:4243/"
+    task.dockerHost = "http://example.org:4243"
     def dockerClient = task.dockerClient
 
     then:
-    dockerClient.dockerHost == "http://example.org:4243/"
+    dockerClient.dockerHost == "http://example.org:4243"
   }
 
   def "getAuthConfig with plain AuthConfig"() {

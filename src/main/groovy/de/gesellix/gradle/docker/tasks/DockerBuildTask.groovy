@@ -9,7 +9,7 @@ import org.gradle.api.tasks.TaskAction
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
-class DockerBuildTask extends AbstractDockerTask {
+class DockerBuildTask extends DockerTask {
 
   private static Logger logger = LoggerFactory.getLogger(DockerBuildTask)
 

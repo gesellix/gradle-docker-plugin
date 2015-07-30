@@ -6,7 +6,7 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
 
-abstract class AbstractDockerTask extends DefaultTask {
+class DockerTask extends DefaultTask {
 
   @Input
   @Optional

@@ -114,6 +114,9 @@ dependencies {
   compile 'de.gesellix:docker-client:2015-07-26T20-03-28'
 
   testCompile 'org.spockframework:spock-core:1.0-groovy-2.3'
+
+  // see https://docs.gradle.org/2.6-rc-1/userguide/test_kit.html
+//  testCompile gradleTestKit()
 }
 
 configurations.all {
@@ -202,6 +205,6 @@ pluginBundle {
 }
 
 task wrapper(type: Wrapper) {
-  gradleVersion = '2.5'
+  gradleVersion = '2.6-rc-1'
   distributionUrl = "http://services.gradle.org/distributions/gradle-${gradleVersion}-all.zip"
 }
