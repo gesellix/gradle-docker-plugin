@@ -4,11 +4,11 @@ import de.gesellix.gradle.docker.models.DockerContainer
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.TaskAction
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
+import org.gradle.api.logging.Logger
+import org.gradle.api.logging.Logging
 
 class DockerContainerTask extends DockerTask {
-  private static Logger logger = LoggerFactory.getLogger(DockerContainerTask)
+  private static Logger logger = Logging.getLogger(DockerContainerTask)
 
   enum State {
 
