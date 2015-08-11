@@ -256,4 +256,47 @@ class DockerPluginIntegrationTest extends Specification {
     cleanup:
     dockerClient.rmi("gesellix/images-list:latest")
   }
+
+  def "test container reloaded"() {
+    given:
+    def dockerClient = new DockerClientImpl(dockerHost: DOCKER_HOST)
+    def task = project.task('testContainer', type: DockerContainerTask) {
+      dockerHost = DOCKER_HOST
+      containerName = "docker-test"
+      targetState = "reloaded"
+      image = "gesellix/docker-client-testimage"
+      tag = "latest"
+      ports = [ "80:8080" ]
+      env = [ "TMP=1" ]
+      cmd = ["ping", "127.0.0.1"]
+      volumes = [ "/tmp:/data:ro" ]
+      extraHosts = [ "dockerhost:127.0.0.1" ]
+    }
+    def task2 = project.task('testContainer2', type: DockerContainerTask) {
+      dockerHost = DOCKER_HOST
+      containerName = "docker-test"
+      targetState = "reloaded"
+      image = "gesellix/docker-client-testimage"
+      tag = "latest"
+      ports = [ "80:8080" ]
+      env = [ "TMP=1" ]
+      cmd = ["ping", "127.0.0.1"]
+      volumes = [ "/tmp:/data:ro" ]
+      extraHosts = [ "dockerhost:127.0.0.1" ]
+    }
+
+    when:
+    task.execute()
+    task2.execute()
+
+    then:
+    task.changed == true
+    task2.changed == false
+    task.container.id == task2.container.id
+
+    cleanup:
+    dockerClient.stop(task.container.id)
+    dockerClient.wait(task.container.id)
+    dockerClient.rm(task.container.id)
+  }
 }
