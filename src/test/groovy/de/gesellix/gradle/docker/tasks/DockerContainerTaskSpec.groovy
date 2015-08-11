@@ -309,5 +309,65 @@ class DockerContainerTaskSpec extends Specification {
         task.changed == true
     }
 
+    def "reload running container with everything same"() {
+        when:
+        task.targetState = "reloaded"
+        task.image = "testImage:latest"
+        task.containerName = "example"
+        task.ports = [ "80:8080" ]
+        task.env = [ "TMP=1" ]
+        task.links = [ "mycontainer:myalias" ]
+        task.volumes = [ "/mnt/data:/data" ]
+        task.extraHosts = [ "dockerhost:127.0.0.1" ]
+        task.execute()
+
+        then:
+        1 * dockerClient.ps([filters: [name: ["example"]]]) >> [
+                content: [[ Names: [ "/example" ], Id: "123" ]]
+        ]
+        1 * dockerClient.inspectContainer("123") >> [
+                content: [
+                        Image: "image1",
+                        State: [
+                                Running: true
+                        ],
+                        Config: [
+                                ExposedPorts: [ "8080/tcp": [] ],
+                                Volumes: [
+                                        "/data": [],
+                                        "/spec": []
+                                ],
+                                Env: [ "TMP=1", "MYVAR=myval" ]
+                        ],
+                        HostConfig: [
+                                Binds: [ "/mnt/data:/data" ],
+                                Links: [ "mycontainer:myalias" ],
+                                ExtraHosts: [ "dockerhost:127.0.0.1" ],
+                                Privileged: false,
+                                PortBindings: [ "8080/tcp" : [
+                                        [
+                                                HostIp: "0.0.0.0",
+                                                HostPort: "80"
+                                        ]
+                                ]]
+                        ]]
+        ]
+        1 * dockerClient.inspectImage("testImage:latest") >> [
+                status: [ success: true ],
+                content: [
+                        Id: "image1",
+                        ContainerConfig: [
+                                ExposedPorts: [],
+                                Volumes: [ "/spec": [] ],
+                                Env: [ "MYVAR=myval" ]
+                        ]
+                ]
+        ]
+
+        and:
+        task.changed == false
+    }
+
+
     // TODO: HealthCheck tests
 }

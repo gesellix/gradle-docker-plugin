@@ -126,10 +126,12 @@ class DockerContainerTask extends DockerTask {
       config.HostConfig.PortBindings = config.HostConfig.PortBindings ?: [:]
       ports.each { p ->
         ArrayList<String> parts = p.tokenize(":")
-        String container_port = parts.get(-1).toString()
+        String container_port = parts.last().toString()
         if(container_port.indexOf("/") == -1) {
           container_port = container_port + "/tcp"
         }
+
+        config.ExposedPorts[container_port] =[:]
 
         if (config.HostConfig.PortBindings[container_port] == null) {
           config.HostConfig.PortBindings[container_port] = []
