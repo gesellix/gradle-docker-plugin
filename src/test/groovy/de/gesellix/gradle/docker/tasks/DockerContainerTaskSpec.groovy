@@ -1,6 +1,7 @@
 package de.gesellix.gradle.docker.tasks
 
 import de.gesellix.docker.client.DockerClient
+import org.gradle.api.GradleException
 import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.Specification
 
@@ -23,6 +24,16 @@ class DockerContainerTaskSpec extends Specification {
     def "dockerHost from tcp://127.0.0.1:999"() {
         expect:
         new URI("tcp://127.0.0.1:999").getHost() == "127.0.0.1"
+    }
+
+    def "no container name"() {
+        when:
+        task.targetState = "started"
+        task.image = "testImage:latest"
+        task.execute()
+
+        then:
+        thrown(GradleException)
     }
 
     def "start new non-existing container"() {
@@ -316,6 +327,7 @@ class DockerContainerTaskSpec extends Specification {
         task.containerName = "example"
         task.ports = [ "80:8080" ]
         task.env = [ "TMP=1" ]
+        task.cmd = [ "jar", "myjarfile.jar" ]
         task.links = [ "mycontainer:myalias" ]
         task.volumes = [
                 "/mnt/data:/data",
@@ -341,7 +353,8 @@ class DockerContainerTaskSpec extends Specification {
                                         "/spec": [],
                                         "/input": []
                                 ],
-                                Env: [ "TMP=1", "MYVAR=myval" ]
+                                Env: [ "TMP=1", "MYVAR=myval" ],
+                                Cmd: [ "java", "jar", "myjarfile.jar" ]
                         ],
                         HostConfig: [
                                 Binds: [
@@ -367,6 +380,9 @@ class DockerContainerTaskSpec extends Specification {
                                 ExposedPorts: [],
                                 Volumes: [ "/spec": [] ],
                                 Env: [ "MYVAR=myval" ]
+                        ],
+                        Config: [
+                                Entrypoint: "java"
                         ]
                 ]
         ]

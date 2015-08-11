@@ -260,6 +260,30 @@ class DockerContainer {
             return true
         }
 
+        // Entrypoint and Cmd
+
+        def currentCmd = []
+        def expectedCmd = []
+
+        if (current.Config.Entrypoint) {
+            currentCmd += current.Config.Entrypoint
+        }
+        if (current.Config.Cmd) {
+            currentCmd += current.Config.Cmd
+        }
+        if (config.Entrypoint) {
+            expectedCmd += config.Entrypoint
+            expectedCmd += config.Cmd ?: []
+        } else {
+            expectedCmd += image.Config.Entrypoint ?: []
+            expectedCmd += (config.Cmd ? config.Cmd : image.Config.Cmd ?: [])
+        }
+
+        if (currentCmd != expectedCmd) {
+            reload("Entrypoints and Cmd do not match: ${currentCmd} != ${expectedCmd}")
+            return true
+        }
+
         // -- Host Configuration
 
         // Binds

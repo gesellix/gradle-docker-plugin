@@ -1,6 +1,7 @@
 package de.gesellix.gradle.docker.tasks
 
 import de.gesellix.gradle.docker.models.DockerContainer
+import org.gradle.api.GradleException
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.TaskAction
@@ -47,6 +48,20 @@ class DockerContainerTask extends DockerTask {
   @Input
   @Optional
   List<String> env = []
+
+  /**
+   * A command to run specified as an array of strings.
+   */
+  @Input
+  @Optional
+  List<String> cmd = null
+
+  /**
+   * An entry point for the container as an array of strings
+   */
+  @Input
+  @Optional
+  List<String> entrypoint = null
 
   /**
    * A list of links for the container. Each link entry should be of of the form
@@ -106,6 +121,10 @@ class DockerContainerTask extends DockerTask {
 
   @TaskAction
   def run() {
+    if (!containerName) {
+      throw new GradleException("containerName is mandatory")
+    }
+
     def config = [:]
 
     config.Image = image
@@ -113,6 +132,14 @@ class DockerContainerTask extends DockerTask {
 
     if (env) {
       config.Env = env
+    }
+
+    if (cmd) {
+      config.Cmd = cmd
+    }
+
+    if (entrypoint) {
+      config.Entrypoint = entrypoint
     }
 
     if (links) {

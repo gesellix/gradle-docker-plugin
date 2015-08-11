@@ -76,6 +76,57 @@ class DockerContainerSpec extends Specification {
         }
     }
 
+    def "reloaded w/ different cmd"() {
+        given:
+        def container = Spy(DockerContainer, constructorArgs: [
+                dockerClient,
+                "example",
+                "testImage:latest",
+                [
+                        Cmd: [ "true" ]
+                ]
+        ])
+
+        when:
+        container.reloaded()
+
+        then:
+        1 * dockerClient.ps([filters: [name: ["example"]]]) >> [
+                content: [[ Names: [ "/example" ], Id: "123" ]]
+        ]
+        1 * dockerClient.inspectContainer("123") >> [
+                content: [
+                        Image: "image1",
+                        State: [
+                                Running: true
+                        ],
+                        Config: [
+                                ExposedPorts: [
+                                        "8080/tcp": []
+                                ],
+                                Cmd: [
+                                        "echo",
+                                        "false"
+                                ]
+                        ]]
+        ]
+        1 * dockerClient.inspectImage("testImage:latest") >> [
+                status: [ success: true ],
+                content: [
+                        Id: "image1",
+                        ContainerConfig: [ ExposedPorts: [ "8080/tcp": [] ] ],
+                        Config: [
+                                Entrypoint: "echo",
+                                Cmd: "false"
+                        ]
+                ]
+        ]
+        1 * container.reload(_) >> { String msg ->
+            println msg
+            assert msg.startsWith("Entrypoints and Cmd do not match")
+        }
+    }
+
     def "reloaded w/ different volumes"() {
         given:
         def container = Spy(DockerContainer, constructorArgs: [
@@ -222,7 +273,8 @@ class DockerContainerSpec extends Specification {
                                 ExposedPorts: [],
                                 Volumes: [ "/spec": [] ],
                                 Env: [ "MYVAR=myval" ]
-                        ]
+                        ],
+                        Config: []
                 ]
         ]
         0 * container.reload(_)
