@@ -317,7 +317,10 @@ class DockerContainerTaskSpec extends Specification {
         task.ports = [ "80:8080" ]
         task.env = [ "TMP=1" ]
         task.links = [ "mycontainer:myalias" ]
-        task.volumes = [ "/mnt/data:/data" ]
+        task.volumes = [
+                "/mnt/data:/data",
+                "/mnt/readonly:/input:ro"
+        ]
         task.extraHosts = [ "dockerhost:127.0.0.1" ]
         task.execute()
 
@@ -335,12 +338,16 @@ class DockerContainerTaskSpec extends Specification {
                                 ExposedPorts: [ "8080/tcp": [] ],
                                 Volumes: [
                                         "/data": [],
-                                        "/spec": []
+                                        "/spec": [],
+                                        "/input": []
                                 ],
                                 Env: [ "TMP=1", "MYVAR=myval" ]
                         ],
                         HostConfig: [
-                                Binds: [ "/mnt/data:/data" ],
+                                Binds: [
+                                        "/mnt/data:/data",
+                                        "/mnt/readonly:/input:ro"
+                                ],
                                 Links: [ "mycontainer:myalias" ],
                                 ExtraHosts: [ "dockerhost:127.0.0.1" ],
                                 Privileged: false,

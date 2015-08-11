@@ -164,8 +164,8 @@ class DockerContainerTask extends DockerTask {
           config.Volumes[(String)parts.get(1)] = {}
           config.HostConfig.Binds << v
         } else if (parts.size() == 3) {
-          if (!(parts.get(2) in ['ro', 'rw'])) {
-            throw new IllegalArgumentException('bind needs to be either "ro" or "rw"')
+          if (!(parts.get(2) in ['ro'])) {
+            throw new IllegalArgumentException('any third argument in bind must be "ro"')
           }
           config.Volumes[(String)parts.get(1)] = {}
           config.HostConfig.Binds << v
