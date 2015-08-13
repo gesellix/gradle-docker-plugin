@@ -262,6 +262,7 @@ class DockerContainerTask extends DockerTask {
       h.timeout = h.timeout ?: 5
       h.retries = h.retries ?: 15
       h.interval = h.interval ?: 2
+      h.path = h.path ?: "/"
 
       def p = current.HostConfig.PortBindings[(String)h.containerPort]
 

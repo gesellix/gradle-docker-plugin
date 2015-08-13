@@ -336,6 +336,45 @@ class DockerPluginIntegrationTest extends Specification {
     dockerClient.rm(task.container.id)
   }
 
+  def "test container http health check"() {
+    given:
+    ServerSocket ss = new ServerSocket(0);
+    int port = ss.getLocalPort();
+    ss.close();
+
+    def dockerClient = new DockerClientImpl(dockerHost: DOCKER_HOST)
+    def task = project.task('testContainer', type: DockerContainerTask) {
+      dockerHost = DOCKER_HOST
+      containerName = "docker-test-health"
+      targetState = "reloaded"
+      image = "gesellix/docker-client-testimage"
+      tag = "latest"
+      ports = [ port.toString()+":8080" ]
+      cmd = [
+              "/bin/sh", "-c",
+              "while true; do nc -l -p 8080 -e " +
+                      "echo -e \"HTTP/1.1 204 No Content\\r\\nConnection: close\\r\\n\"; done"
+      ]
+      healthChecks = [
+              [
+                      type: "http",
+                      containerPort: 8080
+              ]
+      ]
+    }
+
+    when:
+    task.execute()
+
+    then:
+    task.changed == true
+
+    cleanup:
+    dockerClient.stop(task.container.id)
+    dockerClient.wait(task.container.id)
+    dockerClient.rm(task.container.id)
+  }
+
   def "test container tcp health check - timeout"() {
     given:
     ServerSocket ss = new ServerSocket(0);
@@ -354,6 +393,50 @@ class DockerPluginIntegrationTest extends Specification {
       healthChecks = [
               [
                       type: "tcp",
+                      containerPort: 8080
+              ]
+      ]
+    }
+
+    when:
+    task.execute()
+
+    then:
+    def e = thrown(TaskExecutionException)
+    e.cause.class == IllegalStateException
+    e.cause.message == "HealthCheck: Container not healthy."
+    task.changed == true
+
+    cleanup:
+    dockerClient.stop(task.container.id)
+    dockerClient.wait(task.container.id)
+    dockerClient.rm(task.container.id)
+  }
+
+  def "test container http health check - timeout"() {
+    given:
+    ServerSocket ss = new ServerSocket(0);
+    int port = ss.getLocalPort();
+    ss.close();
+
+    def dockerClient = new DockerClientImpl(dockerHost: DOCKER_HOST)
+    def task = project.task('testContainer', type: DockerContainerTask) {
+      dockerHost = DOCKER_HOST
+      containerName = "docker-test-health"
+      targetState = "reloaded"
+      image = "gesellix/docker-client-testimage"
+      tag = "latest"
+      ports = [ port.toString()+":8080" ]
+      cmd = [
+              "/bin/sh", "-c",
+              "while true; do nc -l -p 8080 -e " +
+                      "echo -e \"HTTP/1.1 503 Service Unavailable\\r\\n" +
+                      "Connection: close\\r\\n" +
+                      "Content-Length: 0\\r\\n\"; done"
+      ]
+      healthChecks = [
+              [
+                      type: "http",
                       containerPort: 8080
               ]
       ]
