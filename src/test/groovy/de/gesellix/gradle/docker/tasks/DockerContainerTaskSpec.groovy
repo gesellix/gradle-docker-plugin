@@ -2,6 +2,7 @@ package de.gesellix.gradle.docker.tasks
 
 import de.gesellix.docker.client.DockerClient
 import org.gradle.api.GradleException
+import org.gradle.api.tasks.TaskExecutionException
 import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.Specification
 
@@ -391,6 +392,130 @@ class DockerContainerTaskSpec extends Specification {
         task.changed == false
     }
 
+    // Health check tests
 
-    // TODO: HealthCheck tests
+    def "healthcheck on already running container - port which is not exposed"() {
+        when:
+        task.dockerHost = "tcp://127.0.0.1:999"
+        task.targetState = "started"
+        task.image = "testImage:latest"
+        task.containerName = "example"
+        task.healthChecks = [[
+                containerPort: 8080
+        ]]
+        task.execute()
+
+        then:
+        1 * dockerClient.ps([filters: [name: ["example"]]]) >>> [
+                [ content: [[ Names: [ "/example" ], Id: "123" ]]]
+        ]
+        2 * dockerClient.inspectContainer("123") >> [
+                content: [
+                        Image: task.image,
+                        State: [ Running: true ],
+                        HostConfig: [
+                                PortBindings: [ ]
+                        ]
+                ]
+        ]
+
+        and:
+        task.changed == false
+
+        and:
+        def e = thrown(TaskExecutionException)
+        e.cause.class == IllegalArgumentException
+        e.cause.message.endsWith("is not bound to host.")
+    }
+
+    def "healthcheck on already running container - timeout"() {
+        given:
+        ServerSocket ss = new ServerSocket(0);
+        int port = ss.getLocalPort();
+        ss.close();
+
+        when:
+        task.dockerHost = "tcp://127.0.0.1:999"
+        task.targetState = "started"
+        task.image = "testImage:latest"
+        task.containerName = "example"
+        task.healthChecks = [
+                [
+                        containerPort: 8080,
+                        timeout: 1,
+                        retries: 1
+                ]]
+        task.execute()
+
+        then:
+        1 * dockerClient.ps([filters: [name: ["example"]]]) >>> [
+                [ content: [[ Names: [ "/example" ], Id: "123" ]]]
+        ]
+        2 * dockerClient.inspectContainer("123") >> [
+                content: [
+                        Image: task.image,
+                        State: [ Running: true ],
+                        HostConfig: [
+                                PortBindings: [ "8080/tcp" : [
+                                        [
+                                                HostIp: "0.0.0.0",
+                                                HostPort: port.toString()
+                                        ]
+                                ]]
+                        ]
+                ]
+        ]
+
+        and:
+        task.changed == false
+
+        and:
+        def e = thrown(TaskExecutionException)
+        e.cause.class == IllegalStateException
+        e.cause.message == "HealthCheck: Container not healthy."
+    }
+
+    def "healthcheck on already running container"() {
+        given:
+        ServerSocket ss = new ServerSocket(0);
+        int port = ss.getLocalPort();
+
+        when:
+        task.dockerHost = "tcp://127.0.0.1:999"
+        task.targetState = "started"
+        task.image = "testImage:latest"
+        task.containerName = "example"
+        task.healthChecks = [
+                [
+                        containerPort: 8080,
+                        timeout: 1,
+                        retries: 1
+                ]]
+        task.execute()
+
+        then:
+        1 * dockerClient.ps([filters: [name: ["example"]]]) >>> [
+                [ content: [[ Names: [ "/example" ], Id: "123" ]]]
+        ]
+        2 * dockerClient.inspectContainer("123") >> [
+                content: [
+                        Image: task.image,
+                        State: [ Running: true ],
+                        HostConfig: [
+                                PortBindings: [ "8080/tcp" : [
+                                        [
+                                                HostIp: "0.0.0.0",
+                                                HostPort: port.toString()
+                                        ]
+                                ]]
+                        ]
+                ]
+        ]
+
+        and:
+        task.changed == false
+
+        cleanup:
+        if(ss) ss.close();
+    }
 }

@@ -154,8 +154,8 @@ class DockerContainerTask extends DockerTask {
       ports.each { p ->
         ArrayList<String> parts = p.tokenize(":")
         String container_port = parts.last().toString()
-        if(container_port.indexOf("/") == -1) {
-          container_port = container_port + "/tcp"
+        if(container_port.toString().indexOf("/") == -1) {
+          container_port = container_port.toString() + "/tcp"
         }
 
         config.ExposedPorts[container_port] =[:]
@@ -255,15 +255,15 @@ class DockerContainerTask extends DockerTask {
       if (!h.containerPort)
         throw new IllegalArgumentException("ContainerPort is required.")
 
-      if (h.containerPort.indexOf("/") == -1)
-        h.containerPort = h.containerPort + "/tcp"
+      if (h.containerPort.toString().indexOf("/") == -1)
+        h.containerPort = h.containerPort.toString() + "/tcp"
 
       h.type = h.type ?: "tcp"
       h.timeout = h.timeout ?: 5
       h.retries = h.retries ?: 15
       h.interval = h.interval ?: 2
 
-      String[] p = current.HostConfig.PortBindings[(String)h.containerPort]
+      def p = current.HostConfig.PortBindings[(String)h.containerPort]
 
       if (!p)
         throw new IllegalArgumentException("Port \"${h.containerPort}\" is not bound to host.")
