@@ -1,15 +1,24 @@
 package de.gesellix.gradle.docker
 
+import de.gesellix.docker.client.DefaultWebsocketHandler
 import de.gesellix.docker.client.DockerClientImpl
+import de.gesellix.docker.client.DockerWebsocketClient
 import de.gesellix.gradle.docker.tasks.*
 import org.gradle.api.Project
+import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.TaskAction
 import org.gradle.testfixtures.ProjectBuilder
+import org.java_websocket.handshake.ServerHandshake
 import spock.lang.Ignore
 import spock.lang.IgnoreIf
 import spock.lang.Shared
 import spock.lang.Specification
 
-@IgnoreIf({ !System.env.DOCKER_HOST })
+import java.util.concurrent.CountDownLatch
+
+import static java.util.concurrent.TimeUnit.MILLISECONDS
+
+//@IgnoreIf({ !System.env.DOCKER_HOST })
 class DockerPluginIntegrationTest extends Specification {
 
   @Shared
@@ -20,8 +29,8 @@ class DockerPluginIntegrationTest extends Specification {
   def DOCKER_HOST = defaultDockerHost
 
   def setup() {
-//    System.setProperty("docker.cert.path", "/Users/gesellix/.boot2docker/certs/boot2docker-vm")
-//    DOCKER_HOST = "tcp://192.168.59.103:2376"
+    System.setProperty("docker.cert.path", "/Users/gesellix/.boot2docker/certs/boot2docker-vm")
+    DOCKER_HOST = "tcp://192.168.59.103:2376"
     project = ProjectBuilder.builder().withName('example').build()
     project.apply plugin: 'de.gesellix.docker'
     project.docker.dockerHost = DOCKER_HOST
@@ -219,7 +228,8 @@ class DockerPluginIntegrationTest extends Specification {
     }
     def uuid = UUID.randomUUID().toString()
     def cmd = "true || $uuid".toString()
-    def containerInfo = new DockerClientImpl(dockerHost: DOCKER_HOST).run('gesellix/docker-client-testimage', ["Cmd": [cmd]], 'latest')
+    def dockerClient = new DockerClientImpl(dockerHost: DOCKER_HOST)
+    def containerInfo = dockerClient.run('gesellix/docker-client-testimage', ["Cmd": [cmd]], 'latest')
 
     when:
     task.execute()
@@ -230,10 +240,10 @@ class DockerPluginIntegrationTest extends Specification {
     }.size() == 1
 
     cleanup:
-    def dockerClient = new DockerClientImpl(dockerHost: DOCKER_HOST)
-    dockerClient.stop(containerInfo.container.content.Id)
-    dockerClient.wait(containerInfo.container.content.Id)
-    dockerClient.rm(containerInfo.container.content.Id)
+    def containerId = containerInfo.container.content.Id
+    dockerClient.stop(containerId)
+    dockerClient.wait(containerId)
+    dockerClient.rm(containerId)
   }
 
   def "test images"() {
@@ -255,5 +265,88 @@ class DockerPluginIntegrationTest extends Specification {
 
     cleanup:
     dockerClient.rmi("gesellix/images-list:latest")
+  }
+
+  def "test attach (websocket)"() {
+    given:
+    def dockerClient = new DockerClientImpl(dockerHost: DOCKER_HOST)
+    def imageId = dockerClient.pull("gesellix/docker-client-testimage", "latest")
+    def containerConfig = [
+        Tty      : true,
+        OpenStdin: true,
+        Cmd      : ["/bin/sh", "-c", "cat"]
+    ]
+    def containerId_ = dockerClient.run(imageId, containerConfig).container.content.Id
+
+    def ourMessage = "hallo welt ${UUID.randomUUID()}!".toString()
+
+    def task = project.task('testAttachWs', type: AttachWebsocketTask) {
+      containerId = containerId_
+      outgoingMessages = [ourMessage]
+    }
+
+    when:
+    task.execute()
+
+    then:
+    task.incomingMessages == [ourMessage]
+
+    cleanup:
+    dockerClient.stop(containerId_)
+    dockerClient.wait(containerId_)
+    dockerClient.rm(containerId_)
+  }
+
+  static class AttachWebsocketTask extends DockerTask {
+
+    @Input
+    def containerId
+
+    @Input
+    String outgoingMessages = []
+
+    String incomingMessages = []
+
+    def openConnection = new CountDownLatch(1)
+    def closeConnection = new CountDownLatch(1)
+
+    def handler = new DefaultWebsocketHandler() {
+      @Override
+      void onOpen(ServerHandshake handshakedata) {
+        openConnection.countDown()
+      }
+
+      @Override
+      void onMessage(String message) {
+        incomingMessages << message
+      }
+
+      @Override
+      void onClose(int code, String reason, boolean remote) {
+        closeConnection.countDown()
+      }
+
+      @Override
+      void onError(Exception ex) {
+        logger.error("error attaching via websocket to container ${getContainerId()}", ex)
+      }
+    }
+
+    @TaskAction
+    def attachWs() {
+      def wsClient = getDockerClient().attachWebsocket(
+          getContainerId(),
+          [stream: 1, stdin: 1, stdout: 1, stderr: 1],
+          handler) as DockerWebsocketClient
+      wsClient.connectBlocking()
+      getOpenConnection().await(1000, MILLISECONDS)
+      sendMessages(wsClient)
+      wsClient.closeBlocking()
+      getCloseConnection().await(1000, MILLISECONDS)
+    }
+
+    def sendMessages(DockerWebsocketClient wsClient) {
+      getOutgoingMessages().each { wsClient.send(it) }
+    }
   }
 }
