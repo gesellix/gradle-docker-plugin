@@ -71,7 +71,7 @@ class DockerPluginIntegrationTest extends Specification {
     task.execute()
 
     then:
-    task.imageId == '3eb19b6d9332'
+    task.imageId == 'ed9f0eb28ab34add30d4a2bfea3f548ba991d7702315b33f7309a64cd5d56390'
   }
 
   @Ignore
@@ -88,7 +88,7 @@ class DockerPluginIntegrationTest extends Specification {
     task.execute()
 
     then:
-    task.imageId == '3eb19b6d9332'
+    task.imageId == 'ed9f0eb28ab34add30d4a2bfea3f548ba991d7702315b33f7309a64cd5d56390'
   }
 
   def "test push"() {
@@ -120,7 +120,7 @@ class DockerPluginIntegrationTest extends Specification {
     //pushResult.error ==~ "Error: Status 401 trying to push repository gesellix/example: \"\""
     def exc = thrown(Exception)
     exc.cause.cause.message == "docker push failed"
-    exc.cause.detail?.content?.contains "/images/example.com:5000/gesellix/example/push?tag="
+    exc.cause.detail?.content?.status?.any { it?.contains "example.com:5000/gesellix/example" }
 
     cleanup:
     dockerClient.rmi("gesellix/example")
