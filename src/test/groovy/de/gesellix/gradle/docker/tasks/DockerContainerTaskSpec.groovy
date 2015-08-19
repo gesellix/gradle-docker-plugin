@@ -46,7 +46,8 @@ class DockerContainerTaskSpec extends Specification {
         task.execute()
 
         then:
-        3 * dockerClient.ps([filters: [name: ["example"]]]) >>> [
+        4 * dockerClient.ps([filters: [name: ["example"]]]) >>> [
+                [ content: [] ],
                 [ content: [] ],
                 [ content: [] ],
                 [ content: [[ Names: [ "/example" ], Id: "123" ]]]
@@ -75,14 +76,15 @@ class DockerContainerTaskSpec extends Specification {
         task.execute()
 
         then:
-        1 * dockerClient.ps([filters: [name: ["example"]]]) >> [
+        2 * dockerClient.ps([filters: [name: ["example"]]]) >> [
                 content: [[ Names: [ "/example" ], Id: "123" ]]
         ]
         1 * dockerClient.startContainer(_) >> [
                 status: [ success: true ],
                 content: [ Image: task.image, State: [ Running: true ] ]
         ]
-        2 * dockerClient.inspectContainer("123") >>> [
+        3 * dockerClient.inspectContainer("123") >>> [
+                [ content: [ Image: task.image, State: [ Running: false ] ] ],
                 [ content: [ Image: task.image, State: [ Running: false ] ] ],
                 [ content: [ Image: task.image, State: [ Running: true ] ] ]
         ]
@@ -99,10 +101,10 @@ class DockerContainerTaskSpec extends Specification {
         task.execute()
 
         then:
-        1 * dockerClient.ps([filters: [name: ["example"]]]) >>> [
-                [ content: [[ Names: [ "/example" ], Id: "123" ]]]
+        2 * dockerClient.ps([filters: [name: ["example"]]]) >> [
+                content: [[ Names: [ "/example" ], Id: "123" ]]
         ]
-        1 * dockerClient.inspectContainer("123") >> [
+        2 * dockerClient.inspectContainer("123") >> [
                 content: [ Image: task.image, State: [ Running: true ] ]
         ]
 
@@ -118,10 +120,11 @@ class DockerContainerTaskSpec extends Specification {
         task.execute()
 
         then:
-        1 * dockerClient.ps([filters: [name: ["example"]]]) >>> [
-                [ content: [[ Names: [ "/example" ], Id: "123" ]]]
+        2 * dockerClient.ps([filters: [name: ["example"]]]) >> [
+                content: [[ Names: [ "/example" ], Id: "123" ]]
         ]
-        2 * dockerClient.inspectContainer("123") >>> [
+        3 * dockerClient.inspectContainer("123") >>> [
+                [ content: [ Image: task.image, State: [ Running: true ] ] ],
                 [ content: [ Image: task.image, State: [ Running: true ] ] ],
                 [ content: [ Image: task.image, State: [ Running: false ] ] ],
         ]
@@ -141,10 +144,10 @@ class DockerContainerTaskSpec extends Specification {
         task.execute()
 
         then:
-        1 * dockerClient.ps([filters: [name: ["example"]]]) >>> [
+        2 * dockerClient.ps([filters: [name: ["example"]]]) >>> [
                 [ content: [[ Names: [ "/example" ], Id: "123" ]]]
         ]
-        1 * dockerClient.inspectContainer("123") >> [
+        2 * dockerClient.inspectContainer("123") >> [
                 content: [ Image: task.image, State: [ Running: false ] ]
         ]
 
@@ -160,10 +163,11 @@ class DockerContainerTaskSpec extends Specification {
         task.execute()
 
         then:
-        1 * dockerClient.ps([filters: [name: ["example"]]]) >>> [
-                [ content: [[ Names: [ "/example" ], Id: "123" ]]]
+        2 * dockerClient.ps([filters: [name: ["example"]]]) >> [
+                content: [[ Names: [ "/example" ], Id: "123" ]]
         ]
-        2 * dockerClient.inspectContainer("123") >>> [
+        3 * dockerClient.inspectContainer("123") >>> [
+                [ content: [ Image: task.image, State: [ Running: true ] ] ],
                 [ content: [ Image: task.image, State: [ Running: true ] ] ],
                 [ content: [ Image: task.image, State: [ Running: false ] ] ],
         ]
@@ -186,10 +190,10 @@ class DockerContainerTaskSpec extends Specification {
         task.execute()
 
         then:
-        1 * dockerClient.ps([filters: [name: ["example"]]]) >>> [
-                [ content: [[ Names: [ "/example" ], Id: "123" ]]]
+        2 * dockerClient.ps([filters: [name: ["example"]]]) >> [
+                content: [[ Names: [ "/example" ], Id: "123" ]]
         ]
-        1 * dockerClient.inspectContainer("123") >> [
+        2 * dockerClient.inspectContainer("123") >> [
                 content: [ Image: task.image, State: [ Running: false ] ]
         ]
         1 * dockerClient.rm("123") >> [
@@ -208,7 +212,7 @@ class DockerContainerTaskSpec extends Specification {
         task.execute()
 
         then:
-        1 * dockerClient.ps([filters: [name: ["example"]]]) >> [
+        2 * dockerClient.ps([filters: [name: ["example"]]]) >> [
                 content: []
         ]
 
@@ -238,7 +242,7 @@ class DockerContainerTaskSpec extends Specification {
                 status: [ success: true ],
                 content: [ Image: task.image, State: [ Running: true ] ]
         ]
-        1 * dockerClient.inspectContainer("123") >> [
+        2 * dockerClient.inspectContainer("123") >> [
                 content: [ Image: task.image, State: [ Running: true ] ]
         ]
 
@@ -254,7 +258,8 @@ class DockerContainerTaskSpec extends Specification {
         task.execute()
 
         then:
-        2 * dockerClient.ps([filters: [name: ["example"]]]) >>> [
+        3 * dockerClient.ps([filters: [name: ["example"]]]) >>> [
+                [ content: [[ Names: [ "/example" ], Id: "123" ]]],
                 [ content: [[ Names: [ "/example" ], Id: "123" ]]],
                 [ content: [[ Names: [ "/example" ], Id: "234" ]]]
         ]
@@ -269,9 +274,8 @@ class DockerContainerTaskSpec extends Specification {
                 status: [ success: true ],
                 content: [ Image: task.image, State: [ Running: true ] ]
         ]
-        2 * dockerClient.inspectContainer("123") >>> [
-                [ content: [ Image: task.image, State: [ Running: false ] ] ],
-                [ content: [ Image: task.image, State: [ Running: false ] ] ]
+        3 * dockerClient.inspectContainer("123") >> [
+                content: [ Image: task.image, State: [ Running: false ] ]
         ]
         2 * dockerClient.inspectContainer("234") >>> [
                 [ content: [ Image: task.image, State: [ Running: false ] ] ],
@@ -290,7 +294,8 @@ class DockerContainerTaskSpec extends Specification {
         task.execute()
 
         then:
-        2 * dockerClient.ps([filters: [name: ["example"]]]) >>> [
+        3 * dockerClient.ps([filters: [name: ["example"]]]) >>> [
+                [ content: [[ Names: [ "/example" ], Id: "123" ]]],
                 [ content: [[ Names: [ "/example" ], Id: "123" ]]],
                 [ content: [[ Names: [ "/example" ], Id: "234" ]]]
         ]
@@ -305,15 +310,14 @@ class DockerContainerTaskSpec extends Specification {
                 status: [ success: true ],
                 content: [ Image: task.image, State: [ Running: true ] ]
         ]
-        2 * dockerClient.inspectContainer("123") >>> [
-                [ content: [ Image: "image1", State: [ Running: true ] ] ],
-                [ content: [ Image: "image1", State: [ Running: true ] ] ]
+        3 * dockerClient.inspectContainer("123") >> [
+                content: [ Image: "image1", State: [ Running: true ] ],
         ]
         2 * dockerClient.inspectContainer("234") >>> [
                 [ content: [ Image: task.image, State: [ Running: false ] ] ],
                 [ content: [ Image: task.image, State: [ Running: true ] ] ]
         ]
-        1 * dockerClient.inspectImage("testImage:latest") >> [
+        2 * dockerClient.inspectImage("testImage:latest") >> [
                 status: [ success: true ],
                 content: [ Id: "image0" ]
         ]
@@ -339,10 +343,10 @@ class DockerContainerTaskSpec extends Specification {
         task.execute()
 
         then:
-        1 * dockerClient.ps([filters: [name: ["example"]]]) >> [
+        2 * dockerClient.ps([filters: [name: ["example"]]]) >> [
                 content: [[ Names: [ "/example" ], Id: "123" ]]
         ]
-        1 * dockerClient.inspectContainer("123") >> [
+        2 * dockerClient.inspectContainer("123") >> [
                 content: [
                         Image: "image1",
                         State: [
@@ -374,7 +378,7 @@ class DockerContainerTaskSpec extends Specification {
                                 ]]
                         ]]
         ]
-        1 * dockerClient.inspectImage("testImage:latest") >> [
+        2 * dockerClient.inspectImage("testImage:latest") >> [
                 status: [ success: true ],
                 content: [
                         Id: "image1",
@@ -407,8 +411,8 @@ class DockerContainerTaskSpec extends Specification {
         task.execute()
 
         then:
-        1 * dockerClient.ps([filters: [name: ["example"]]]) >>> [
-                [ content: [[ Names: [ "/example" ], Id: "123" ]]]
+        1 * dockerClient.ps([filters: [name: ["example"]]]) >> [
+                content: [[ Names: [ "/example" ], Id: "123" ]]
         ]
         2 * dockerClient.inspectContainer("123") >> [
                 content: [
@@ -424,9 +428,8 @@ class DockerContainerTaskSpec extends Specification {
         task.changed == false
 
         and:
-        def e = thrown(TaskExecutionException)
-        e.cause.class == IllegalArgumentException
-        e.cause.message.endsWith("is not bound to host.")
+        def e = thrown(IllegalArgumentException)
+        e.message.endsWith("is not bound to host.")
     }
 
     def "healthcheck on already running container - timeout"() {
@@ -469,15 +472,22 @@ class DockerContainerTaskSpec extends Specification {
         task.changed == false
 
         and:
-        def e = thrown(TaskExecutionException)
-        e.cause.class == IllegalStateException
-        e.cause.message == "HealthCheck: Container not healthy."
+        def e = thrown(IllegalStateException)
+        e.message == "HealthCheck: Container not healthy."
     }
 
     def "healthcheck on already running container"() {
         given:
         int port = AvailablePortFinder.createPrivate().nextAvailable
-        ServerSocket ss = new ServerSocket(port);
+
+        Thread server = new Thread({
+            ServerSocket ss = new ServerSocket(port);
+            while(true) {
+                Socket client = ss.accept();
+            }
+        } as Runnable)
+
+        server.start()
 
         when:
         task.dockerHost = "tcp://127.0.0.1:999"
@@ -493,10 +503,10 @@ class DockerContainerTaskSpec extends Specification {
         task.execute()
 
         then:
-        1 * dockerClient.ps([filters: [name: ["example"]]]) >>> [
-                [ content: [[ Names: [ "/example" ], Id: "123" ]]]
+        2 * dockerClient.ps([filters: [name: ["example"]]]) >> [
+                content: [[ Names: [ "/example" ], Id: "123" ]]
         ]
-        2 * dockerClient.inspectContainer("123") >> [
+        4 * dockerClient.inspectContainer("123") >> [
                 content: [
                         Image: task.image,
                         State: [ Running: true ],
@@ -515,6 +525,6 @@ class DockerContainerTaskSpec extends Specification {
         task.changed == false
 
         cleanup:
-        if(ss) ss.close();
+        server.stop();
     }
 }

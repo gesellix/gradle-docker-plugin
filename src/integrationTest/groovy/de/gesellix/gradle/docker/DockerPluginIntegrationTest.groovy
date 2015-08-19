@@ -301,6 +301,8 @@ class DockerPluginIntegrationTest extends Specification {
     dockerClient.rm(task.container.id)
   }
 
+ // TODO: Add UpToDate tests with GradleRunner (from gradleTestKit)
+
   def "test container tcp health check"() {
     given:
     ServerSocket ss = new ServerSocket(0);

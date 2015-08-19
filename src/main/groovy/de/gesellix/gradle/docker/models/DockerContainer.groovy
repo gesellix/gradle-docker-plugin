@@ -134,22 +134,62 @@ class DockerContainer {
         exists = false
     }
 
+    /**
+     * Verify container is present
+     */
+    boolean isPresent() {
+        boolean present = inspect() != null
+        logger.info "Container[{}].isPresent() == {}", name, present
+
+        return present
+    }
 
     /**
-     * Reload container
+     * Verify container is present and running
+     * Note: does not check configuration matches
      */
-    void reload(String reason) {
-        logger.lifecycle("Container[${name}]: Reloading, ${reason}")
-        inspect()
+    boolean isStarted() {
+        boolean started = (inspect() != null) && running
+        logger.info "Container[{}].isStarted() == {}", name, started
 
-        if (running) {
-            client.stop(id)
-        }
-        if (exists) {
-            client.rm(id)
-        }
-        create()
-        start()
+        return started
+    }
+
+    /**
+     * Verify container is present, running and configuration matches
+     */
+    boolean isReloaded() {
+        boolean good = checkReasonForReload() == null
+        logger.info "Container[{}].isReloaded() == {}", name, good
+
+        return good
+    }
+
+    /**
+     * Restarted is always required for container
+     */
+    boolean isRestarted() {
+        return false
+    }
+
+    /**
+     * Verify container is stopped
+     */
+    boolean isStopped() {
+        boolean stopped = (inspect() == null) || !running
+        logger.info "Container[{}].isStopped() == {}", name, stopped
+
+        return stopped
+    }
+
+    /**
+     * Verify container does not exist
+     */
+    boolean isAbsent() {
+        boolean absent = inspect() == null
+        logger.info "Container[{}].isAbsent() == {}", name, absent
+
+        return absent
     }
 
     /**
@@ -158,8 +198,8 @@ class DockerContainer {
      *
      * @return changed
      */
-    boolean present() {
-        logger.info "Container[{}].present()", name
+    boolean ensurePresent() {
+        logger.info "Container[{}].ensurePresent()", name
 
         if(!inspect()) {
             create()
@@ -177,8 +217,8 @@ class DockerContainer {
      *
      * @return changed
      */
-    boolean started() {
-        logger.info "Container[{}].started()", name
+    boolean ensureStarted() {
+        logger.info "Container[{}].ensureStarted()", name
 
         boolean changed = false
 
@@ -205,59 +245,118 @@ class DockerContainer {
      *
      * @return changed
      */
-    boolean reloaded() {
-        logger.info "Container[{}].reloaded()", name
-        def current = inspect()
+    boolean ensureReloaded() {
+        logger.info "Container[{}].ensureReloaded()", name
 
-        if(!current) {
-            reload("Container does not exist")
+        String reason = checkReasonForReload()
+        if (reason != null) {
+            reload(reason)
             return true
         }
 
-        if(!running) {
-            reload("Container is not running")
+        logger.info "Container[{}]: is up-to-date and running, no reload necessary.", name
+        return false
+    }
+
+    /**
+     * Unconditionally restart or start the container
+     *
+     * @return changed (always true)
+     */
+    boolean ensureRestarted() {
+        reload("Unconditional restart")
+        return true
+    }
+
+    /**
+     * Stops the container if it exists and is running
+     *
+     * @return changed
+     */
+    boolean ensureStopped() {
+        if (!inspect()) {
+            logger.info "Container[{}]: does not exist, no stop necessary.", name
+            return false
+        }
+
+        if (running) {
+            stop()
             return true
+        }
+
+        logger.info "Container[{}]: already stopped.", name
+        return false
+    }
+
+    /**
+     * Stops and removes the container if it exists
+     *
+     * @return changed
+     */
+    boolean ensureAbsent() {
+        if (!inspect()) {
+            logger.info "Container[{}]: does not exist, no removal necessary.", name
+            return false
+        }
+
+        if (running) {
+            stop()
+        }
+        remove()
+
+        return true
+    }
+
+    /**
+     * Check if reload of container is needed and return the reason
+     *
+     * @return reason for reload or null if no reload is needed
+     */
+    private String checkReasonForReload() {
+        def current = inspect()
+
+        if(!current) {
+            return "Container does not exist"
+        }
+        if(!running) {
+            return "Container is not running"
         }
 
         def response = client.inspectImage(imageName)
 
         if (!response.status.success) {
-            reload("Image does not exist locally, new pull request")
-            return true
+            return "Image does not exist locally, new pull request"
         }
+
         def image = response.content
 
         // Image (by identifier for newer image versions with same tag)
         if(current.Image != image.Id) {
-            reload("Image identifiers differ: ${current.Image} != ${image.Id}")
-            return true
+            return "Image identifiers differ: ${current.Image} != ${image.Id}"
         }
 
         // Exposed Ports
         def expectedExposed = (image.ContainerConfig.ExposedPorts ?: [:]).keySet() +
-                              (config.ExposedPorts ?: [:]).keySet()
+                (config.ExposedPorts ?: [:]).keySet()
         def currentExposed = (current.Config.ExposedPorts ?: [:]).keySet()
         if (currentExposed != expectedExposed) {
-            reload("Exposed ports do not match: ${currentExposed} != ${expectedExposed}")
-            return true
+            return "Exposed ports do not match: ${currentExposed} != ${expectedExposed}"
         }
 
         // Volumes
         def expectedVolumes = (image.ContainerConfig.Volumes ?: [:]).keySet() +
-                              (config.Volumes ?: [:]).keySet()
+                (config.Volumes ?: [:]).keySet()
         def currentVolumes = (current.Config.Volumes ?: [:]).keySet()
         if (currentVolumes != expectedVolumes) {
-            reload("Volumes do not match: ${currentVolumes} != ${expectedVolumes}")
-            return true
+            return "Volumes do not match: ${currentVolumes} != ${expectedVolumes}"
         }
 
         // Environment
         def expectedEnv = splitEnv((Collection<String>)image.ContainerConfig.Env) +
-                          splitEnv((Collection<String>)config.Env)
+                splitEnv((Collection<String>)config.Env)
         def currentEnv = splitEnv((Collection<String>)current.Config.Env)
         if (currentEnv != expectedEnv) {
-            reload("Env does not match: ${currentEnv} != ${expectedEnv}")
-            return true
+            return "Env does not match: ${currentEnv} != ${expectedEnv}"
         }
 
         // Entrypoint and Cmd
@@ -280,98 +379,61 @@ class DockerContainer {
         }
 
         if (currentCmd != expectedCmd) {
-            reload("Entrypoints and Cmd do not match: ${currentCmd} != ${expectedCmd}")
-            return true
+            return "Entrypoints and Cmd do not match: ${currentCmd} != ${expectedCmd}"
         }
 
         // -- Host Configuration
 
         // Binds
         if (current.HostConfig.Binds != config.HostConfig.Binds) {
-            reload("Binds do not match: ${current.HostConfig.Binds} != " +
-                   "${config.HostConfig.Binds}")
-            return true
+            return "Binds do not match: ${current.HostConfig.Binds} != " +
+                    "${config.HostConfig.Binds}"
         }
 
         // Port Bindings
         if (current.HostConfig.PortBindings != config.HostConfig.PortBindings) {
-            reload("Port Bindings do not match: ${current.HostConfig.PortBindings} != " +
-                   "${config.HostConfig.PortBindings}")
-            return true
+            return "Port Bindings do not match: ${current.HostConfig.PortBindings} != " +
+                    "${config.HostConfig.PortBindings}"
         }
 
         // Links
         if (current.HostConfig.Links != config.HostConfig.Links) {
-            reload("Links do not match: ${current.HostConfig.Links} != " +
-                   "${config.HostConfig.Links}")
-            return true
+            return "Links do not match: ${current.HostConfig.Links} != " +
+                    "${config.HostConfig.Links}"
         }
 
         // Privileged
         if (current.HostConfig.Privileged != config.HostConfig.Privileged) {
-            reload("Privileged does not match: ${current.HostConfig.Privileged} != " +
-                   "${config.HostConfig.Privileged}")
-            return true
+            return "Privileged does not match: ${current.HostConfig.Privileged} != " +
+                    "${config.HostConfig.Privileged}"
         }
 
         // ExtraHosts
         if (current.HostConfig.ExtraHosts != config.HostConfig.ExtraHosts) {
-            reload("ExtraHosts do not match: ${current.HostConfig.ExtraHosts} != " +
-                   "${config.HostConfig.ExtraHosts}")
-            return true
+            return "ExtraHosts do not match: ${current.HostConfig.ExtraHosts} != " +
+                    "${config.HostConfig.ExtraHosts}"
         }
 
-        logger.info "Container[{}]: is up-to-date and running, no reload necessary.", name
-        return false
+        return null
     }
 
     /**
-     * Unconditionally restart or start the container
-     *
-     * @return changed (always true)
+     * Reload container
      */
-    boolean restarted() {
-        reload("Unconditional restart")
-        return true
-    }
+    void reload(String reason) {
+        // Method is public because it is mocked in tests
 
-    /**
-     * Stops the container if it exists and is running
-     *
-     * @return changed
-     */
-    boolean stopped() {
-        if (!inspect()) {
-            logger.info "Container[{}]: does not exist, no stop necessary.", name
-            return false
-        }
+        logger.lifecycle("Container[${name}]: Reloading, ${reason}")
+        inspect()
 
         if (running) {
-            stop()
-            return true
+            client.stop(id)
         }
-
-        logger.info "Container[{}]: already stopped.", name
-        return false
-    }
-
-    /**
-     * Stops and removes the container if it exists
-     *
-     * @return changed
-     */
-    boolean absent() {
-        if (!inspect()) {
-            logger.info "Container[{}]: does not exist, no removal necessary.", name
-            return false
+        if (exists) {
+            client.rm(id)
         }
-
-        if (running) {
-            stop()
-        }
-        remove()
-
-        return true
+        create()
+        start()
     }
 
     /**

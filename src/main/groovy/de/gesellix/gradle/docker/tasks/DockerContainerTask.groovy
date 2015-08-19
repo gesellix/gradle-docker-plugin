@@ -116,7 +116,49 @@ class DockerContainerTask extends DockerTask {
     description = "Manage the lifecycle of docker container"
     group = "Docker"
 
-    //outputs.upToDateWhen { t -> t.changed == false }
+    outputs.upToDateWhen { t -> t.checkIfUpToDate() }
+  }
+
+  /**
+   * Check if task is up-to-date
+   *
+   * @return if task is up to date
+   */
+  boolean checkIfUpToDate() {
+    if (!containerName) {
+      throw new GradleException("containerName is mandatory")
+    }
+
+    container = new DockerContainer(getDockerClient(), containerName, image, createConfig())
+
+    switch(targetState) {
+      case State.PRESENT:
+        changed = !container.isPresent()
+        break
+      case State.STARTED:
+        changed = !container.isStarted()
+        if (!changed) {
+          doHealthChecks()
+        }
+        break
+      case State.RELOADED:
+        changed = !container.isReloaded()
+        if (!changed) {
+          doHealthChecks()
+        }
+        break
+      case State.RESTARTED:
+        changed = true
+        break
+      case State.STOPPED:
+        changed = !container.isStopped()
+        break
+      case State.ABSENT:
+        changed = !container.isAbsent()
+        break
+    }
+
+    return !changed
   }
 
   @TaskAction
@@ -129,25 +171,25 @@ class DockerContainerTask extends DockerTask {
 
     switch(targetState) {
       case State.PRESENT:
-        changed = container.present()
+        changed = container.ensurePresent()
         break
       case State.STARTED:
-        changed = container.started()
+        changed = container.ensureStarted()
         doHealthChecks()
         break
       case State.RELOADED:
-        changed = container.reloaded()
+        changed = container.ensureReloaded()
         doHealthChecks()
         break
       case State.RESTARTED:
-        changed = container.restarted()
+        changed = container.ensureRestarted()
         doHealthChecks()
         break
       case State.STOPPED:
-        changed = container.stopped()
+        changed = container.ensureStopped()
         break
       case State.ABSENT:
-        changed = container.absent()
+        changed = container.ensureAbsent()
         break
     }
 

@@ -16,7 +16,7 @@ class DockerContainerSpec extends Specification {
         ])
 
         when:
-        container.reloaded()
+        container.ensureReloaded()
 
         then:
         1 * dockerClient.ps([filters: [name: ["example"]]]) >> [
@@ -49,7 +49,7 @@ class DockerContainerSpec extends Specification {
         ])
 
         when:
-        container.reloaded()
+        container.ensureReloaded()
 
         then:
         1 * dockerClient.ps([filters: [name: ["example"]]]) >> [
@@ -88,7 +88,7 @@ class DockerContainerSpec extends Specification {
         ])
 
         when:
-        container.reloaded()
+        container.ensureReloaded()
 
         then:
         1 * dockerClient.ps([filters: [name: ["example"]]]) >> [
@@ -142,7 +142,7 @@ class DockerContainerSpec extends Specification {
         ])
 
         when:
-        container.reloaded()
+        container.ensureReloaded()
 
         then:
         1 * dockerClient.ps([filters: [name: ["example"]]]) >> [
@@ -184,7 +184,7 @@ class DockerContainerSpec extends Specification {
         ])
 
         when:
-        container.reloaded()
+        container.ensureReloaded()
 
         then:
         1 * dockerClient.ps([filters: [name: ["example"]]]) >> [
@@ -241,7 +241,7 @@ class DockerContainerSpec extends Specification {
         ])
 
         when:
-        def changed = container.reloaded()
+        def changed = container.ensureReloaded()
 
         then:
         1 * dockerClient.ps([filters: [name: ["example"]]]) >> [
