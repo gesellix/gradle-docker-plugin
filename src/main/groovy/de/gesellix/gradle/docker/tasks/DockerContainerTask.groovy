@@ -125,6 +125,41 @@ class DockerContainerTask extends DockerTask {
       throw new GradleException("containerName is mandatory")
     }
 
+    container = new DockerContainer(getDockerClient(), containerName, image, createConfig())
+
+    switch(targetState) {
+      case State.PRESENT:
+        changed = container.present()
+        break
+      case State.STARTED:
+        changed = container.started()
+        doHealthChecks()
+        break
+      case State.RELOADED:
+        changed = container.reloaded()
+        doHealthChecks()
+        break
+      case State.RESTARTED:
+        changed = container.restarted()
+        doHealthChecks()
+        break
+      case State.STOPPED:
+        changed = container.stopped()
+        break
+      case State.ABSENT:
+        changed = container.absent()
+        break
+    }
+
+    return !changed
+  }
+
+  /**
+   * Creates a Docker container configuration object from task input parameters
+   *
+   * @return Container configuration
+   */
+  private def createConfig() {
     def config = [:]
 
     config.Image = image
@@ -208,36 +243,13 @@ class DockerContainerTask extends DockerTask {
       config.HostConfig.ExtraHosts = extraHosts
     }
 
-    container = new DockerContainer(getDockerClient(), containerName, image, config)
-
-    switch(targetState) {
-      case State.PRESENT:
-        changed = container.present()
-        break
-      case State.STARTED:
-        changed = container.started()
-        doHealthChecks()
-        break
-      case State.RELOADED:
-        changed = container.reloaded()
-        doHealthChecks()
-        break
-      case State.RESTARTED:
-        changed = container.restarted()
-        doHealthChecks()
-        break
-      case State.STOPPED:
-        changed = container.stopped()
-        break
-      case State.ABSENT:
-        changed = container.absent()
-        break
-    }
-
-    return !changed
+    return config
   }
 
-  def doHealthChecks() {
+  /**
+   * Execute health checks on container
+   */
+  private def doHealthChecks() {
     if (healthChecks.size() == 0)
       return false
 
