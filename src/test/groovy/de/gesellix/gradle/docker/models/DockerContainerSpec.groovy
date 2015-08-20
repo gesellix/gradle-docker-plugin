@@ -16,20 +16,21 @@ class DockerContainerSpec extends Specification {
         ])
 
         when:
+        def upToDate = container.isReloaded()
         container.ensureReloaded()
 
         then:
         1 * dockerClient.ps([filters: [name: ["example"]]]) >> [
                 content: [[ Names: [ "/example" ], Id: "123" ]]
         ]
-        1 * dockerClient.inspectContainer("123") >> [
+        2 * dockerClient.inspectContainer("123") >> [
                 content: [
                         Image: "image1",
                         State: [
                                 Running: true
                         ]]
         ]
-        1 * dockerClient.inspectImage("testImage:latest") >> [
+        2 * dockerClient.inspectImage("testImage:latest") >> [
                 status: [ success: true ],
                 content: [ Id: "image0" ]
         ]
@@ -37,6 +38,9 @@ class DockerContainerSpec extends Specification {
             println msg
             assert msg.startsWith("Image identifiers differ")
         }
+
+        and:
+        upToDate == false
     }
 
     def "reloaded w/ different exposed ports"() {
@@ -49,13 +53,14 @@ class DockerContainerSpec extends Specification {
         ])
 
         when:
+        def upToDate = container.isReloaded()
         container.ensureReloaded()
 
         then:
         1 * dockerClient.ps([filters: [name: ["example"]]]) >> [
                 content: [[ Names: [ "/example" ], Id: "123" ]]
         ]
-        1 * dockerClient.inspectContainer("123") >> [
+        2 * dockerClient.inspectContainer("123") >> [
                 content: [
                         Image: "image1",
                         State: [
@@ -66,7 +71,7 @@ class DockerContainerSpec extends Specification {
                                         "8080/tcp": []
                                 ]]]
         ]
-        1 * dockerClient.inspectImage("testImage:latest") >> [
+        2 * dockerClient.inspectImage("testImage:latest") >> [
                 status: [ success: true ],
                 content: [ Id: "image1", ContainerConfig: [ ExposedPorts: [] ] ]
         ]
@@ -74,6 +79,9 @@ class DockerContainerSpec extends Specification {
             println msg
             assert msg.startsWith("Exposed ports do not match")
         }
+
+        and:
+        upToDate == false
     }
 
     def "reloaded w/ different cmd"() {
@@ -88,13 +96,14 @@ class DockerContainerSpec extends Specification {
         ])
 
         when:
+        def upToDate = container.isReloaded()
         container.ensureReloaded()
 
         then:
         1 * dockerClient.ps([filters: [name: ["example"]]]) >> [
                 content: [[ Names: [ "/example" ], Id: "123" ]]
         ]
-        1 * dockerClient.inspectContainer("123") >> [
+        2 * dockerClient.inspectContainer("123") >> [
                 content: [
                         Image: "image1",
                         State: [
@@ -110,7 +119,7 @@ class DockerContainerSpec extends Specification {
                                 ]
                         ]]
         ]
-        1 * dockerClient.inspectImage("testImage:latest") >> [
+        2 * dockerClient.inspectImage("testImage:latest") >> [
                 status: [ success: true ],
                 content: [
                         Id: "image1",
@@ -125,6 +134,9 @@ class DockerContainerSpec extends Specification {
             println msg
             assert msg.startsWith("Entrypoints and Cmd do not match")
         }
+
+        and:
+        upToDate == false
     }
 
     def "reloaded w/ different volumes"() {
@@ -142,13 +154,14 @@ class DockerContainerSpec extends Specification {
         ])
 
         when:
+        def upToDate = container.isReloaded()
         container.ensureReloaded()
 
         then:
         1 * dockerClient.ps([filters: [name: ["example"]]]) >> [
                 content: [[ Names: [ "/example" ], Id: "123" ]]
         ]
-        1 * dockerClient.inspectContainer("123") >> [
+        2 * dockerClient.inspectContainer("123") >> [
                 content: [
                         Image: "image1",
                         State: [
@@ -158,7 +171,7 @@ class DockerContainerSpec extends Specification {
                                 ExposedPorts: [ "8080/tcp": [] ]
                         ]]
         ]
-        1 * dockerClient.inspectImage("testImage:latest") >> [
+        2 * dockerClient.inspectImage("testImage:latest") >> [
                 status: [ success: true ],
                 content: [ Id: "image1", ContainerConfig: [ ExposedPorts: [] ] ]
         ]
@@ -166,6 +179,9 @@ class DockerContainerSpec extends Specification {
             println msg
             assert msg.startsWith("Volumes do not match")
         }
+
+        and:
+        upToDate == false
     }
 
     def "reloaded w/ different envs"() {
@@ -184,13 +200,14 @@ class DockerContainerSpec extends Specification {
         ])
 
         when:
+        def upToDate = container.isReloaded()
         container.ensureReloaded()
 
         then:
         1 * dockerClient.ps([filters: [name: ["example"]]]) >> [
                 content: [[ Names: [ "/example" ], Id: "123" ]]
         ]
-        1 * dockerClient.inspectContainer("123") >> [
+        2 * dockerClient.inspectContainer("123") >> [
                 content: [
                         Image: "image1",
                         State: [
@@ -205,7 +222,7 @@ class DockerContainerSpec extends Specification {
                                 Env: [ "TMP=1" ]
                         ]]
         ]
-        1 * dockerClient.inspectImage("testImage:latest") >> [
+        2 * dockerClient.inspectImage("testImage:latest") >> [
                 status: [ success: true ],
                 content: [
                         Id: "image1",
@@ -220,6 +237,9 @@ class DockerContainerSpec extends Specification {
             println msg
             assert msg.startsWith("Env does not match")
         }
+
+        and:
+        upToDate == false
     }
 
     def "reloaded w/ everything same"() {
@@ -241,13 +261,14 @@ class DockerContainerSpec extends Specification {
         ])
 
         when:
+        def upToDate = container.isReloaded()
         def changed = container.ensureReloaded()
 
         then:
         1 * dockerClient.ps([filters: [name: ["example"]]]) >> [
                 content: [[ Names: [ "/example" ], Id: "123" ]]
         ]
-        1 * dockerClient.inspectContainer("123") >> [
+        2 * dockerClient.inspectContainer("123") >> [
                 content: [
                         Image: "image1",
                         State: [
@@ -265,7 +286,7 @@ class DockerContainerSpec extends Specification {
                                 Binds: [ "/data:/data" ]
                         ]]
         ]
-        1 * dockerClient.inspectImage("testImage:latest") >> [
+        2 * dockerClient.inspectImage("testImage:latest") >> [
                 status: [ success: true ],
                 content: [
                         Id: "image1",
@@ -280,6 +301,7 @@ class DockerContainerSpec extends Specification {
         0 * container.reload(_)
 
         and:
+        upToDate == true
         changed == false
     }
 }

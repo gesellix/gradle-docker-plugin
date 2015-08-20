@@ -2,7 +2,6 @@ package de.gesellix.gradle.docker.tasks
 
 import de.gesellix.docker.client.DockerClient
 import org.gradle.api.GradleException
-import org.gradle.api.tasks.TaskExecutionException
 import org.gradle.testfixtures.ProjectBuilder
 import org.gradle.util.AvailablePortFinder
 import spock.lang.Specification
@@ -43,10 +42,12 @@ class DockerContainerTaskSpec extends Specification {
         task.targetState = "started"
         task.image = "testImage:latest"
         task.containerName = "example"
+        def upToDate = task.checkIfUpToDate()
         task.execute()
 
         then:
-        4 * dockerClient.ps([filters: [name: ["example"]]]) >>> [
+        5 * dockerClient.ps([filters: [name: ["example"]]]) >>> [
+                [ content: [] ],
                 [ content: [] ],
                 [ content: [] ],
                 [ content: [] ],
@@ -65,6 +66,7 @@ class DockerContainerTaskSpec extends Specification {
         ]
 
         and:
+        upToDate == false
         task.changed == true
     }
 
@@ -73,23 +75,26 @@ class DockerContainerTaskSpec extends Specification {
         task.targetState = "started"
         task.image = "testImage:latest"
         task.containerName = "example"
+        def upToDate = task.checkIfUpToDate()
         task.execute()
 
         then:
-        2 * dockerClient.ps([filters: [name: ["example"]]]) >> [
+        3 * dockerClient.ps([filters: [name: ["example"]]]) >> [
                 content: [[ Names: [ "/example" ], Id: "123" ]]
         ]
         1 * dockerClient.startContainer(_) >> [
                 status: [ success: true ],
                 content: [ Image: task.image, State: [ Running: true ] ]
         ]
-        3 * dockerClient.inspectContainer("123") >>> [
+        4 * dockerClient.inspectContainer("123") >>> [
+                [ content: [ Image: task.image, State: [ Running: false ] ] ],
                 [ content: [ Image: task.image, State: [ Running: false ] ] ],
                 [ content: [ Image: task.image, State: [ Running: false ] ] ],
                 [ content: [ Image: task.image, State: [ Running: true ] ] ]
         ]
 
         and:
+        upToDate == false
         task.changed == true
     }
 
@@ -98,17 +103,19 @@ class DockerContainerTaskSpec extends Specification {
         task.targetState = "started"
         task.image = "testImage:latest"
         task.containerName = "example"
+        def upToDate = task.checkIfUpToDate()
         task.execute()
 
         then:
-        2 * dockerClient.ps([filters: [name: ["example"]]]) >> [
+        3 * dockerClient.ps([filters: [name: ["example"]]]) >> [
                 content: [[ Names: [ "/example" ], Id: "123" ]]
         ]
-        2 * dockerClient.inspectContainer("123") >> [
+        3 * dockerClient.inspectContainer("123") >> [
                 content: [ Image: task.image, State: [ Running: true ] ]
         ]
 
         and:
+        upToDate == true
         task.changed == false
     }
 
@@ -117,13 +124,15 @@ class DockerContainerTaskSpec extends Specification {
         task.targetState = "stopped"
         task.image = "testImage:latest"
         task.containerName = "example"
+        def upToDate = task.checkIfUpToDate()
         task.execute()
 
         then:
-        2 * dockerClient.ps([filters: [name: ["example"]]]) >> [
+        3 * dockerClient.ps([filters: [name: ["example"]]]) >> [
                 content: [[ Names: [ "/example" ], Id: "123" ]]
         ]
-        3 * dockerClient.inspectContainer("123") >>> [
+        4 * dockerClient.inspectContainer("123") >>> [
+                [ content: [ Image: task.image, State: [ Running: true ] ] ],
                 [ content: [ Image: task.image, State: [ Running: true ] ] ],
                 [ content: [ Image: task.image, State: [ Running: true ] ] ],
                 [ content: [ Image: task.image, State: [ Running: false ] ] ],
@@ -133,6 +142,7 @@ class DockerContainerTaskSpec extends Specification {
         ]
 
         and:
+        upToDate == false
         task.changed == true
     }
 
@@ -141,17 +151,19 @@ class DockerContainerTaskSpec extends Specification {
         task.targetState = "stopped"
         task.image = "testImage:latest"
         task.containerName = "example"
+        def upToDate = task.checkIfUpToDate()
         task.execute()
 
         then:
-        2 * dockerClient.ps([filters: [name: ["example"]]]) >>> [
+        3 * dockerClient.ps([filters: [name: ["example"]]]) >>> [
                 [ content: [[ Names: [ "/example" ], Id: "123" ]]]
         ]
-        2 * dockerClient.inspectContainer("123") >> [
+        3 * dockerClient.inspectContainer("123") >> [
                 content: [ Image: task.image, State: [ Running: false ] ]
         ]
 
         and:
+        upToDate == true
         task.changed == false
     }
 
@@ -160,13 +172,15 @@ class DockerContainerTaskSpec extends Specification {
         task.targetState = "absent"
         task.image = "testImage:latest"
         task.containerName = "example"
+        def upToDate = task.checkIfUpToDate()
         task.execute()
 
         then:
-        2 * dockerClient.ps([filters: [name: ["example"]]]) >> [
+        3 * dockerClient.ps([filters: [name: ["example"]]]) >> [
                 content: [[ Names: [ "/example" ], Id: "123" ]]
         ]
-        3 * dockerClient.inspectContainer("123") >>> [
+        4 * dockerClient.inspectContainer("123") >>> [
+                [ content: [ Image: task.image, State: [ Running: true ] ] ],
                 [ content: [ Image: task.image, State: [ Running: true ] ] ],
                 [ content: [ Image: task.image, State: [ Running: true ] ] ],
                 [ content: [ Image: task.image, State: [ Running: false ] ] ],
@@ -179,6 +193,7 @@ class DockerContainerTaskSpec extends Specification {
         ]
 
         and:
+        upToDate == false
         task.changed == true
     }
 
@@ -187,13 +202,14 @@ class DockerContainerTaskSpec extends Specification {
         task.targetState = "absent"
         task.image = "testImage:latest"
         task.containerName = "example"
+        def upToDate = task.checkIfUpToDate()
         task.execute()
 
         then:
-        2 * dockerClient.ps([filters: [name: ["example"]]]) >> [
+        3 * dockerClient.ps([filters: [name: ["example"]]]) >> [
                 content: [[ Names: [ "/example" ], Id: "123" ]]
         ]
-        2 * dockerClient.inspectContainer("123") >> [
+        3 * dockerClient.inspectContainer("123") >> [
                 content: [ Image: task.image, State: [ Running: false ] ]
         ]
         1 * dockerClient.rm("123") >> [
@@ -201,6 +217,7 @@ class DockerContainerTaskSpec extends Specification {
         ]
 
         and:
+        upToDate == false
         task.changed == true
     }
 
@@ -209,14 +226,16 @@ class DockerContainerTaskSpec extends Specification {
         task.targetState = "absent"
         task.image = "testImage:latest"
         task.containerName = "example"
+        def upToDate = task.checkIfUpToDate()
         task.execute()
 
         then:
-        2 * dockerClient.ps([filters: [name: ["example"]]]) >> [
+        3 * dockerClient.ps([filters: [name: ["example"]]]) >> [
                 content: []
         ]
 
         and:
+        upToDate == true
         task.changed == false
     }
 
@@ -225,10 +244,12 @@ class DockerContainerTaskSpec extends Specification {
         task.targetState = "reloaded"
         task.image = "testImage:latest"
         task.containerName = "example"
+        def upToDate = task.checkIfUpToDate()
         task.execute()
 
         then:
-        4 * dockerClient.ps([filters: [name: ["example"]]]) >>> [
+        5 * dockerClient.ps([filters: [name: ["example"]]]) >>> [
+                [ content: [] ],
                 [ content: [] ],
                 [ content: [] ],
                 [ content: [] ],
@@ -247,6 +268,7 @@ class DockerContainerTaskSpec extends Specification {
         ]
 
         and:
+        upToDate == false
         task.changed == true
     }
 
@@ -255,10 +277,12 @@ class DockerContainerTaskSpec extends Specification {
         task.targetState = "reloaded"
         task.image = "testImage:latest"
         task.containerName = "example"
+        def upToDate = task.checkIfUpToDate()
         task.execute()
 
         then:
-        3 * dockerClient.ps([filters: [name: ["example"]]]) >>> [
+        4 * dockerClient.ps([filters: [name: ["example"]]]) >>> [
+                [ content: [[ Names: [ "/example" ], Id: "123" ]]],
                 [ content: [[ Names: [ "/example" ], Id: "123" ]]],
                 [ content: [[ Names: [ "/example" ], Id: "123" ]]],
                 [ content: [[ Names: [ "/example" ], Id: "234" ]]]
@@ -274,7 +298,7 @@ class DockerContainerTaskSpec extends Specification {
                 status: [ success: true ],
                 content: [ Image: task.image, State: [ Running: true ] ]
         ]
-        3 * dockerClient.inspectContainer("123") >> [
+        4 * dockerClient.inspectContainer("123") >> [
                 content: [ Image: task.image, State: [ Running: false ] ]
         ]
         2 * dockerClient.inspectContainer("234") >>> [
@@ -283,6 +307,7 @@ class DockerContainerTaskSpec extends Specification {
         ]
 
         and:
+        upToDate == false
         task.changed == true
     }
 
@@ -291,10 +316,12 @@ class DockerContainerTaskSpec extends Specification {
         task.targetState = "reloaded"
         task.image = "testImage:latest"
         task.containerName = "example"
+        def upToDate = task.checkIfUpToDate()
         task.execute()
 
         then:
-        3 * dockerClient.ps([filters: [name: ["example"]]]) >>> [
+        4 * dockerClient.ps([filters: [name: ["example"]]]) >>> [
+                [ content: [[ Names: [ "/example" ], Id: "123" ]]],
                 [ content: [[ Names: [ "/example" ], Id: "123" ]]],
                 [ content: [[ Names: [ "/example" ], Id: "123" ]]],
                 [ content: [[ Names: [ "/example" ], Id: "234" ]]]
@@ -310,19 +337,20 @@ class DockerContainerTaskSpec extends Specification {
                 status: [ success: true ],
                 content: [ Image: task.image, State: [ Running: true ] ]
         ]
-        3 * dockerClient.inspectContainer("123") >> [
+        4 * dockerClient.inspectContainer("123") >> [
                 content: [ Image: "image1", State: [ Running: true ] ],
         ]
         2 * dockerClient.inspectContainer("234") >>> [
                 [ content: [ Image: task.image, State: [ Running: false ] ] ],
                 [ content: [ Image: task.image, State: [ Running: true ] ] ]
         ]
-        2 * dockerClient.inspectImage("testImage:latest") >> [
+        3 * dockerClient.inspectImage("testImage:latest") >> [
                 status: [ success: true ],
                 content: [ Id: "image0" ]
         ]
 
         and:
+        upToDate == false
         task.changed == true
     }
 
@@ -340,13 +368,14 @@ class DockerContainerTaskSpec extends Specification {
                 "/mnt/readonly:/input:ro"
         ]
         task.extraHosts = [ "dockerhost:127.0.0.1" ]
+        def upToDate = task.checkIfUpToDate()
         task.execute()
 
         then:
-        2 * dockerClient.ps([filters: [name: ["example"]]]) >> [
+        3 * dockerClient.ps([filters: [name: ["example"]]]) >> [
                 content: [[ Names: [ "/example" ], Id: "123" ]]
         ]
-        2 * dockerClient.inspectContainer("123") >> [
+        3 * dockerClient.inspectContainer("123") >> [
                 content: [
                         Image: "image1",
                         State: [
@@ -378,7 +407,7 @@ class DockerContainerTaskSpec extends Specification {
                                 ]]
                         ]]
         ]
-        2 * dockerClient.inspectImage("testImage:latest") >> [
+        3 * dockerClient.inspectImage("testImage:latest") >> [
                 status: [ success: true ],
                 content: [
                         Id: "image1",
@@ -394,6 +423,7 @@ class DockerContainerTaskSpec extends Specification {
         ]
 
         and:
+        upToDate == true
         task.changed == false
     }
 
