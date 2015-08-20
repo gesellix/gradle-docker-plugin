@@ -3,19 +3,9 @@ import java.text.SimpleDateFormat
 buildscript {
   repositories {
     mavenLocal()
-    if (hasProperty("nexus.public.url") && project["nexus.public.url"]) {
-      maven {
-        url project["nexus.public.url"]
-        credentials {
-          username project["nexus.username"]
-          password project["nexus.password"]
-        }
-      }
-    } else {
-      jcenter()
-      maven { url "https://plugins.gradle.org/m2/" }
-      mavenCentral()
-    }
+    jcenter()
+    maven { url "https://plugins.gradle.org/m2/" }
+    mavenCentral()
   }
 
   dependencies {
@@ -29,19 +19,9 @@ buildscript {
 
 repositories {
   mavenLocal()
-  if (hasProperty("nexus.public.url") && project["nexus.public.url"]) {
-    maven {
-      url project["nexus.public.url"]
-      credentials {
-        username project["nexus.username"]
-        password project["nexus.password"]
-      }
-    }
-  } else {
 //    maven { url 'http://dl.bintray.com/gesellix/docker-utils' }
-    jcenter()
-    mavenCentral()
-  }
+  jcenter()
+  mavenCentral()
 }
 
 apply plugin: "com.gradle.plugin-publish"
@@ -87,7 +67,12 @@ sourceSets {
   }
 }
 
-cobertura.coverageSourceDirs = sourceSets.main.groovy.srcDirs
+cobertura {
+  coverageSourceDirs = sourceSets.main.groovy.srcDirs
+  // TODO should be removed when this issue has been resolved:
+  // https://github.com/stevesaliman/gradle-cobertura-plugin/issues/81
+  coberturaVersion = '2.0.3'
+}
 
 ext {
   artifactVersion = new SimpleDateFormat('yyyy-MM-dd\'T\'HH-mm-ss').format(new Date())
@@ -104,7 +89,10 @@ def versionOverrides = [
     'commons-logging:commons-logging': '1.1.3',
     'junit:junit'                    : '4.11',
     'org.hamcrest:hamcrest-core'     : '1.3',
-    'org.slf4j:slf4j-api'            : '1.6.6'
+    'org.slf4j:slf4j-api'            : '1.6.6',
+    'xerces:xercesImpl'              : '2.6.2',
+    'xerces:xmlParserAPIs'           : '2.6.2',
+    'xml-apis:xml-apis'              : '1.0.b2'
 ]
 
 dependencies {
