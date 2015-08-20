@@ -480,14 +480,28 @@ class DockerContainerTaskSpec extends Specification {
         given:
         int port = AvailablePortFinder.createPrivate().nextAvailable
 
-        Thread server = new Thread({
-            ServerSocket ss = new ServerSocket(port);
-            while(true) {
-                Socket client = ss.accept();
+        Thread server = new Thread() {
+            boolean initialized = false
+
+            public void run() {
+                ServerSocket ss;
+                synchronized (this) {
+                    ss = new ServerSocket(port);
+                    initialized = true
+                    notify()
+                }
+                while (true) {
+                    Socket client = ss.accept();
+                }
             }
-        } as Runnable)
+        }
 
         server.start()
+        synchronized(server) {
+            if (!server.initialized) {
+                server.wait()
+            }
+        }
 
         when:
         task.dockerHost = "tcp://127.0.0.1:999"
