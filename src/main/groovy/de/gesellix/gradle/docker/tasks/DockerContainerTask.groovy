@@ -138,13 +138,21 @@ class DockerContainerTask extends DockerTask {
       case State.STARTED:
         changed = !container.isStarted()
         if (!changed) {
-          doHealthChecks()
+          try {
+            doHealthChecks()
+          } catch (Exception e) {
+            throw new GradleException("UpToDate check failed", e)
+          }
         }
         break
       case State.RELOADED:
         changed = !container.isReloaded()
         if (!changed) {
-          doHealthChecks()
+          try {
+            doHealthChecks()
+          } catch (Exception e) {
+            throw new GradleException("UpToDate check failed", e)
+          }
         }
         break
       case State.RESTARTED:

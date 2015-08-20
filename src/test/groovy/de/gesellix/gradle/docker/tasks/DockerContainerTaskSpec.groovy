@@ -458,8 +458,9 @@ class DockerContainerTaskSpec extends Specification {
         task.changed == false
 
         and:
-        def e = thrown(IllegalArgumentException)
-        e.message.endsWith("is not bound to host.")
+        def e = thrown(GradleException)
+        e.cause.class == IllegalArgumentException
+        e.cause.message.endsWith("is not bound to host.")
     }
 
     def "healthcheck on already running container - timeout"() {
@@ -502,8 +503,9 @@ class DockerContainerTaskSpec extends Specification {
         task.changed == false
 
         and:
-        def e = thrown(IllegalStateException)
-        e.message == "HealthCheck: Container not healthy."
+        def e = thrown(GradleException)
+        e.cause.class == IllegalStateException
+        e.cause.message == "HealthCheck: Container not healthy."
     }
 
     def "healthcheck on already running container"() {
