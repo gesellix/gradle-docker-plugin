@@ -510,15 +510,17 @@ class DockerContainerTaskSpec extends Specification {
 
     def "healthcheck on already running container"() {
         given:
-        int port = AvailablePortFinder.createPrivate().nextAvailable
+        int port = 0
 
         Thread server = new Thread() {
             boolean initialized = false
+            int serverPort = 0
 
             public void run() {
                 ServerSocket ss;
                 synchronized (this) {
-                    ss = new ServerSocket(port);
+                    serverPort = AvailablePortFinder.createPrivate().nextAvailable
+                    ss = new ServerSocket(serverPort);
                     initialized = true
                     notify()
                 }
@@ -533,6 +535,7 @@ class DockerContainerTaskSpec extends Specification {
             if (!server.initialized) {
                 server.wait()
             }
+            port = server.serverPort
         }
 
         when:
