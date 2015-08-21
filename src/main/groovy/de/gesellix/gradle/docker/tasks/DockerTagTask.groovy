@@ -7,23 +7,23 @@ import org.slf4j.LoggerFactory
 
 class DockerTagTask extends DockerTask {
 
-  private static Logger logger = LoggerFactory.getLogger(DockerTagTask)
+    private static Logger logger = LoggerFactory.getLogger(DockerTagTask)
 
-  @Input
-  def imageId
-  @Input
-  def tag
-  @Input
-  def force = false
+    @Input
+    def imageId
+    @Input
+    def tag
+    @Input
+    def force = false
 
-  DockerTagTask() {
-    description = "Tag an image into a repository"
-    group = "Docker"
-  }
+    DockerTagTask() {
+        description = "Tag an image into a repository"
+        group = "Docker"
+    }
 
-  @TaskAction
-  def tag() {
-    logger.info "docker tag"
-    return getDockerClient().tag(getImageId(), getTag(), getForce())
-  }
+    @TaskAction
+    def tag() {
+        logger.info "docker tag"
+        return getDockerClient().tag(getImageId(), getTag(), getForce())
+    }
 }

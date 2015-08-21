@@ -8,21 +8,21 @@ import org.slf4j.LoggerFactory
 
 class DockerCleanupTask extends DockerTask {
 
-  private static Logger logger = LoggerFactory.getLogger(DockerCleanupTask)
+    private static Logger logger = LoggerFactory.getLogger(DockerCleanupTask)
 
-  @Input
-  @Optional
-  def shouldKeepContainer
+    @Input
+    @Optional
+    def shouldKeepContainer
 
-  DockerCleanupTask() {
-    description = "Removes stopped containers and dangling images"
-    group = "Docker"
-  }
+    DockerCleanupTask() {
+        description = "Removes stopped containers and dangling images"
+        group = "Docker"
+    }
 
-  @TaskAction
-  def cleanup() {
-    logger.info "docker cleanup"
-    def keepContainer = getShouldKeepContainer() ?: { container -> false }
-    dockerClient.cleanupStorage keepContainer
-  }
+    @TaskAction
+    def cleanup() {
+        logger.info "docker cleanup"
+        def keepContainer = getShouldKeepContainer() ?: { container -> false }
+        dockerClient.cleanupStorage keepContainer
+    }
 }

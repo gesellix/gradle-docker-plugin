@@ -9,42 +9,41 @@ import org.slf4j.LoggerFactory
 
 class DockerDisposeContainerTask extends DockerTask {
 
-  private static Logger logger = LoggerFactory.getLogger(DockerDisposeContainerTask)
+    private static Logger logger = LoggerFactory.getLogger(DockerDisposeContainerTask)
 
-  @Input
-  def containerId
-  @Input
-  @Optional
-  def rmiParentImage = false
+    @Input
+    def containerId
+    @Input
+    @Optional
+    def rmiParentImage = false
 
-  DockerDisposeContainerTask() {
-    description = "Stops and removes a container and optionally its parent image"
-    group = "Docker"
-  }
-
-  @TaskAction
-  def dispose() {
-    logger.info "docker dispose"
-
-    def containerId = getContainerId()
-    def containerDetails
-    try {
-      containerDetails = getDockerClient().inspectContainer(containerId)
+    DockerDisposeContainerTask() {
+        description = "Stops and removes a container and optionally its parent image"
+        group = "Docker"
     }
-    catch (DockerClientException e) {
-      if (e.detail?.status?.code == 404) {
-        logger.info("couldn't dispose container because it doesn't exists")
-        return
-      }
-      else {
-        throw e
-      }
+
+    @TaskAction
+    def dispose() {
+        logger.info "docker dispose"
+
+        def containerId = getContainerId()
+        def containerDetails
+        try {
+            containerDetails = getDockerClient().inspectContainer(containerId)
+        }
+        catch (DockerClientException e) {
+            if (e.detail?.status?.code == 404) {
+                logger.info("couldn't dispose container because it doesn't exists")
+                return
+            } else {
+                throw e
+            }
+        }
+        getDockerClient().stop(containerId)
+        getDockerClient().wait(containerId)
+        getDockerClient().rm(containerId)
+        if (getRmiParentImage()) {
+            getDockerClient().rmi(containerDetails.content.Image)
+        }
     }
-    getDockerClient().stop(containerId)
-    getDockerClient().wait(containerId)
-    getDockerClient().rm(containerId)
-    if (getRmiParentImage()) {
-      getDockerClient().rmi(containerDetails.content.Image)
-    }
-  }
 }

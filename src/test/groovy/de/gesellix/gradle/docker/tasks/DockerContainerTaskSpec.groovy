@@ -47,22 +47,22 @@ class DockerContainerTaskSpec extends Specification {
 
         then:
         5 * dockerClient.ps([filters: [name: ["example"]]]) >>> [
-                [ content: [] ],
-                [ content: [] ],
-                [ content: [] ],
-                [ content: [] ],
-                [ content: [[ Names: [ "/example" ], Id: "123" ]]]
+                [content: []],
+                [content: []],
+                [content: []],
+                [content: []],
+                [content: [[Names: ["/example"], Id: "123"]]]
         ]
         1 * dockerClient.createContainer(_, [name: "example"]) >> [
-                status: [ success: true ],
-                content: [ id: "123"]
+                status : [success: true],
+                content: [id: "123"]
         ]
         1 * dockerClient.startContainer(_) >> [
-                status: [ success: true ],
-                content: [ Image: task.image, State: [ Running: true ] ]
+                status : [success: true],
+                content: [Image: task.image, State: [Running: true]]
         ]
         1 * dockerClient.inspectContainer("123") >> [
-                content: [ Image: task.image, State: [ Running: true ] ]
+                content: [Image: task.image, State: [Running: true]]
         ]
 
         and:
@@ -80,17 +80,17 @@ class DockerContainerTaskSpec extends Specification {
 
         then:
         3 * dockerClient.ps([filters: [name: ["example"]]]) >> [
-                content: [[ Names: [ "/example" ], Id: "123" ]]
+                content: [[Names: ["/example"], Id: "123"]]
         ]
         1 * dockerClient.startContainer(_) >> [
-                status: [ success: true ],
-                content: [ Image: task.image, State: [ Running: true ] ]
+                status : [success: true],
+                content: [Image: task.image, State: [Running: true]]
         ]
         4 * dockerClient.inspectContainer("123") >>> [
-                [ content: [ Image: task.image, State: [ Running: false ] ] ],
-                [ content: [ Image: task.image, State: [ Running: false ] ] ],
-                [ content: [ Image: task.image, State: [ Running: false ] ] ],
-                [ content: [ Image: task.image, State: [ Running: true ] ] ]
+                [content: [Image: task.image, State: [Running: false]]],
+                [content: [Image: task.image, State: [Running: false]]],
+                [content: [Image: task.image, State: [Running: false]]],
+                [content: [Image: task.image, State: [Running: true]]]
         ]
 
         and:
@@ -108,10 +108,10 @@ class DockerContainerTaskSpec extends Specification {
 
         then:
         3 * dockerClient.ps([filters: [name: ["example"]]]) >> [
-                content: [[ Names: [ "/example" ], Id: "123" ]]
+                content: [[Names: ["/example"], Id: "123"]]
         ]
         3 * dockerClient.inspectContainer("123") >> [
-                content: [ Image: task.image, State: [ Running: true ] ]
+                content: [Image: task.image, State: [Running: true]]
         ]
 
         and:
@@ -129,16 +129,16 @@ class DockerContainerTaskSpec extends Specification {
 
         then:
         3 * dockerClient.ps([filters: [name: ["example"]]]) >> [
-                content: [[ Names: [ "/example" ], Id: "123" ]]
+                content: [[Names: ["/example"], Id: "123"]]
         ]
         4 * dockerClient.inspectContainer("123") >>> [
-                [ content: [ Image: task.image, State: [ Running: true ] ] ],
-                [ content: [ Image: task.image, State: [ Running: true ] ] ],
-                [ content: [ Image: task.image, State: [ Running: true ] ] ],
-                [ content: [ Image: task.image, State: [ Running: false ] ] ],
+                [content: [Image: task.image, State: [Running: true]]],
+                [content: [Image: task.image, State: [Running: true]]],
+                [content: [Image: task.image, State: [Running: true]]],
+                [content: [Image: task.image, State: [Running: false]]],
         ]
         1 * dockerClient.stop("123") >> [
-                status: [ success: true ]
+                status: [success: true]
         ]
 
         and:
@@ -156,10 +156,10 @@ class DockerContainerTaskSpec extends Specification {
 
         then:
         3 * dockerClient.ps([filters: [name: ["example"]]]) >>> [
-                [ content: [[ Names: [ "/example" ], Id: "123" ]]]
+                [content: [[Names: ["/example"], Id: "123"]]]
         ]
         3 * dockerClient.inspectContainer("123") >> [
-                content: [ Image: task.image, State: [ Running: false ] ]
+                content: [Image: task.image, State: [Running: false]]
         ]
 
         and:
@@ -177,19 +177,19 @@ class DockerContainerTaskSpec extends Specification {
 
         then:
         3 * dockerClient.ps([filters: [name: ["example"]]]) >> [
-                content: [[ Names: [ "/example" ], Id: "123" ]]
+                content: [[Names: ["/example"], Id: "123"]]
         ]
         4 * dockerClient.inspectContainer("123") >>> [
-                [ content: [ Image: task.image, State: [ Running: true ] ] ],
-                [ content: [ Image: task.image, State: [ Running: true ] ] ],
-                [ content: [ Image: task.image, State: [ Running: true ] ] ],
-                [ content: [ Image: task.image, State: [ Running: false ] ] ],
+                [content: [Image: task.image, State: [Running: true]]],
+                [content: [Image: task.image, State: [Running: true]]],
+                [content: [Image: task.image, State: [Running: true]]],
+                [content: [Image: task.image, State: [Running: false]]],
         ]
         1 * dockerClient.stop("123") >> [
-                status: [ success: true ]
+                status: [success: true]
         ]
         1 * dockerClient.rm("123") >> [
-                status: [ success: true ]
+                status: [success: true]
         ]
 
         and:
@@ -207,13 +207,13 @@ class DockerContainerTaskSpec extends Specification {
 
         then:
         3 * dockerClient.ps([filters: [name: ["example"]]]) >> [
-                content: [[ Names: [ "/example" ], Id: "123" ]]
+                content: [[Names: ["/example"], Id: "123"]]
         ]
         3 * dockerClient.inspectContainer("123") >> [
-                content: [ Image: task.image, State: [ Running: false ] ]
+                content: [Image: task.image, State: [Running: false]]
         ]
         1 * dockerClient.rm("123") >> [
-                status: [ success: true ]
+                status: [success: true]
         ]
 
         and:
@@ -249,22 +249,22 @@ class DockerContainerTaskSpec extends Specification {
 
         then:
         5 * dockerClient.ps([filters: [name: ["example"]]]) >>> [
-                [ content: [] ],
-                [ content: [] ],
-                [ content: [] ],
-                [ content: [] ],
-                [ content: [[ Names: [ "/example" ], Id: "123" ]]]
+                [content: []],
+                [content: []],
+                [content: []],
+                [content: []],
+                [content: [[Names: ["/example"], Id: "123"]]]
         ]
         1 * dockerClient.createContainer(_, [name: "example"]) >> [
-                status: [ success: true ],
-                content: [ id: "123"]
+                status : [success: true],
+                content: [id: "123"]
         ]
         1 * dockerClient.startContainer(_) >> [
-                status: [ success: true ],
-                content: [ Image: task.image, State: [ Running: true ] ]
+                status : [success: true],
+                content: [Image: task.image, State: [Running: true]]
         ]
         2 * dockerClient.inspectContainer("123") >> [
-                content: [ Image: task.image, State: [ Running: true ] ]
+                content: [Image: task.image, State: [Running: true]]
         ]
 
         and:
@@ -282,28 +282,28 @@ class DockerContainerTaskSpec extends Specification {
 
         then:
         4 * dockerClient.ps([filters: [name: ["example"]]]) >>> [
-                [ content: [[ Names: [ "/example" ], Id: "123" ]]],
-                [ content: [[ Names: [ "/example" ], Id: "123" ]]],
-                [ content: [[ Names: [ "/example" ], Id: "123" ]]],
-                [ content: [[ Names: [ "/example" ], Id: "234" ]]]
+                [content: [[Names: ["/example"], Id: "123"]]],
+                [content: [[Names: ["/example"], Id: "123"]]],
+                [content: [[Names: ["/example"], Id: "123"]]],
+                [content: [[Names: ["/example"], Id: "234"]]]
         ]
         1 * dockerClient.rm("123") >> [
-                status: [ success: true ]
+                status: [success: true]
         ]
         1 * dockerClient.createContainer(_, [name: "example"]) >> [
-                status: [ success: true ],
-                content: [ id: "234"]
+                status : [success: true],
+                content: [id: "234"]
         ]
         1 * dockerClient.startContainer(_) >> [
-                status: [ success: true ],
-                content: [ Image: task.image, State: [ Running: true ] ]
+                status : [success: true],
+                content: [Image: task.image, State: [Running: true]]
         ]
         4 * dockerClient.inspectContainer("123") >> [
-                content: [ Image: task.image, State: [ Running: false ] ]
+                content: [Image: task.image, State: [Running: false]]
         ]
         2 * dockerClient.inspectContainer("234") >>> [
-                [ content: [ Image: task.image, State: [ Running: false ] ] ],
-                [ content: [ Image: task.image, State: [ Running: true ] ] ]
+                [content: [Image: task.image, State: [Running: false]]],
+                [content: [Image: task.image, State: [Running: true]]]
         ]
 
         and:
@@ -321,32 +321,32 @@ class DockerContainerTaskSpec extends Specification {
 
         then:
         4 * dockerClient.ps([filters: [name: ["example"]]]) >>> [
-                [ content: [[ Names: [ "/example" ], Id: "123" ]]],
-                [ content: [[ Names: [ "/example" ], Id: "123" ]]],
-                [ content: [[ Names: [ "/example" ], Id: "123" ]]],
-                [ content: [[ Names: [ "/example" ], Id: "234" ]]]
+                [content: [[Names: ["/example"], Id: "123"]]],
+                [content: [[Names: ["/example"], Id: "123"]]],
+                [content: [[Names: ["/example"], Id: "123"]]],
+                [content: [[Names: ["/example"], Id: "234"]]]
         ]
         1 * dockerClient.rm("123") >> [
-                status: [ success: true ]
+                status: [success: true]
         ]
         1 * dockerClient.createContainer(_, [name: "example"]) >> [
-                status: [ success: true ],
-                content: [ id: "234"]
+                status : [success: true],
+                content: [id: "234"]
         ]
         1 * dockerClient.startContainer(_) >> [
-                status: [ success: true ],
-                content: [ Image: task.image, State: [ Running: true ] ]
+                status : [success: true],
+                content: [Image: task.image, State: [Running: true]]
         ]
         4 * dockerClient.inspectContainer("123") >> [
-                content: [ Image: "image1", State: [ Running: true ] ],
+                content: [Image: "image1", State: [Running: true]],
         ]
         2 * dockerClient.inspectContainer("234") >>> [
-                [ content: [ Image: task.image, State: [ Running: false ] ] ],
-                [ content: [ Image: task.image, State: [ Running: true ] ] ]
+                [content: [Image: task.image, State: [Running: false]]],
+                [content: [Image: task.image, State: [Running: true]]]
         ]
         3 * dockerClient.inspectImage("testImage:latest") >> [
-                status: [ success: true ],
-                content: [ Id: "image0" ]
+                status : [success: true],
+                content: [Id: "image0"]
         ]
 
         and:
@@ -359,64 +359,64 @@ class DockerContainerTaskSpec extends Specification {
         task.targetState = "reloaded"
         task.image = "testImage:latest"
         task.containerName = "example"
-        task.ports = [ "80:8080" ]
-        task.env = [ "TMP=1" ]
-        task.cmd = [ "jar", "myjarfile.jar" ]
-        task.links = [ "mycontainer:myalias" ]
+        task.ports = ["80:8080"]
+        task.env = ["TMP=1"]
+        task.cmd = ["jar", "myjarfile.jar"]
+        task.links = ["mycontainer:myalias"]
         task.volumes = [
                 "/mnt/data:/data",
                 "/mnt/readonly:/input:ro"
         ]
-        task.extraHosts = [ "dockerhost:127.0.0.1" ]
+        task.extraHosts = ["dockerhost:127.0.0.1"]
         def upToDate = task.checkIfUpToDate()
         task.execute()
 
         then:
         3 * dockerClient.ps([filters: [name: ["example"]]]) >> [
-                content: [[ Names: [ "/example" ], Id: "123" ]]
+                content: [[Names: ["/example"], Id: "123"]]
         ]
         3 * dockerClient.inspectContainer("123") >> [
                 content: [
-                        Image: "image1",
-                        State: [
+                        Image     : "image1",
+                        State     : [
                                 Running: true
                         ],
-                        Config: [
-                                ExposedPorts: [ "8080/tcp": [] ],
-                                Volumes: [
-                                        "/data": [],
-                                        "/spec": [],
+                        Config    : [
+                                ExposedPorts: ["8080/tcp": []],
+                                Volumes     : [
+                                        "/data" : [],
+                                        "/spec" : [],
                                         "/input": []
                                 ],
-                                Env: [ "TMP=1", "MYVAR=myval" ],
-                                Cmd: [ "java", "jar", "myjarfile.jar" ]
+                                Env         : ["TMP=1", "MYVAR=myval"],
+                                Cmd         : ["java", "jar", "myjarfile.jar"]
                         ],
                         HostConfig: [
-                                Binds: [
+                                Binds       : [
                                         "/mnt/data:/data",
                                         "/mnt/readonly:/input:ro"
                                 ],
-                                Links: [ "mycontainer:myalias" ],
-                                ExtraHosts: [ "dockerhost:127.0.0.1" ],
-                                Privileged: false,
-                                PortBindings: [ "8080/tcp" : [
+                                Links       : ["mycontainer:myalias"],
+                                ExtraHosts  : ["dockerhost:127.0.0.1"],
+                                Privileged  : false,
+                                PortBindings: ["8080/tcp": [
                                         [
-                                                HostIp: "0.0.0.0",
+                                                HostIp  : "0.0.0.0",
                                                 HostPort: "80"
                                         ]
                                 ]]
                         ]]
         ]
         3 * dockerClient.inspectImage("testImage:latest") >> [
-                status: [ success: true ],
+                status : [success: true],
                 content: [
-                        Id: "image1",
+                        Id             : "image1",
                         ContainerConfig: [
                                 ExposedPorts: [],
-                                Volumes: [ "/spec": [] ],
-                                Env: [ "MYVAR=myval" ]
+                                Volumes     : ["/spec": []],
+                                Env         : ["MYVAR=myval"]
                         ],
-                        Config: [
+                        Config         : [
                                 Entrypoint: "java"
                         ]
                 ]
@@ -436,20 +436,20 @@ class DockerContainerTaskSpec extends Specification {
         task.image = "testImage:latest"
         task.containerName = "example"
         task.healthChecks = [[
-                containerPort: 8080
-        ]]
+                                     containerPort: 8080
+                             ]]
         task.execute()
 
         then:
         1 * dockerClient.ps([filters: [name: ["example"]]]) >> [
-                content: [[ Names: [ "/example" ], Id: "123" ]]
+                content: [[Names: ["/example"], Id: "123"]]
         ]
         2 * dockerClient.inspectContainer("123") >> [
                 content: [
-                        Image: task.image,
-                        State: [ Running: true ],
+                        Image     : task.image,
+                        State     : [Running: true],
                         HostConfig: [
-                                PortBindings: [ ]
+                                PortBindings: []
                         ]
                 ]
         ]
@@ -475,23 +475,23 @@ class DockerContainerTaskSpec extends Specification {
         task.healthChecks = [
                 [
                         containerPort: 8080,
-                        timeout: 1,
-                        retries: 1
+                        timeout      : 1,
+                        retries      : 1
                 ]]
         task.execute()
 
         then:
         1 * dockerClient.ps([filters: [name: ["example"]]]) >>> [
-                [ content: [[ Names: [ "/example" ], Id: "123" ]]]
+                [content: [[Names: ["/example"], Id: "123"]]]
         ]
         2 * dockerClient.inspectContainer("123") >> [
                 content: [
-                        Image: task.image,
-                        State: [ Running: true ],
+                        Image     : task.image,
+                        State     : [Running: true],
                         HostConfig: [
-                                PortBindings: [ "8080/tcp" : [
+                                PortBindings: ["8080/tcp": [
                                         [
-                                                HostIp: "0.0.0.0",
+                                                HostIp  : "0.0.0.0",
                                                 HostPort: port.toString()
                                         ]
                                 ]]
@@ -531,7 +531,7 @@ class DockerContainerTaskSpec extends Specification {
         }
 
         server.start()
-        synchronized(server) {
+        synchronized (server) {
             if (!server.initialized) {
                 server.wait()
             }
@@ -546,23 +546,23 @@ class DockerContainerTaskSpec extends Specification {
         task.healthChecks = [
                 [
                         containerPort: 8080,
-                        timeout: 1,
-                        retries: 1
+                        timeout      : 1,
+                        retries      : 1
                 ]]
         task.execute()
 
         then:
         2 * dockerClient.ps([filters: [name: ["example"]]]) >> [
-                content: [[ Names: [ "/example" ], Id: "123" ]]
+                content: [[Names: ["/example"], Id: "123"]]
         ]
         4 * dockerClient.inspectContainer("123") >> [
                 content: [
-                        Image: task.image,
-                        State: [ Running: true ],
+                        Image     : task.image,
+                        State     : [Running: true],
                         HostConfig: [
-                                PortBindings: [ "8080/tcp" : [
+                                PortBindings: ["8080/tcp": [
                                         [
-                                                HostIp: "0.0.0.0",
+                                                HostIp  : "0.0.0.0",
                                                 HostPort: port.toString()
                                         ]
                                 ]]

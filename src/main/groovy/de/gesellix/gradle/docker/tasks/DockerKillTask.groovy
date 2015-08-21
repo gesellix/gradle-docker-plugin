@@ -7,22 +7,22 @@ import org.slf4j.LoggerFactory
 
 class DockerKillTask extends DockerTask {
 
-  private static Logger logger = LoggerFactory.getLogger(DockerKillTask)
+    private static Logger logger = LoggerFactory.getLogger(DockerKillTask)
 
-  @Input
-  def containerId
+    @Input
+    def containerId
 
-  def result
+    def result
 
-  DockerKillTask() {
-    description = "Kill a running container"
-    group = "Docker"
-  }
+    DockerKillTask() {
+        description = "Kill a running container"
+        group = "Docker"
+    }
 
-  @TaskAction
-  def kill() {
-    logger.info "docker kill"
-    result = getDockerClient().kill(getContainerId())
-    return result
-  }
+    @TaskAction
+    def kill() {
+        logger.info "docker kill"
+        result = getDockerClient().kill(getContainerId())
+        return result
+    }
 }

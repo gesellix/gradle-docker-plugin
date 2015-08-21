@@ -6,24 +6,24 @@ import spock.lang.Specification
 
 class DockerRmiTaskSpec extends Specification {
 
-  def project
-  def task
-  def dockerClient = Mock(DockerClient)
+    def project
+    def task
+    def dockerClient = Mock(DockerClient)
 
-  def setup() {
-    project = ProjectBuilder.builder().build()
-    task = project.task('dockerRmi', type: DockerRmiTask)
-    task.dockerClient = dockerClient
-  }
+    def setup() {
+        project = ProjectBuilder.builder().build()
+        task = project.task('dockerRmi', type: DockerRmiTask)
+        task.dockerClient = dockerClient
+    }
 
-  def "delegates to dockerClient"() {
-    given:
-    task.imageId = "4712"
+    def "delegates to dockerClient"() {
+        given:
+        task.imageId = "4712"
 
-    when:
-    task.execute()
+        when:
+        task.execute()
 
-    then:
-    1 * dockerClient.rmi("4712")
-  }
+        then:
+        1 * dockerClient.rmi("4712")
+    }
 }

@@ -7,24 +7,24 @@ import org.slf4j.LoggerFactory
 
 class DockerRenameTask extends DockerTask {
 
-  private static Logger logger = LoggerFactory.getLogger(DockerRenameTask)
+    private static Logger logger = LoggerFactory.getLogger(DockerRenameTask)
 
-  @Input
-  def containerId
-  @Input
-  def newName
+    @Input
+    def containerId
+    @Input
+    def newName
 
-  def result
+    def result
 
-  DockerRenameTask() {
-    description = "Rename an existing container"
-    group = "Docker"
-  }
+    DockerRenameTask() {
+        description = "Rename an existing container"
+        group = "Docker"
+    }
 
-  @TaskAction
-  def rename() {
-    logger.info "docker rename"
-    result = dockerClient.rename(getContainerId(), getNewName())
-    return result
-  }
+    @TaskAction
+    def rename() {
+        logger.info "docker rename"
+        result = dockerClient.rename(getContainerId(), getNewName())
+        return result
+    }
 }

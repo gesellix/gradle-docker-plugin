@@ -9,32 +9,32 @@ import org.slf4j.LoggerFactory
 
 class DockerCopyTask extends DockerTask {
 
-  private static Logger logger = LoggerFactory.getLogger(DockerCopyTask)
+    private static Logger logger = LoggerFactory.getLogger(DockerCopyTask)
 
-  @Input
-  def containerId
-  @Input
-  def filename
-  @Input
-  @Optional
-  def targetFilename
+    @Input
+    def containerId
+    @Input
+    def filename
+    @Input
+    @Optional
+    def targetFilename
 
-  def content
+    def content
 
-  DockerCopyTask() {
-    description = "Copy files/folders from a container's filesystem to the host path"
-    group = "Docker"
-  }
-
-  @TaskAction
-  def cp() {
-    logger.info "docker cp"
-
-    content = getDockerClient().copyFile(getContainerId(), getFilename())
-    if (getTargetFilename()) {
-      def outputStream = new FileOutputStream(getTargetFilename() as String)
-      IOUtils.write(content as byte[], outputStream)
-      IOUtils.closeQuietly(outputStream)
+    DockerCopyTask() {
+        description = "Copy files/folders from a container's filesystem to the host path"
+        group = "Docker"
     }
-  }
+
+    @TaskAction
+    def cp() {
+        logger.info "docker cp"
+
+        content = getDockerClient().copyFile(getContainerId(), getFilename())
+        if (getTargetFilename()) {
+            def outputStream = new FileOutputStream(getTargetFilename() as String)
+            IOUtils.write(content as byte[], outputStream)
+            IOUtils.closeQuietly(outputStream)
+        }
+    }
 }

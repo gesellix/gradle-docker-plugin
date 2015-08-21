@@ -7,19 +7,19 @@ import org.slf4j.LoggerFactory
 
 class DockerRmiTask extends DockerTask {
 
-  private static Logger logger = LoggerFactory.getLogger(DockerRmiTask)
+    private static Logger logger = LoggerFactory.getLogger(DockerRmiTask)
 
-  @Input
-  def imageId
+    @Input
+    def imageId
 
-  DockerRmiTask() {
-    description = "Remove one or more images"
-    group = "Docker"
-  }
+    DockerRmiTask() {
+        description = "Remove one or more images"
+        group = "Docker"
+    }
 
-  @TaskAction
-  def rmi() {
-    logger.info "docker rmi"
-    getDockerClient().rmi(getImageId())
-  }
+    @TaskAction
+    def rmi() {
+        logger.info "docker rmi"
+        getDockerClient().rmi(getImageId())
+    }
 }

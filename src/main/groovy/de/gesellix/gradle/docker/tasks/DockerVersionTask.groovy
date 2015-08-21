@@ -6,18 +6,18 @@ import org.slf4j.LoggerFactory
 
 class DockerVersionTask extends DockerTask {
 
-  private static Logger logger = LoggerFactory.getLogger(DockerVersionTask)
+    private static Logger logger = LoggerFactory.getLogger(DockerVersionTask)
 
-  def version
+    def version
 
-  DockerVersionTask() {
-    description = "Show the Docker version information"
-    group = "Docker"
-  }
+    DockerVersionTask() {
+        description = "Show the Docker version information"
+        group = "Docker"
+    }
 
-  @TaskAction
-  def version() {
-    logger.info "docker version"
-    version = getDockerClient().version()
-  }
+    @TaskAction
+    def version() {
+        logger.info "docker version"
+        version = getDockerClient().version()
+    }
 }

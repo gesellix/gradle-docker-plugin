@@ -7,32 +7,32 @@ import spock.lang.Specification
 
 class DockerPluginSpec extends Specification {
 
-  private Project project
+    private Project project
 
-  def setup() {
-    project = ProjectBuilder.builder().build()
-  }
+    def setup() {
+        project = ProjectBuilder.builder().build()
+    }
 
-  def "DockerPluginExtension is added to project"() {
-    when:
-    project.apply plugin: 'de.gesellix.docker'
-    then:
-    project["docker"] instanceof DockerPluginExtension
-  }
+    def "DockerPluginExtension is added to project"() {
+        when:
+        project.apply plugin: 'de.gesellix.docker'
+        then:
+        project["docker"] instanceof DockerPluginExtension
+    }
 
-  def "configuration is passed to tasks"() {
-    given:
-    project.apply plugin: 'de.gesellix.docker'
-    project.docker.dockerHost = "http://example.org:2375"
-    project.docker.authConfigPlain = ["plain auth"]
-    project.docker.authConfigEncoded = ["encoded auth"]
+    def "configuration is passed to tasks"() {
+        given:
+        project.apply plugin: 'de.gesellix.docker'
+        project.docker.dockerHost = "http://example.org:2375"
+        project.docker.authConfigPlain = ["plain auth"]
+        project.docker.authConfigEncoded = ["encoded auth"]
 
-    when:
-    def task = project.tasks.create("testTask", TestTask)
+        when:
+        def task = project.tasks.create("testTask", TestTask)
 
-    then:
-    task.dockerHost == "http://example.org:2375"
-    task.authConfigPlain == ["plain auth"]
-    task.authConfigEncoded == ["encoded auth"]
-  }
+        then:
+        task.dockerHost == "http://example.org:2375"
+        task.authConfigPlain == ["plain auth"]
+        task.authConfigEncoded == ["encoded auth"]
+    }
 }

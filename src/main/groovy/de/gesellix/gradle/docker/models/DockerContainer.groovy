@@ -1,8 +1,8 @@
 package de.gesellix.gradle.docker.models
 
+import de.gesellix.docker.client.DockerClient
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
-import de.gesellix.docker.client.DockerClient
 
 class DockerContainer {
     private static Logger logger = Logging.getLogger(DockerContainer)
@@ -33,9 +33,9 @@ class DockerContainer {
      * @return container configuration or null
      */
     def inspect() {
-        if(id == null) {
+        if (id == null) {
             def containers = client.ps([filters: [name: [name]]]).content.findAll {
-                "/" + name in it.Names
+                "/$name" in it.Names
             }
             if (containers.size() > 0) {
                 id = containers[0].Id
@@ -58,12 +58,12 @@ class DockerContainer {
 
             return response.content
 
-        } catch(FileNotFoundException ignored) {
+        } catch (FileNotFoundException ignored) {
             id = null
             imageId = null
             running = false
             exists = false
-        } catch(IllegalStateException ignored) {
+        } catch (IllegalStateException ignored) {
             id = null
             imageId = null
             running = false
@@ -201,7 +201,7 @@ class DockerContainer {
     boolean ensurePresent() {
         logger.info "Container[{}].ensurePresent()", name
 
-        if(!inspect()) {
+        if (!inspect()) {
             create()
             return true
         }
@@ -222,7 +222,7 @@ class DockerContainer {
 
         boolean changed = false
 
-        if(!inspect()) {
+        if (!inspect()) {
             create()
             changed = true
         }
@@ -315,10 +315,10 @@ class DockerContainer {
     private String checkReasonForReload() {
         def current = inspect()
 
-        if(!current) {
+        if (!current) {
             return "Container does not exist"
         }
-        if(!running) {
+        if (!running) {
             return "Container is not running"
         }
 
@@ -331,7 +331,7 @@ class DockerContainer {
         def image = response.content
 
         // Image (by identifier for newer image versions with same tag)
-        if(current.Image != image.Id) {
+        if (current.Image != image.Id) {
             return "Image identifiers differ: ${current.Image} != ${image.Id}"
         }
 
@@ -352,9 +352,9 @@ class DockerContainer {
         }
 
         // Environment
-        def expectedEnv = splitEnv((Collection<String>)image.ContainerConfig.Env) +
-                splitEnv((Collection<String>)config.Env)
-        def currentEnv = splitEnv((Collection<String>)current.Config.Env)
+        def expectedEnv = splitEnv((Collection<String>) image.ContainerConfig.Env) +
+                splitEnv((Collection<String>) config.Env)
+        def currentEnv = splitEnv((Collection<String>) current.Config.Env)
         if (currentEnv != expectedEnv) {
             return "Env does not match: ${currentEnv} != ${expectedEnv}"
         }
@@ -442,12 +442,12 @@ class DockerContainer {
      * @param list of environment variables
      * @return map
      */
-    private static Map<String,String> splitEnv(Collection<String> env) {
+    private static Map<String, String> splitEnv(Collection<String> env) {
         if (!env) {
             return [:]
         }
 
-        env.collectEntries { e->
+        env.collectEntries { e ->
             def parts = e.tokenize("=")
             [parts[0], parts[1]]
         }

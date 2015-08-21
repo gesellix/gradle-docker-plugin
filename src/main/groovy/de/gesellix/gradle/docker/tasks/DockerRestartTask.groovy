@@ -7,22 +7,22 @@ import org.slf4j.LoggerFactory
 
 class DockerRestartTask extends DockerTask {
 
-  private static Logger logger = LoggerFactory.getLogger(DockerRestartTask)
+    private static Logger logger = LoggerFactory.getLogger(DockerRestartTask)
 
-  @Input
-  def containerId
+    @Input
+    def containerId
 
-  def result
+    def result
 
-  DockerRestartTask() {
-    description = "Restart a running container"
-    group = "Docker"
-  }
+    DockerRestartTask() {
+        description = "Restart a running container"
+        group = "Docker"
+    }
 
-  @TaskAction
-  def restart() {
-    logger.info "docker restart"
-    result = getDockerClient().restart(getContainerId())
-    return result
-  }
+    @TaskAction
+    def restart() {
+        logger.info "docker restart"
+        result = getDockerClient().restart(getContainerId())
+        return result
+    }
 }

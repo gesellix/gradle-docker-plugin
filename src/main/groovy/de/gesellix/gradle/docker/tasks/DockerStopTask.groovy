@@ -7,22 +7,22 @@ import org.slf4j.LoggerFactory
 
 class DockerStopTask extends DockerTask {
 
-  private static Logger logger = LoggerFactory.getLogger(DockerStopTask)
+    private static Logger logger = LoggerFactory.getLogger(DockerStopTask)
 
-  @Input
-  def containerId
+    @Input
+    def containerId
 
-  def result
+    def result
 
-  DockerStopTask() {
-    description = "Stop a running container"
-    group = "Docker"
-  }
+    DockerStopTask() {
+        description = "Stop a running container"
+        group = "Docker"
+    }
 
-  @TaskAction
-  def stop() {
-    logger.info "docker stop"
-    result = getDockerClient().stop(getContainerId())
-    return result
-  }
+    @TaskAction
+    def stop() {
+        logger.info "docker stop"
+        result = getDockerClient().stop(getContainerId())
+        return result
+    }
 }

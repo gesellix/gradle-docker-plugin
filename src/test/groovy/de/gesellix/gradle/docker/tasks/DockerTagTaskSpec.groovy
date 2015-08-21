@@ -6,38 +6,38 @@ import spock.lang.Specification
 
 class DockerTagTaskSpec extends Specification {
 
-  def project
-  def task
-  def dockerClient = Mock(DockerClient)
+    def project
+    def task
+    def dockerClient = Mock(DockerClient)
 
-  def setup() {
-    project = ProjectBuilder.builder().build()
-    task = project.task('dockerTag', type: DockerTagTask)
-    task.dockerClient = dockerClient
-  }
+    def setup() {
+        project = ProjectBuilder.builder().build()
+        task = project.task('dockerTag', type: DockerTagTask)
+        task.dockerClient = dockerClient
+    }
 
-  def "delegates to dockerClient"() {
-    given:
-    task.imageId = "4711"
-    task.tag = "aTag"
-    task.force = true
+    def "delegates to dockerClient"() {
+        given:
+        task.imageId = "4711"
+        task.tag = "aTag"
+        task.force = true
 
-    when:
-    task.execute()
+        when:
+        task.execute()
 
-    then:
-    1 * dockerClient.tag("4711", "aTag", true)
-  }
+        then:
+        1 * dockerClient.tag("4711", "aTag", true)
+    }
 
-  def "'force' defaults to false"() {
-    given:
-    task.imageId = "4711"
-    task.tag = "aTag"
+    def "'force' defaults to false"() {
+        given:
+        task.imageId = "4711"
+        task.tag = "aTag"
 
-    when:
-    task.execute()
+        when:
+        task.execute()
 
-    then:
-    1 * dockerClient.tag("4711", "aTag", false)
-  }
+        then:
+        1 * dockerClient.tag("4711", "aTag", false)
+    }
 }

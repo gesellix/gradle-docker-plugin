@@ -7,22 +7,22 @@ import org.slf4j.LoggerFactory
 
 class DockerWaitTask extends DockerTask {
 
-  private static Logger logger = LoggerFactory.getLogger(DockerWaitTask)
+    private static Logger logger = LoggerFactory.getLogger(DockerWaitTask)
 
-  @Input
-  def containerId
+    @Input
+    def containerId
 
-  def result
+    def result
 
-  DockerWaitTask() {
-    description = "Block until a container stops, then print its exit code."
-    group = "Docker"
-  }
+    DockerWaitTask() {
+        description = "Block until a container stops, then print its exit code."
+        group = "Docker"
+    }
 
-  @TaskAction
-  def stop() {
-    logger.info "docker wait"
-    result = getDockerClient().wait(getContainerId())
-    return result
-  }
+    @TaskAction
+    def stop() {
+        logger.info "docker wait"
+        result = getDockerClient().wait(getContainerId())
+        return result
+    }
 }

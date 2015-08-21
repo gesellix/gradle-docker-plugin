@@ -6,18 +6,18 @@ import org.slf4j.LoggerFactory
 
 class DockerPsTask extends DockerTask {
 
-  private static Logger logger = LoggerFactory.getLogger(DockerPsTask)
+    private static Logger logger = LoggerFactory.getLogger(DockerPsTask)
 
-  def containers
+    def containers
 
-  DockerPsTask() {
-    description = "List containers"
-    group = "Docker"
-  }
+    DockerPsTask() {
+        description = "List containers"
+        group = "Docker"
+    }
 
-  @TaskAction
-  def ps() {
-    logger.info "docker ps"
-    containers = getDockerClient().ps()
-  }
+    @TaskAction
+    def ps() {
+        logger.info "docker ps"
+        containers = getDockerClient().ps()
+    }
 }

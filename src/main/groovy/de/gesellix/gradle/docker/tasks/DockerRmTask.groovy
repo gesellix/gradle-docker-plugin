@@ -7,22 +7,22 @@ import org.slf4j.LoggerFactory
 
 class DockerRmTask extends DockerTask {
 
-  private static Logger logger = LoggerFactory.getLogger(DockerRmTask)
+    private static Logger logger = LoggerFactory.getLogger(DockerRmTask)
 
-  @Input
-  def containerId
+    @Input
+    def containerId
 
-  def result
+    def result
 
-  DockerRmTask() {
-    description = "Remove one or more containers"
-    group = "Docker"
-  }
+    DockerRmTask() {
+        description = "Remove one or more containers"
+        group = "Docker"
+    }
 
-  @TaskAction
-  def rm() {
-    logger.info "docker rm"
-    result = getDockerClient().rm(getContainerId())
-    return result
-  }
+    @TaskAction
+    def rm() {
+        logger.info "docker rm"
+        result = getDockerClient().rm(getContainerId())
+        return result
+    }
 }

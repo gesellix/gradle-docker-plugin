@@ -8,41 +8,40 @@ import org.gradle.api.tasks.Optional
 
 class DockerTask extends DefaultTask {
 
-  @Input
-  @Optional
-  def dockerHost
-  @Input
-  @Optional
-  def proxy
-  @Input
-  @Optional
-  def authConfigPlain
-  @Input
-  @Optional
-  def authConfigEncoded
+    @Input
+    @Optional
+    def dockerHost
+    @Input
+    @Optional
+    def proxy
+    @Input
+    @Optional
+    def authConfigPlain
+    @Input
+    @Optional
+    def authConfigEncoded
 
-  DockerClient dockerClient
+    DockerClient dockerClient
 
-  def getDockerClient() {
-    if (!dockerClient) {
-      if (getDockerHost()) {
-        dockerClient = new DockerClientImpl(dockerHost: getDockerHost(), proxy: getProxy() ?: Proxy.NO_PROXY)
-      }
-      else {
-        dockerClient = new DockerClientImpl()
-      }
+    def getDockerClient() {
+        if (!dockerClient) {
+            if (getDockerHost()) {
+                dockerClient = new DockerClientImpl(dockerHost: getDockerHost(), proxy: getProxy() ?: Proxy.NO_PROXY)
+            } else {
+                dockerClient = new DockerClientImpl()
+            }
+        }
+        dockerClient
     }
-    dockerClient
-  }
 
-  def getAuthConfig() {
-    if (getAuthConfigPlain()) {
-      assert !getAuthConfigEncoded()
-      return getDockerClient().encodeAuthConfig(getAuthConfigPlain())
+    def getAuthConfig() {
+        if (getAuthConfigPlain()) {
+            assert !getAuthConfigEncoded()
+            return getDockerClient().encodeAuthConfig(getAuthConfigPlain())
+        }
+        if (getAuthConfigEncoded()) {
+            return getAuthConfigEncoded()
+        }
+        ''
     }
-    if (getAuthConfigEncoded()) {
-      return getAuthConfigEncoded()
-    }
-    ''
-  }
 }

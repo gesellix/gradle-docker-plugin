@@ -6,18 +6,18 @@ import org.slf4j.LoggerFactory
 
 class DockerInfoTask extends DockerTask {
 
-  private static Logger logger = LoggerFactory.getLogger(DockerInfoTask)
+    private static Logger logger = LoggerFactory.getLogger(DockerInfoTask)
 
-  def info
+    def info
 
-  DockerInfoTask() {
-    description = "Display system-wide information"
-    group = "Docker"
-  }
+    DockerInfoTask() {
+        description = "Display system-wide information"
+        group = "Docker"
+    }
 
-  @TaskAction
-  def info() {
-    logger.info "docker info"
-    info = getDockerClient().info()
-  }
+    @TaskAction
+    def info() {
+        logger.info "docker info"
+        info = getDockerClient().info()
+    }
 }
