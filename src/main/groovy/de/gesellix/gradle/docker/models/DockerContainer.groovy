@@ -35,7 +35,7 @@ class DockerContainer {
     def inspect() {
         if (id == null) {
             def containers = client.ps([filters: [name: [name]]]).content.findAll {
-                "/$name" in it.Names
+                "/" + name in it.Names
             }
             if (containers.size() > 0) {
                 id = containers[0].Id
