@@ -14,12 +14,12 @@ class DockerContainerTask extends DockerTask {
 
     enum State {
 
-        PRESENT         // Ensures container exists
-        , STARTED       // Ensures container exists and is running
-        , RELOADED      // Ensures container is running and restarted if any configuration is out of date
-        , RESTARTED     // Ensures container is unconditionally restarted (or started)
-        , STOPPED       // Ensures container is stopped
-        , ABSENT        // Ensures container is stopped and removed
+        PRESENT     // Ensures container exists
+        , STARTED   // Ensures container exists and is running
+        , RELOADED  // Ensures container is running and restarted if any configuration is out of date
+        , RESTARTED // Ensures container is unconditionally restarted (or started)
+        , STOPPED   // Ensures container is stopped
+        , ABSENT    // Ensures container is stopped and removed
     }
 
     @Input
@@ -37,8 +37,7 @@ class DockerContainerTask extends DockerTask {
 
     /**
      * Publish a container᾿s port to the host
-     * format: ip:hostPort:containerPort | ip::containerPort | hostPort:containerPort |
-     * containerPort
+     * format: ip:hostPort:containerPort | ip::containerPort | hostPort:containerPort | containerPort
      */
     @Input
     @Optional
