@@ -1,11 +1,14 @@
 # Supported Features
 
-*feature set based on the [Docker Remote API v1.17](https://docs.docker.com/reference/api/docker_remote_api_v1.17/)*
+*feature set based on the [Docker Remote API v1.20](https://docs.docker.com/reference/api/docker_remote_api_v1.20/)*
 
-Current api coverage (22/44): ![Remote API Coverage Status](http://progressed.io/bar/50)
+Since the Docker remote api tends to be backwards compatible,
+the underlying Docker-Client currently supports most other api versions, too.
+
+Current api coverage (24/44): ![Remote API Coverage Status](http://progressed.io/bar/55)
 
 This project tends to support most api endpoints, but only if there's an actual use case. If you're missing a feature, please file
-a [new issue](https://github.com/gesellix/gradle-docker-plugin/issues) or a [pull request](https://github.com/gesellix/gradle-docker-plugin/pulls) 
+a [new issue](https://github.com/gesellix/gradle-docker-plugin/issues) or a [pull request](https://github.com/gesellix/gradle-docker-plugin/pulls)
 and we'll add it as soon as the private free time allows. This plugin relies on the [docker-client](https://github.com/gesellix/docker-client) while
 there's a [similar Gradle Docker plugin](https://github.com/bmuschko/gradle-docker-plugin) based
 on the [Java Docker API Client](https://github.com/docker-java/docker-java) available, too.
@@ -32,7 +35,10 @@ on the [Java Docker API Client](https://github.com/docker-java/docker-java) avai
 * [ ] Attach to a container (websocket)
 * [x] `docker wait <container>`: Wait a container
 * [x] `docker rm <container>`: Remove a container
-* [x] `docker cp <container>:<path> <hostpath>`: Copy files or folders from a container
+* [x] `docker cp <container>:<path> <hostpath>`: Copy files or folders from a container - _deprecated_
+* [ ] Retrieve information about files and folders in a container
+* [x] `docker cp <container>:<path> <hostpath>`: Get an archive of a filesystem resource in a container
+* [x] `docker cp <hostpath> <container>:<path>`: Extract an archive of files or folders to a directory in a container
 
 ## Images
 
