@@ -21,8 +21,8 @@ class DockerPluginIntegrationTest extends Specification {
     def DOCKER_HOST = defaultDockerHost
 
     def setup() {
-//    System.setProperty("docker.cert.path", "/Users/gesellix/.boot2docker/certs/boot2docker-vm")
-//    DOCKER_HOST = "tcp://192.168.59.103:2376"
+//        System.setProperty("docker.cert.path", "/Users/gesellix/.docker/machine/machines/default")
+//        DOCKER_HOST = "tcp://192.168.99.100:2376"
         project = ProjectBuilder.builder().withName('example').build()
         project.apply plugin: 'de.gesellix.docker'
         project.docker.dockerHost = DOCKER_HOST
