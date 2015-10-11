@@ -55,6 +55,9 @@ class DockerRunTask extends DockerTask {
     @TaskAction
     def run() {
         logger.info "docker run"
+        if (getHostConfiguration() != [:]) {
+            throw new UnsupportedOperationException("please use `containerConfiguration.HostConfig`!")
+        }
         def containerConfig = getActualContainerConfig()
         result = getDockerClient().run(getImageName(), containerConfig, getTag(), getContainerName())
         return result
@@ -62,7 +65,7 @@ class DockerRunTask extends DockerTask {
 
     def getActualContainerConfig() {
         def containerConfig = getContainerConfiguration() ?: [:]
-        containerConfig.HostConfig = (getHostConfiguration() ?: containerConfig.HostConfig) ?: [:]
+        containerConfig.HostConfig = containerConfig.HostConfig ?: [:]
         if (getEnvironmentFiles()) {
             containerConfig.Env = containerConfig.Env ?: []
             getEnvironmentFiles().each { File file ->
