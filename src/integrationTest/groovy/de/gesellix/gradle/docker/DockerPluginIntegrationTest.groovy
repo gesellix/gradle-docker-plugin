@@ -258,6 +258,44 @@ class DockerPluginIntegrationTest extends Specification {
         dockerClient.rmi("gesellix/images-list:latest")
     }
 
+    def "test run with data volumes"() {
+        given:
+        def hostDir = "/tmp"
+        def dockerClient = new DockerClientImpl(dockerHost: DOCKER_HOST)
+        dockerClient.pull("gesellix/docker-client-testimage")
+        dockerClient.tag("gesellix/docker-client-testimage", "gesellix/run-with-data-volumes", true)
+        dockerClient.createContainer([
+                "Cmd"       : ["-"],
+                "Image"     : "gesellix/run-with-data-volumes",
+                "HostConfig": [
+                        "Binds": [
+                                "$hostDir:/data"
+                        ]
+                ],
+        ], [name: "the-data-example"])
+        def task = project.task('testRun', type: DockerRunTask) {
+            dockerHost = DOCKER_HOST
+            containerConfiguration = ["Cmd"       : ["true"],
+                                      "HostConfig": ["VolumesFrom": ["the-data-example"]]]
+            imageName = 'gesellix/run-with-data-volumes'
+            tag = 'latest'
+            containerName = 'the-service-example'
+        }
+
+        when:
+        task.execute()
+
+        then:
+        task.result.status.status.success
+
+        cleanup:
+        dockerClient.stop("the-service-example")
+        dockerClient.wait("the-service-example")
+        dockerClient.rm("the-service-example")
+        dockerClient.rm("the-data-example")
+        dockerClient.rmi("gesellix/run-with-data-volumes:latest")
+    }
+
     def "test container reloaded"() {
         given:
         def dockerClient = new DockerClientImpl(dockerHost: DOCKER_HOST)
