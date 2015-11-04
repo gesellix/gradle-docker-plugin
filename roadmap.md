@@ -72,7 +72,7 @@ on the [Java Docker API Client](https://github.com/docker-java/docker-java) avai
 
 ## Volumes
 
-* [ ] `docker volume ls`: List volumes from all volume drivers
+* [x] `docker volume ls`: List volumes from all volume drivers
 * [ ] `docker volume create`: Create a volume
 * [ ] `docker volume inspect`: Return low-level information on a volume
 * [ ] `docker volume rm`: Remove a volume
