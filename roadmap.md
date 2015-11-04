@@ -59,7 +59,7 @@ on the [Java Docker API Client](https://github.com/docker-java/docker-java) avai
 * [ ] Check auth configuration
 * [x] `docker info`: Display system-wide information
 * [x] `docker version`: Show the docker version information
-* [ ] Ping the docker server
+* [x] Ping the docker server
 * [ ] `docker commit <container>`: Create a new image from a container's changes
 * [ ] `docker events`: Monitor Docker's events
 * [ ] `docker save <image>`: Get a tarball containing all images in a repository
