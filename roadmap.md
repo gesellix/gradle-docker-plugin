@@ -5,7 +5,7 @@
 Since the Docker remote api tends to be backwards compatible,
 the underlying Docker-Client currently supports most other api versions, too.
 
-Current api coverage (25/58): ![Remote API Coverage Status](http://progressed.io/bar/43)
+Current api coverage (28/58): ![Remote API Coverage Status](http://progressed.io/bar/48)
 
 This project tends to support most api endpoints, but only if there's an actual use case. If you're missing a feature, please file
 a [new issue](https://github.com/gesellix/gradle-docker-plugin/issues) or a [pull request](https://github.com/gesellix/gradle-docker-plugin/pulls)
@@ -79,7 +79,7 @@ on the [Java Docker API Client](https://github.com/docker-java/docker-java) avai
 
 ## Networks
 
-* [ ] `docker network ls`: Lists all networks
+* [x] `docker network ls`: Lists all networks
 * [ ] `docker network inspect`: Display detailed information on a network
 * [ ] `docker network create`: Create a new network
 * [ ] `docker network connect`: Connect a container to a network
