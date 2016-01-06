@@ -35,4 +35,16 @@ class DockerPluginSpec extends Specification {
         task.authConfigPlain == ["plain auth"]
         task.authConfigEncoded == ["encoded auth"]
     }
+
+    def "returns the absolute certification path"() {
+        given:
+        project.apply plugin: 'de.gesellix.docker'
+
+        when:
+        project.docker.certPath = 'foo'
+
+        then:
+        project.docker.certPath == project.file('foo').absolutePath
+
+    }
 }

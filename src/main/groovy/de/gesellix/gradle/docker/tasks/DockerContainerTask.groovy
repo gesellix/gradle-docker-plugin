@@ -307,34 +307,34 @@ class DockerContainerTask extends DockerTask {
             throw new IllegalStateException("HealthCheck: Container is not running.")
         }
 
-        healthChecks.each { h ->
-            if (!h.containerPort)
+        healthChecks.each { healthCheck ->
+            if (!healthCheck.containerPort)
                 throw new IllegalArgumentException("ContainerPort is required.")
 
-            if (h.containerPort.toString().indexOf("/") == -1)
-                h.containerPort = h.containerPort.toString() + "/tcp"
+            if (healthCheck.containerPort.toString().indexOf("/") == -1)
+                healthCheck.containerPort = healthCheck.containerPort.toString() + "/tcp"
 
-            h.type = h.type ?: "tcp"
-            h.timeout = h.timeout ?: 5
-            h.retries = h.retries ?: 15
-            h.interval = h.interval ?: 2
-            h.path = h.path ?: "/"
+            healthCheck.type = healthCheck.type ?: "tcp"
+            healthCheck.timeout = healthCheck.timeout ?: 5
+            healthCheck.retries = healthCheck.retries ?: 15
+            healthCheck.interval = healthCheck.interval ?: 2
+            healthCheck.path = healthCheck.path ?: "/"
 
-            def p = current.HostConfig.PortBindings[(String) h.containerPort]
+            def portBinding = current.HostConfig.PortBindings[(String) healthCheck.containerPort]
 
-            if (!p)
-                throw new IllegalArgumentException("Port \"${h.containerPort}\" is not bound to host.")
+            if (!portBinding)
+                throw new IllegalArgumentException("Port \"${healthCheck.containerPort}\" is not bound to host.")
 
             int counter = 0
 
-            switch (h.type) {
+            switch (healthCheck.type) {
                 case "tcp":
-                    def address = new InetSocketAddress(containerHost, (int) (p[0].HostPort.toInteger()))
-                    logger.info "HealthCheck/tcp: Connecting ${address}, (timeout ${h.timeout}, retries ${h.retries}, interval ${h.interval})"
-                    while (counter < (int) h.retries) {
+                    def address = new InetSocketAddress(containerHost, (int) (portBinding[0].HostPort.toInteger()))
+                    logger.info "HealthCheck/tcp: Connecting ${address}, (timeout ${healthCheck.timeout}, retries ${healthCheck.retries}, interval ${healthCheck.interval})"
+                    while (counter < (int) healthCheck.retries) {
                         try {
                             def s = new Socket()
-                            s.connect(address, (int) h.timeout)
+                            s.connect(address, (int) healthCheck.timeout)
                             logger.info "HealthCheck/tcp: Container is healthy."
                             s.close()
                             return true
@@ -343,22 +343,22 @@ class DockerContainerTask extends DockerTask {
                         }
 
                         counter = counter + 1
-                        sleep((int) h.interval * 1000)
+                        sleep((int) healthCheck.interval * 1000)
                         logger.info "Attempt #${counter + 1}"
                     }
 
                     break
                 case "http":
                     def url = new URL("http", containerHost,
-                            (int) p[0].HostPort.toInteger(), (String) h.path)
-                    logger.info "HealthCheck/http: Connecting ${url}, (timeout ${h.timeout}, retries ${h.retries}, interval ${h.interval})"
-                    while (counter < (int) h.retries) {
+                            (int) portBinding[0].HostPort.toInteger(), (String) healthCheck.path)
+                    logger.info "HealthCheck/http: Connecting ${url}, (timeout ${healthCheck.timeout}, retries ${healthCheck.retries}, interval ${healthCheck.interval})"
+                    while (counter < (int) healthCheck.retries) {
                         URLConnection s = null
                         try {
                             s = url.openConnection()
-                            s.setConnectTimeout(((int) h.timeout * 1000))
+                            s.setConnectTimeout(((int) healthCheck.timeout * 1000))
                             s.connect()
-                            if (((int) s.getResponseCode() / 100) == 2) {
+                            if (((int) (s.getResponseCode() / 100)) == 2) {
                                 logger.info "HealthCheck/http: Container is healthy: ${s.getResponseCode()}"
                                 return true
                             }
@@ -370,13 +370,13 @@ class DockerContainerTask extends DockerTask {
                         }
 
                         counter = counter + 1
-                        sleep((int) h.interval * 1000)
+                        sleep((int) healthCheck.interval * 1000)
                         logger.info "Attempt #${counter + 1}"
                     }
 
                     break
                 default:
-                    throw new IllegalArgumentException("Unsupported healthcheck type: ${h.type}")
+                    throw new IllegalArgumentException("Unsupported healthcheck type: ${healthCheck.type}")
             }
 
             throw new IllegalStateException("HealthCheck: Container not healthy.")

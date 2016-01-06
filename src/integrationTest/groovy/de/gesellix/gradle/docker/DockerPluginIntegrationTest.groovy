@@ -378,9 +378,9 @@ class DockerPluginIntegrationTest extends Specification {
 
     def "test container http health check"() {
         given:
-        ServerSocket ss = new ServerSocket(0);
-        int port = ss.getLocalPort();
-        ss.close();
+        ServerSocket ss = new ServerSocket(0)
+        int port = ss.getLocalPort()
+        ss.close()
 
         def dockerClient = new DockerClientImpl(dockerHost: DOCKER_HOST)
         def task = project.task('testContainer', type: DockerContainerTask) {
@@ -417,9 +417,9 @@ class DockerPluginIntegrationTest extends Specification {
 
     def "test container tcp health check - timeout"() {
         given:
-        ServerSocket ss = new ServerSocket(0);
-        int port = ss.getLocalPort();
-        ss.close();
+        ServerSocket ss = new ServerSocket(0)
+        int port = ss.getLocalPort()
+        ss.close()
 
         def dockerClient = new DockerClientImpl(dockerHost: DOCKER_HOST)
         def task = project.task('testContainer', type: DockerContainerTask) {
