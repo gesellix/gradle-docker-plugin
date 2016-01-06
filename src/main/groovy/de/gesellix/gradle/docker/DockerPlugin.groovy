@@ -17,7 +17,7 @@ public class DockerPlugin implements Plugin<Project> {
 //    project.plugins.apply(BasePlugin)
 
         logger.debug "ensure '${EXTENSION_NAME}' extension exists"
-        def extension = project.extensions.findByName(EXTENSION_NAME) ?: project.extensions.create(EXTENSION_NAME, DockerPluginExtension,project)
+        def extension = project.extensions.findByName(EXTENSION_NAME) ?: project.extensions.create(EXTENSION_NAME, DockerPluginExtension, project)
 
         project.tasks.withType(DockerTask) { task ->
             logger.debug "apply '${EXTENSION_NAME}' extension config to $task"

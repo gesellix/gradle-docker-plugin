@@ -36,7 +36,7 @@ class DockerPluginSpec extends Specification {
         task.authConfigEncoded == ["encoded auth"]
     }
 
-    def "Set certification path"() {
+    def "returns the absolute certification path"() {
         given:
         project.apply plugin: 'de.gesellix.docker'
 
