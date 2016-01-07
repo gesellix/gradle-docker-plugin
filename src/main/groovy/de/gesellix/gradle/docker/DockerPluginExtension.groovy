@@ -16,6 +16,7 @@ class DockerPluginExtension {
      */
     String dockerHost = System.getProperty("docker.host") ?: System.env["DOCKER_HOST"]
 
+    // Use an object that can be evaluated with project.file()
     private Object certPath = System.getProperty("docker.cert.path") ?: System.env["DOCKER_CERT_PATH"]
 
     def proxy
@@ -36,7 +37,7 @@ class DockerPluginExtension {
     }
 
     /**
-     * Returns the certificate path as an abolute path to the certificate.
+     * Returns the certificate path as an absolute path to the certificate.
      * If {@code certPath} was not configured it will attempt to check for system property
      * {@code docker.cert.path} first and then for the {@code DOCKER_CERT_PATH} environment variable.
      *

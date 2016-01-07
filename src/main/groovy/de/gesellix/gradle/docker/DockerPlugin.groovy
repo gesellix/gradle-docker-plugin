@@ -22,6 +22,7 @@ public class DockerPlugin implements Plugin<Project> {
         project.tasks.withType(DockerTask) { task ->
             logger.debug "apply '${EXTENSION_NAME}' extension config to $task"
             task.dockerHost = extension.dockerHost
+            task.certPath = extension.getCertPath()
             task.proxy = extension.proxy
             task.authConfigPlain = extension.authConfigPlain
             task.authConfigEncoded = extension.authConfigEncoded

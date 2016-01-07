@@ -2,6 +2,7 @@ package de.gesellix.gradle.docker.tasks
 
 import de.gesellix.docker.client.DockerClient
 import de.gesellix.docker.client.DockerClientImpl
+import de.gesellix.docker.client.DockerConfig
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
@@ -11,6 +12,9 @@ class DockerTask extends DefaultTask {
     @Input
     @Optional
     def dockerHost
+    @Input
+    @Optional
+    def certPath
     @Input
     @Optional
     def proxy
@@ -25,8 +29,17 @@ class DockerTask extends DefaultTask {
 
     def getDockerClient() {
         if (!dockerClient) {
-            if (getDockerHost()) {
-                dockerClient = new DockerClientImpl(dockerHost: getDockerHost(), proxy: getProxy() ?: Proxy.NO_PROXY)
+            if (getDockerHost() || getCertPath()) {
+                def config = new DockerConfig()
+                if (getDockerHost()) {
+                    config.dockerHost = getDockerHost()
+                }
+                if (getCertPath()) {
+                    config.certPath = getCertPath()
+                }
+                dockerClient = new DockerClientImpl(
+                        config: config,
+                        proxy: getProxy() ?: Proxy.NO_PROXY)
             } else {
                 dockerClient = new DockerClientImpl()
             }
