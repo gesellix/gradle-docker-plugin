@@ -1,6 +1,5 @@
 package de.gesellix.gradle.docker
 
-import de.gesellix.gradle.docker.tasks.DockerTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.slf4j.Logger
