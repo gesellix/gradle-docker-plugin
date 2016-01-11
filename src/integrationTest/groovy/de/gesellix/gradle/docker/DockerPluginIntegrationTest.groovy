@@ -2,7 +2,9 @@ package de.gesellix.gradle.docker
 
 import de.gesellix.docker.client.DockerClientImpl
 import de.gesellix.gradle.docker.tasks.*
+import org.gradle.api.Action
 import org.gradle.api.Project
+import org.gradle.api.Task
 import org.gradle.api.tasks.TaskExecutionException
 import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.Ignore
@@ -455,9 +457,9 @@ class DockerPluginIntegrationTest extends Specification {
 
     def "test container http health check - timeout"() {
         given:
-        ServerSocket ss = new ServerSocket(0);
-        int port = ss.getLocalPort();
-        ss.close();
+        ServerSocket ss = new ServerSocket(0)
+        int port = ss.getLocalPort()
+        ss.close()
 
         def dockerClient = new DockerClientImpl(DOCKER_HOST)
         def task = project.task('testContainer', type: DockerContainerTask) {
@@ -499,9 +501,9 @@ class DockerPluginIntegrationTest extends Specification {
 
     def "test container tcp health check - stopped"() {
         given:
-        ServerSocket ss = new ServerSocket(0);
-        int port = ss.getLocalPort();
-        ss.close();
+        ServerSocket ss = new ServerSocket(0)
+        int port = ss.getLocalPort()
+        ss.close()
 
         def dockerClient = new DockerClientImpl(DOCKER_HOST)
         def task = project.task('testContainer', type: DockerContainerTask) {
@@ -531,5 +533,26 @@ class DockerPluginIntegrationTest extends Specification {
 
         cleanup:
         dockerClient.rm(task.container.id)
+    }
+
+    def "test certPath"() {
+        given:
+        def task = project.task('testTask', type: DockerTask) {
+            dockerHost = DOCKER_HOST
+            certPath = "${System.getProperty('user.home')}/.docker/machine/machines/default"
+        }
+        task.actions.add(new Action<Task>() {
+            @Override
+            void execute(Task t) {
+                def version = t.getDockerClient().version()
+                t.extensions.add("version", version)
+            }
+        })
+
+        when:
+        task.execute()
+
+        then:
+        task.extensions.getByName('version').content.ApiVersion == '1.21'
     }
 }

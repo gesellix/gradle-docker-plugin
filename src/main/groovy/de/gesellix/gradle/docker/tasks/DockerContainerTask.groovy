@@ -294,10 +294,11 @@ class DockerContainerTask extends DockerTask {
     }
 
     def doHealthChecks() {
-        if (healthChecks.size() == 0)
+        if (healthChecks.isEmpty()) {
             return false
+        }
 
-        String containerHost = new URI((String) dockerHost).getHost()
+        String containerHost = new URI(dockerHost).host
 
         logger.info "Running Health checks on host ${containerHost}"
 
@@ -308,11 +309,13 @@ class DockerContainerTask extends DockerTask {
         }
 
         healthChecks.each { healthCheck ->
-            if (!healthCheck.containerPort)
+            if (!healthCheck.containerPort) {
                 throw new IllegalArgumentException("ContainerPort is required.")
+            }
 
-            if (healthCheck.containerPort.toString().indexOf("/") == -1)
-                healthCheck.containerPort = healthCheck.containerPort.toString() + "/tcp"
+            if (healthCheck.containerPort.toString().indexOf("/") == -1) {
+                healthCheck.containerPort = "${healthCheck.containerPort}/tcp"
+            }
 
             healthCheck.type = healthCheck.type ?: "tcp"
             healthCheck.timeout = healthCheck.timeout ?: 5
