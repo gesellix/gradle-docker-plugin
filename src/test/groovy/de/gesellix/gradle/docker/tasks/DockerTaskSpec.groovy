@@ -1,6 +1,8 @@
 package de.gesellix.gradle.docker.tasks
 
 import de.gesellix.docker.client.DockerClient
+import de.gesellix.gradle.docker.DockerPluginExtension
+import org.gradle.api.Project
 import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.Specification
 
@@ -30,7 +32,7 @@ class DockerTaskSpec extends Specification {
         def dockerClient = task.dockerClient
 
         then:
-        dockerClient.config.dockerHost == "http://127.0.0.1:2375"
+        dockerClient.config.dockerHost == new DockerPluginExtension(task.project as Project).dockerHost ?: 'http://127.0.0.1:2375'
     }
 
     def "delegates to dockerClient with configured dockerHost"() {
