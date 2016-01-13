@@ -22,6 +22,9 @@ class DockerBuildTask extends DockerTask {
     @InputDirectory
     @Optional
     File buildContextDirectory
+    @Input
+    @Optional
+    def buildParams
 
     def tarOfBuildcontextTask
     def targetFile
@@ -62,8 +65,11 @@ class DockerBuildTask extends DockerTask {
     private def configureTarBuildContextTask() {
         if (tarOfBuildcontextTask == null) {
             targetFile = new File(getTemporaryDir(), "buildContext_${getNormalizedImageName()}.tar.gz")
-            tarOfBuildcontextTask = project.task([group: getGroup()], "tarBuildcontextFor${name.capitalize()}").doLast {
+            tarOfBuildcontextTask = project.task([group: getGroup()], "tarBuildcontextFor${name.capitalize()}")
+            tarOfBuildcontextTask.doFirst {
                 (targetFile as File).parentFile.mkdirs()
+            }
+            tarOfBuildcontextTask.doLast {
                 BuildContextBuilder.archiveTarFilesRecursively(getBuildContextDirectory(), targetFile)
             }
             tarOfBuildcontextTask.outputs.file(targetFile.absolutePath)
@@ -88,7 +94,11 @@ class DockerBuildTask extends DockerTask {
         // at this point we need the buildContext
         assert getBuildContext()
 
-        imageId = getDockerClient().build(getBuildContext())
+        if (getBuildParams()) {
+            imageId = getDockerClient().build(getBuildContext(), getBuildParams())
+        } else {
+            imageId = getDockerClient().build(getBuildContext())
+        }
         if (getImageName()) {
             logger.info "tag $imageId as '${getImageName()}'..."
             getDockerClient().tag(imageId, getImageName(), true)

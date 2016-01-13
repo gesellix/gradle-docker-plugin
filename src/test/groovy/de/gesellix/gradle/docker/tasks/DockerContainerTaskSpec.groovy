@@ -1,9 +1,9 @@
 package de.gesellix.gradle.docker.tasks
 
 import de.gesellix.docker.client.DockerClient
+import de.gesellix.gradle.docker.PortFinder
 import org.gradle.api.GradleException
 import org.gradle.testfixtures.ProjectBuilder
-import org.gradle.util.AvailablePortFinder
 import spock.lang.Specification
 
 class DockerContainerTaskSpec extends Specification {
@@ -465,7 +465,7 @@ class DockerContainerTaskSpec extends Specification {
 
     def "healthcheck on already running container - timeout"() {
         given:
-        int port = AvailablePortFinder.createPrivate().nextAvailable
+        int port = PortFinder.findFreePort()
 
         when:
         task.dockerHost = "tcp://127.0.0.1:999"
@@ -510,26 +510,26 @@ class DockerContainerTaskSpec extends Specification {
 
     def "healthcheck on already running container"() {
         given:
-        int port = 0
-
         Thread server = new Thread() {
             boolean initialized = false
             int serverPort = 0
+            boolean stopped = false
 
             public void run() {
-                ServerSocket ss;
+                ServerSocket ss
                 synchronized (this) {
-                    serverPort = AvailablePortFinder.createPrivate().nextAvailable
-                    ss = new ServerSocket(serverPort);
+                    serverPort = PortFinder.findFreePort()
+                    ss = new ServerSocket(serverPort)
                     initialized = true
                     notify()
                 }
-                while (true) {
-                    Socket client = ss.accept();
+                while (!stopped) {
+                    ss.accept()
                 }
             }
         }
 
+        def port
         server.start()
         synchronized (server) {
             if (!server.initialized) {
@@ -574,6 +574,7 @@ class DockerContainerTaskSpec extends Specification {
         task.changed == false
 
         cleanup:
-        server.stop();
+        server.stopped = true
+        server.stop()
     }
 }
