@@ -3,6 +3,7 @@ package de.gesellix.gradle.docker.tasks
 import de.gesellix.docker.client.DockerClient
 import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.Specification
+import spock.lang.Unroll
 
 class DockerBuildTaskSpec extends Specification {
 
@@ -16,10 +17,8 @@ class DockerBuildTaskSpec extends Specification {
         task.dockerClient = dockerClient
     }
 
-    def "depends on tar task to archive buildContextDirectory"() {
-        URL dockerfile = getClass().getResource('/docker/Dockerfile')
-        def baseDir = new File(dockerfile.toURI()).parentFile
-
+    @Unroll
+    def "depends on tar task to archive buildContextDirectory (as #type)"() {
         given:
         task.buildContextDirectory = baseDir
         task.imageName = "user/imageName"
@@ -29,9 +28,14 @@ class DockerBuildTaskSpec extends Specification {
 
         then:
         project.getTasksByName("tarBuildcontextForDockerBuild", false).size() == 1
-
         and:
         task.dependsOn.any { it == project.getTasksByName("tarBuildcontextForDockerBuild", false).first() }
+
+        where:
+        baseDir                                                                             | type
+        parentDir(getClass().getResource('/docker/Dockerfile'))                             | File
+        parentDir(getClass().getResource('/docker/Dockerfile')).absolutePath                | String
+        wrapInClosure(parentDir(getClass().getResource('/docker/Dockerfile')).absolutePath) | 'lazily resolved String'
     }
 
     def "tar task must run after dockerBuild dependencies"() {
@@ -175,5 +179,18 @@ class DockerBuildTaskSpec extends Specification {
     def "normalizedImageName should match [a-z0-9-_.]"() {
         expect:
         task.getNormalizedImageName() ==~ "[a-z0-9-_\\.]+"
+    }
+
+    def parentDir(URL resource) {
+        new File(resource.toURI()).parentFile
+    }
+
+    def wrapInClosure(value) {
+        new Closure(null) {
+            @Override
+            Object call() {
+                value
+            }
+        }
     }
 }

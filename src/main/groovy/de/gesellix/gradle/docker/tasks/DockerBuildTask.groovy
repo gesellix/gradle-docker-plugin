@@ -13,6 +13,8 @@ class DockerBuildTask extends DockerTask {
 
     private static Logger logger = LoggerFactory.getLogger(DockerBuildTask)
 
+    def buildContextDirectory
+
     @Input
     @Optional
     def imageName
@@ -21,7 +23,9 @@ class DockerBuildTask extends DockerTask {
     def buildContext
     @InputDirectory
     @Optional
-    File buildContextDirectory
+    File getBuildContextDirectory() {
+        buildContextDirectory ? project.file(this.buildContextDirectory) : null
+    }
     @Input
     @Optional
     def buildParams
