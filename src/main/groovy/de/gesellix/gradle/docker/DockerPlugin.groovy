@@ -2,12 +2,12 @@ package de.gesellix.gradle.docker
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
+import org.gradle.api.logging.Logger
+import org.gradle.api.logging.Logging
 
 public class DockerPlugin implements Plugin<Project> {
 
-    def Logger logger = LoggerFactory.getLogger(DockerPlugin)
+    private static final Logger logger = Logging.getLogger(DockerPlugin)
 
     static final String EXTENSION_NAME = 'docker'
 
@@ -16,6 +16,6 @@ public class DockerPlugin implements Plugin<Project> {
 //    project.plugins.apply(BasePlugin)
 
         logger.debug "ensure '${EXTENSION_NAME}' extension exists"
-        def extension = project.extensions.findByName(EXTENSION_NAME) ?: project.extensions.create(EXTENSION_NAME, DockerPluginExtension, project)
+        project.extensions.findByName(EXTENSION_NAME) ?: project.extensions.create(EXTENSION_NAME, DockerPluginExtension, project)
     }
 }

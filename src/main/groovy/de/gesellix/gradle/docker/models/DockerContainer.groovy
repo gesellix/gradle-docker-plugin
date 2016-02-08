@@ -5,7 +5,8 @@ import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
 
 class DockerContainer {
-    private static Logger logger = Logging.getLogger(DockerContainer)
+
+    private static final Logger logger = Logging.getLogger(DockerContainer)
 
     String name
     String imageName
