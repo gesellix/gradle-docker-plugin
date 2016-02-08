@@ -1,11 +1,11 @@
 # Supported Features
 
-*feature set based on the [Docker Remote API v1.21](https://docs.docker.com/reference/api/docker_remote_api_v1.21/)*
+*feature set based on the [Docker Remote API v1.22](https://docs.docker.com/reference/api/docker_remote_api_v1.21/)*
 
 Since the Docker remote api tends to be backwards compatible,
 the underlying Docker-Client currently supports most other api versions, too.
 
-Current api coverage (28/58): ![Remote API Coverage Status](http://progressed.io/bar/48)
+Current api coverage (28/59): ![Remote API Coverage Status](http://progressed.io/bar/47)
 
 This project tends to support most api endpoints, but only if there's an actual use case. If you're missing a feature, please file
 a [new issue](https://github.com/gesellix/gradle-docker-plugin/issues) or a [pull request](https://github.com/gesellix/gradle-docker-plugin/pulls)
@@ -39,6 +39,7 @@ on the [Java Docker API Client](https://github.com/docker-java/docker-java) avai
 * [ ] Retrieve information about files and folders in a container
 * [x] `docker cp <container>:<path> <hostpath>`: Get an archive of a filesystem resource in a container
 * [x] `docker cp <hostpath> <container>:<path>`: Extract an archive of files or folders to a directory in a container
+* [ ] `docker update <container> [<container>...]`: Update resources of one or more containers
 
 ## Images
 
