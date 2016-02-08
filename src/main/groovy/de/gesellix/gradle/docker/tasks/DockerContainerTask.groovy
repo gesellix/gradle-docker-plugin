@@ -2,15 +2,11 @@ package de.gesellix.gradle.docker.tasks
 
 import de.gesellix.gradle.docker.models.DockerContainer
 import org.gradle.api.GradleException
-import org.gradle.api.logging.Logger
-import org.gradle.api.logging.Logging
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.TaskAction
 
 class DockerContainerTask extends DockerTask {
-
-    private static Logger logger = Logging.getLogger(DockerContainerTask)
 
     enum State {
 

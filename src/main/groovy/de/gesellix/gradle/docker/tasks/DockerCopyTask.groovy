@@ -4,8 +4,6 @@ import org.apache.commons.io.IOUtils
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.TaskAction
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 
 /**
  * @deprecated please use the DockerCopyFromContainerTask
@@ -13,8 +11,6 @@ import org.slf4j.LoggerFactory
  */
 @Deprecated
 class DockerCopyTask extends DockerTask {
-
-    private static Logger logger = LoggerFactory.getLogger(DockerCopyTask)
 
     @Input
     def containerId
