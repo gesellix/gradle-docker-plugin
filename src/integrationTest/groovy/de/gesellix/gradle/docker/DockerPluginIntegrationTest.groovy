@@ -73,7 +73,7 @@ class DockerPluginIntegrationTest extends Specification {
         task.execute()
 
         then:
-        task.imageId == 'ed9f0eb28ab34add30d4a2bfea3f548ba991d7702315b33f7309a64cd5d56390'
+        task.imageId == 'sha256:6b552ee013ffc56b05df78b83a7b9717ebb99aa32224cf012c5dbea811b42334'
     }
 
     @Ignore
@@ -90,7 +90,7 @@ class DockerPluginIntegrationTest extends Specification {
         task.execute()
 
         then:
-        task.imageId == 'ed9f0eb28ab34add30d4a2bfea3f548ba991d7702315b33f7309a64cd5d56390'
+        task.imageId == 'sha256:6b552ee013ffc56b05df78b83a7b9717ebb99aa32224cf012c5dbea811b42334'
     }
 
     def "test push"() {
@@ -552,6 +552,6 @@ class DockerPluginIntegrationTest extends Specification {
         task.execute()
 
         then:
-        task.extensions.getByName('version').content.ApiVersion == '1.21'
+        task.extensions.getByName('version').content.ApiVersion == '1.22'
     }
 }
