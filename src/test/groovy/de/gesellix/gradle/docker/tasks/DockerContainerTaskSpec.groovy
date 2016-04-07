@@ -446,10 +446,13 @@ class DockerContainerTaskSpec extends Specification {
         ]
         2 * dockerClient.inspectContainer("123") >> [
                 content: [
-                        Image     : task.image,
-                        State     : [Running: true],
-                        HostConfig: [
+                        Image          : task.image,
+                        State          : [Running: true],
+                        HostConfig     : [
                                 PortBindings: []
+                        ],
+                        NetworkSettings: [
+                                Ports: []
                         ]
                 ]
         ]
@@ -486,10 +489,18 @@ class DockerContainerTaskSpec extends Specification {
         ]
         2 * dockerClient.inspectContainer("123") >> [
                 content: [
-                        Image     : task.image,
-                        State     : [Running: true],
-                        HostConfig: [
+                        Image          : task.image,
+                        State          : [Running: true],
+                        HostConfig     : [
                                 PortBindings: ["8080/tcp": [
+                                        [
+                                                HostIp  : "0.0.0.0",
+                                                HostPort: port.toString()
+                                        ]
+                                ]]
+                        ],
+                        NetworkSettings: [
+                                Ports: ["8080/tcp": [
                                         [
                                                 HostIp  : "0.0.0.0",
                                                 HostPort: port.toString()
@@ -557,10 +568,18 @@ class DockerContainerTaskSpec extends Specification {
         ]
         4 * dockerClient.inspectContainer("123") >> [
                 content: [
-                        Image     : task.image,
-                        State     : [Running: true],
-                        HostConfig: [
+                        Image          : task.image,
+                        State          : [Running: true],
+                        HostConfig     : [
                                 PortBindings: ["8080/tcp": [
+                                        [
+                                                HostIp  : "0.0.0.0",
+                                                HostPort: port.toString()
+                                        ]
+                                ]]
+                        ],
+                        NetworkSettings: [
+                                Ports: ["8080/tcp": [
                                         [
                                                 HostIp  : "0.0.0.0",
                                                 HostPort: port.toString()

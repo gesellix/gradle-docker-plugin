@@ -319,23 +319,29 @@ class DockerContainerTask extends DockerTask {
             healthCheck.interval = healthCheck.interval ?: 2
             healthCheck.path = healthCheck.path ?: "/"
 
-            def portBinding = current.HostConfig.PortBindings[(String) healthCheck.containerPort]
-
-            if (!portBinding)
+            def portBinding = current.NetworkSettings.Ports[(String) healthCheck.containerPort]
+            if (!portBinding) {
                 throw new IllegalArgumentException("Port \"${healthCheck.containerPort}\" is not bound to host.")
+            }
+
+            String host = containerHost
+            if (!host) {
+                host = portBinding[0].HostIp
+            }
+            int port = portBinding[0].HostPort.toInteger()
 
             int counter = 0
 
             switch (healthCheck.type) {
                 case "tcp":
-                    def address = new InetSocketAddress(containerHost, (int) (portBinding[0].HostPort.toInteger()))
+                    def address = new InetSocketAddress(host, port)
                     logger.info "HealthCheck/tcp: Connecting ${address}, (timeout ${healthCheck.timeout}, retries ${healthCheck.retries}, interval ${healthCheck.interval})"
                     while (counter < (int) healthCheck.retries) {
                         try {
-                            def s = new Socket()
-                            s.connect(address, (int) healthCheck.timeout)
+                            def socket = new Socket()
+                            socket.connect(address, (int) healthCheck.timeout)
                             logger.info "HealthCheck/tcp: Container is healthy."
-                            s.close()
+                            socket.close()
                             return true
                         } catch (SocketTimeoutException ignored) {
                         } catch (IOException ignored) {
@@ -348,24 +354,24 @@ class DockerContainerTask extends DockerTask {
 
                     break
                 case "http":
-                    def url = new URL("http", containerHost,
-                            (int) portBinding[0].HostPort.toInteger(), (String) healthCheck.path)
+                    def url = new URL("http", host, port, (String) healthCheck.path)
                     logger.info "HealthCheck/http: Connecting ${url}, (timeout ${healthCheck.timeout}, retries ${healthCheck.retries}, interval ${healthCheck.interval})"
                     while (counter < (int) healthCheck.retries) {
-                        URLConnection s = null
+                        URLConnection connection = null
                         try {
-                            s = url.openConnection()
-                            s.setConnectTimeout(((int) healthCheck.timeout * 1000))
-                            s.connect()
-                            if (((int) (s.getResponseCode() / 100)) == 2) {
-                                logger.info "HealthCheck/http: Container is healthy: ${s.getResponseCode()}"
+                            connection = url.openConnection()
+                            connection.setConnectTimeout(((int) healthCheck.timeout * 1000))
+                            connection.connect()
+                            if (((int) (connection.getResponseCode() / 100)) == 2) {
+                                logger.info "HealthCheck/http: Container is healthy: ${connection.getResponseCode()}"
                                 return true
                             }
                         } catch (SocketTimeoutException ignored) {
                         } catch (IOException ignored) {
                         } finally {
-                            if (s)
-                                s.disconnect()
+                            if (connection) {
+                                connection.disconnect()
+                            }
                         }
 
                         counter = counter + 1

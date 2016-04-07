@@ -8,22 +8,22 @@ import org.gradle.api.Task
 import org.gradle.api.tasks.TaskExecutionException
 import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.Ignore
-import spock.lang.IgnoreIf
+import spock.lang.Requires
 import spock.lang.Shared
 import spock.lang.Specification
 
-@IgnoreIf({ !System.env.DOCKER_HOST })
+@Requires({ LocalDocker.available() })
 class DockerPluginIntegrationTest extends Specification {
 
     @Shared
     Project project
 
-//  def defaultDockerHost = "unix:///var/run/docker.sock"
-    def defaultDockerHost = System.env.DOCKER_HOST ?: "tcp://192.168.99.100:2376"
+    def defaultDockerHost = "unix:///var/run/docker.sock"
+//    def defaultDockerHost = System.env.DOCKER_HOST ?: "tcp://192.168.99.100:2376"
+//        System.setProperty("docker.cert.path", "${System.getProperty('user.home')}/.docker/machine/machines/default")
     String DOCKER_HOST = defaultDockerHost
 
     def setup() {
-        System.setProperty("docker.cert.path", "${System.getProperty('user.home')}/.docker/machine/machines/default")
         project = ProjectBuilder.builder().withName('example').build()
         project.apply plugin: 'de.gesellix.docker'
         project.docker.dockerHost = DOCKER_HOST
@@ -552,6 +552,6 @@ class DockerPluginIntegrationTest extends Specification {
         task.execute()
 
         then:
-        task.extensions.getByName('version').content.ApiVersion == '1.22'
+        task.extensions.getByName('version').content.ApiVersion == '1.23'
     }
 }
