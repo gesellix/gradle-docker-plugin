@@ -10,7 +10,4 @@ Yet another Gradle plugin making it easy for your build scripts to talk to a Doc
 Each task delegates to the [Docker-Client](https://github.com/gesellix/docker-client), which connects
 to the Docker remote API via HTTP.
 
-[Docker for Mac](https://beta.docker.com/) users: you need to configure your `DOCKER_HOST` environment variable
- or `dockerHost` task property to be set to `unix:///var/tmp/docker.sock`.
-
 For basic usage please have a look at the tests or the [example project](https://github.com/gesellix/gradle-docker-plugin-example).
