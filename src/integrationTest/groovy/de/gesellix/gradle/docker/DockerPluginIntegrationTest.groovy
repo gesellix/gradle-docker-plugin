@@ -18,15 +18,12 @@ class DockerPluginIntegrationTest extends Specification {
     @Shared
     Project project
 
-    def defaultDockerHost = "unix:///var/run/docker.sock"
-//    def defaultDockerHost = System.env.DOCKER_HOST ?: "tcp://192.168.99.100:2376"
-//        System.setProperty("docker.cert.path", "${System.getProperty('user.home')}/.docker/machine/machines/default")
-    String DOCKER_HOST = defaultDockerHost
-
     def setup() {
         project = ProjectBuilder.builder().withName('example').build()
         project.apply plugin: 'de.gesellix.docker'
-        project.docker.dockerHost = DOCKER_HOST
+//        System.setProperty("docker.cert.path", "${System.getProperty('user.home')}/.docker/machine/machines/default")
+//        project.docker.dockerHost = System.env.DOCKER_HOST ?: "tcp://192.168.99.100:2376"
+//        project.docker.dockerHost = System.env.DOCKER_HOST ?: "unix:///var/run/docker.sock"
     }
 
     def "test info"() {
@@ -58,7 +55,7 @@ class DockerPluginIntegrationTest extends Specification {
         task.imageId ==~ "[a-z0-9]+"
 
         cleanup:
-        def dockerClient = new DockerClientImpl(DOCKER_HOST)
+        def dockerClient = new DockerClientImpl()
         dockerClient.rmi("buildTest")
     }
 
@@ -79,7 +76,7 @@ class DockerPluginIntegrationTest extends Specification {
     @Ignore
     def "test pull with auth"() {
         given:
-        def dockerClient = new DockerClientImpl(DOCKER_HOST)
+        def dockerClient = new DockerClientImpl()
         def task = project.task('testPull', type: DockerPullTask) {
             authConfigPlain = dockerClient.readAuthConfig(null, null)
             imageName = 'gesellix/private-repo'
@@ -99,7 +96,7 @@ class DockerPluginIntegrationTest extends Specification {
                            "password"     : "-yet-another-password-",
                            "email"        : "tobias@gesellix.de",
                            "serveraddress": "https://index.docker.io/v1/"]
-        def dockerClient = new DockerClientImpl(DOCKER_HOST)
+        def dockerClient = new DockerClientImpl()
         def authConfig = dockerClient.encodeAuthConfig(authDetails)
         dockerClient.pull("gesellix/docker-client-testimage")
         dockerClient.tag("gesellix/docker-client-testimage", "gesellix/example", true)
@@ -132,7 +129,6 @@ class DockerPluginIntegrationTest extends Specification {
     def "test run"() {
         given:
         def task = project.task('testRun', type: DockerRunTask) {
-            dockerHost = DOCKER_HOST
             containerConfiguration = ["Cmd": ["true"]]
             imageName = 'gesellix/docker-client-testimage'
             tag = 'latest'
@@ -147,7 +143,7 @@ class DockerPluginIntegrationTest extends Specification {
         task.result.status.status.code == 204
 
         cleanup:
-        def dockerClient = new DockerClientImpl(DOCKER_HOST)
+        def dockerClient = new DockerClientImpl()
         dockerClient.stop(task.result.container.content.Id)
         dockerClient.wait(task.result.container.content.Id)
         dockerClient.rm(task.result.container.content.Id)
@@ -155,7 +151,7 @@ class DockerPluginIntegrationTest extends Specification {
 
     def "test stop"() {
         given:
-        def dockerClient = new DockerClientImpl(DOCKER_HOST)
+        def dockerClient = new DockerClientImpl()
         def runResult = dockerClient.run(
                 'gesellix/docker-client-testimage',
                 ["Cmd": ["ping", "127.0.0.1"]],
@@ -177,7 +173,7 @@ class DockerPluginIntegrationTest extends Specification {
 
     def "test rm"() {
         given:
-        def dockerClient = new DockerClientImpl(DOCKER_HOST)
+        def dockerClient = new DockerClientImpl()
         def runResult = dockerClient.run('gesellix/docker-client-testimage', ["Cmd": ["true"]], 'latest')
         def runningContainerId = runResult.container.content.Id
         dockerClient.stop(runningContainerId)
@@ -195,7 +191,7 @@ class DockerPluginIntegrationTest extends Specification {
 
     def "test start"() {
         given:
-        def dockerClient = new DockerClientImpl(DOCKER_HOST)
+        def dockerClient = new DockerClientImpl()
         dockerClient.pull("gesellix/docker-client-testimage", "latest")
         def containerInfo = dockerClient.createContainer(["Image": "gesellix/docker-client-testimage:latest", "Cmd": ["true"]])
         def task = project.task('testStart', type: DockerStartTask) {
@@ -216,12 +212,10 @@ class DockerPluginIntegrationTest extends Specification {
 
     def "test ps"() {
         given:
-        def task = project.task('testPs', type: DockerPsTask) {
-            dockerHost = DOCKER_HOST
-        }
+        def task = project.task('testPs', type: DockerPsTask)
         def uuid = UUID.randomUUID().toString()
         def cmd = "true || $uuid".toString()
-        def containerInfo = new DockerClientImpl(DOCKER_HOST).run('gesellix/docker-client-testimage', ["Cmd": [cmd]], 'latest')
+        def containerInfo = new DockerClientImpl().run('gesellix/docker-client-testimage', ["Cmd": [cmd]], 'latest')
 
         when:
         task.execute()
@@ -232,7 +226,7 @@ class DockerPluginIntegrationTest extends Specification {
         }.size() == 1
 
         cleanup:
-        def dockerClient = new DockerClientImpl(DOCKER_HOST)
+        def dockerClient = new DockerClientImpl()
         dockerClient.stop(containerInfo.container.content.Id)
         dockerClient.wait(containerInfo.container.content.Id)
         dockerClient.rm(containerInfo.container.content.Id)
@@ -240,12 +234,10 @@ class DockerPluginIntegrationTest extends Specification {
 
     def "test images"() {
         given:
-        def dockerClient = new DockerClientImpl(DOCKER_HOST)
+        def dockerClient = new DockerClientImpl()
         dockerClient.pull("gesellix/docker-client-testimage")
         dockerClient.tag("gesellix/docker-client-testimage", "gesellix/images-list", true)
-        def task = project.task('testImages', type: DockerImagesTask) {
-            dockerHost = DOCKER_HOST
-        }
+        def task = project.task('testImages', type: DockerImagesTask)
 
         when:
         task.execute()
@@ -262,7 +254,7 @@ class DockerPluginIntegrationTest extends Specification {
     def "test run with data volumes"() {
         given:
         def hostDir = "/tmp"
-        def dockerClient = new DockerClientImpl(DOCKER_HOST)
+        def dockerClient = new DockerClientImpl()
         dockerClient.pull("gesellix/docker-client-testimage")
         dockerClient.tag("gesellix/docker-client-testimage", "gesellix/run-with-data-volumes", true)
         dockerClient.createContainer([
@@ -275,7 +267,6 @@ class DockerPluginIntegrationTest extends Specification {
                 ],
         ], [name: "the-data-example"])
         def task = project.task('testRun', type: DockerRunTask) {
-            dockerHost = DOCKER_HOST
             containerConfiguration = ["Cmd"       : ["true"],
                                       "HostConfig": ["VolumesFrom": ["the-data-example"]]]
             imageName = 'gesellix/run-with-data-volumes'
@@ -299,9 +290,8 @@ class DockerPluginIntegrationTest extends Specification {
 
     def "test container reloaded"() {
         given:
-        def dockerClient = new DockerClientImpl(DOCKER_HOST)
+        def dockerClient = new DockerClientImpl()
         def task = project.task('testContainer', type: DockerContainerTask) {
-            dockerHost = DOCKER_HOST
             containerName = "docker-test"
             targetState = "reloaded"
             image = "gesellix/docker-client-testimage"
@@ -313,7 +303,6 @@ class DockerPluginIntegrationTest extends Specification {
             extraHosts = ["dockerhost:127.0.0.1"]
         }
         def task2 = project.task('testContainer2', type: DockerContainerTask) {
-            dockerHost = DOCKER_HOST
             containerName = "docker-test"
             targetState = "reloaded"
             image = "gesellix/docker-client-testimage"
@@ -348,9 +337,8 @@ class DockerPluginIntegrationTest extends Specification {
         int port = ss.getLocalPort();
         ss.close();
 
-        def dockerClient = new DockerClientImpl(DOCKER_HOST)
+        def dockerClient = new DockerClientImpl()
         def task = project.task('testContainer', type: DockerContainerTask) {
-            dockerHost = DOCKER_HOST
             containerName = "docker-test-health"
             targetState = "reloaded"
             image = "gesellix/docker-client-testimage"
@@ -383,9 +371,8 @@ class DockerPluginIntegrationTest extends Specification {
         int port = ss.getLocalPort()
         ss.close()
 
-        def dockerClient = new DockerClientImpl(DOCKER_HOST)
+        def dockerClient = new DockerClientImpl()
         def task = project.task('testContainer', type: DockerContainerTask) {
-            dockerHost = DOCKER_HOST
             containerName = "docker-test-health"
             targetState = "reloaded"
             image = "gesellix/docker-client-testimage"
@@ -422,9 +409,8 @@ class DockerPluginIntegrationTest extends Specification {
         int port = ss.getLocalPort()
         ss.close()
 
-        def dockerClient = new DockerClientImpl(DOCKER_HOST)
+        def dockerClient = new DockerClientImpl()
         def task = project.task('testContainer', type: DockerContainerTask) {
-            dockerHost = DOCKER_HOST
             containerName = "docker-test-health"
             targetState = "reloaded"
             image = "gesellix/docker-client-testimage"
@@ -460,9 +446,8 @@ class DockerPluginIntegrationTest extends Specification {
         int port = ss.getLocalPort()
         ss.close()
 
-        def dockerClient = new DockerClientImpl(DOCKER_HOST)
+        def dockerClient = new DockerClientImpl()
         def task = project.task('testContainer', type: DockerContainerTask) {
-            dockerHost = DOCKER_HOST
             containerName = "docker-test-health"
             targetState = "reloaded"
             image = "gesellix/docker-client-testimage"
@@ -504,9 +489,8 @@ class DockerPluginIntegrationTest extends Specification {
         int port = ss.getLocalPort()
         ss.close()
 
-        def dockerClient = new DockerClientImpl(DOCKER_HOST)
+        def dockerClient = new DockerClientImpl()
         def task = project.task('testContainer', type: DockerContainerTask) {
-            dockerHost = DOCKER_HOST
             containerName = "docker-test-health"
             targetState = "reloaded"
             image = "gesellix/docker-client-testimage"
@@ -537,7 +521,6 @@ class DockerPluginIntegrationTest extends Specification {
     def "test certPath"() {
         given:
         def task = project.task('testTask', type: DockerTask) {
-            dockerHost = DOCKER_HOST
             certPath = "${System.getProperty('user.home')}/.docker/machine/machines/default"
         }
         task.actions.add(new Action<Task>() {

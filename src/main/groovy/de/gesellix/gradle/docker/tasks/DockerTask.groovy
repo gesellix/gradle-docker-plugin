@@ -34,13 +34,13 @@ class DockerTask extends DefaultTask {
     /**
      * Obtains the docker host for the task instance. If a host was not set, the one that has been set in the
      * {@code docker} project extension will be returned.
-     * @return A string containing the URL of the Docker host. (Could return null if no project extension is defined).
+     * @return A string containing the URL of the Docker host. (Could return the DockerClient's default if no project extension is defined).
      */
     @Input
     @Optional
     String getDockerHost() {
         def host = dockerHost ?: project.extensions.findByName(EXTENSION_NAME)?.dockerHost
-        host ? CollectionUtils.stringize([host])[0] : null
+        host ? CollectionUtils.stringize([host])[0] : new DockerConfig().dockerHost
     }
 
     /**
