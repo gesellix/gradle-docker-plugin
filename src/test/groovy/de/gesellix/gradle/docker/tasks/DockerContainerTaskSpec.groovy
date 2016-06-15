@@ -557,7 +557,7 @@ class DockerContainerTaskSpec extends Specification {
         task.healthChecks = [
                 [
                         containerPort: 8080,
-                        timeout      : 1,
+                        timeout      : 100,
                         retries      : 1
                 ]]
         task.execute()
