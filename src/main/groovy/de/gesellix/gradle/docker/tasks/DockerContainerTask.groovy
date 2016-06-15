@@ -47,6 +47,11 @@ class DockerContainerTask extends DockerTask {
     List<String> env = []
 
     /**
+     * A list of environment variable keys to be ignored when searching changes.
+     */
+    List<String> ignoredEnvKeys = []
+
+    /**
      * A command to run specified as an array of strings.
      */
     @Input
@@ -127,7 +132,7 @@ class DockerContainerTask extends DockerTask {
             throw new GradleException("containerName is mandatory")
         }
 
-        container = new DockerContainer(getDockerClient(), containerName, image, createConfig())
+        container = new DockerContainer(getDockerClient(), containerName, image, createConfig(), getIgnoredEnvKeys())
 
         switch (targetState) {
             case State.PRESENT:
@@ -173,7 +178,7 @@ class DockerContainerTask extends DockerTask {
             throw new GradleException("containerName is mandatory")
         }
 
-        container = new DockerContainer(getDockerClient(), containerName, image, createConfig())
+        container = new DockerContainer(getDockerClient(), containerName, image, createConfig(), getIgnoredEnvKeys())
 
         switch (targetState) {
             case State.PRESENT:
@@ -352,6 +357,7 @@ class DockerContainerTask extends DockerTask {
                         logger.info "Attempt #${counter + 1}"
                     }
 
+                    logger.error "container unhealthy after ${(int) healthCheck.retries} checks"
                     break
                 case "http":
                     def url = new URL("http", host, port, (String) healthCheck.path)
@@ -379,6 +385,7 @@ class DockerContainerTask extends DockerTask {
                         logger.info "Attempt #${counter + 1}"
                     }
 
+                    logger.error "container unhealthy after ${(int) healthCheck.retries} checks"
                     break
                 default:
                     throw new IllegalArgumentException("Unsupported healthcheck type: ${healthCheck.type}")

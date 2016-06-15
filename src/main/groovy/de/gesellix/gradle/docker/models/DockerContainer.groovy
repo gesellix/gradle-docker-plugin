@@ -17,11 +17,13 @@ class DockerContainer {
     String imageId
     boolean running
     boolean exists
+    List<String> ignoredEnvKeys
 
-    DockerContainer(DockerClient client, String name, String imageName, def config) {
+    DockerContainer(DockerClient client, String name, String imageName, def config, List<String> ignoredEnvKeys = []) {
         this.client = client
         this.name = name
         this.imageName = imageName
+        this.ignoredEnvKeys = ignoredEnvKeys
         this.config = config
 
         // Force Image to be ImageName in config
@@ -355,7 +357,13 @@ class DockerContainer {
         // Environment
         def expectedEnv = splitEnv((Collection<String>) image.ContainerConfig.Env) +
                 splitEnv((Collection<String>) config.Env)
+        expectedEnv = expectedEnv.collectEntries { k, v ->
+            (k in ignoredEnvKeys) ? [:] : [(k): v]
+        }
         def currentEnv = splitEnv((Collection<String>) current.Config.Env)
+        currentEnv = currentEnv.collectEntries { k, v ->
+            (k in ignoredEnvKeys) ? [:] : [(k): v]
+        }
         if (currentEnv != expectedEnv) {
             return "Env does not match: ${currentEnv} != ${expectedEnv}"
         }

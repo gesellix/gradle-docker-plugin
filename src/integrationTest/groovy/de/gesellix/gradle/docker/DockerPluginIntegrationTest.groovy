@@ -298,6 +298,7 @@ class DockerPluginIntegrationTest extends Specification {
             tag = "latest"
             ports = ["80:8080"]
             env = ["TMP=1"]
+            ignoredEnvKeys = ["no_proxy"]
             cmd = ["ping", "127.0.0.1"]
             volumes = ["/tmp:/data:ro"]
             extraHosts = ["dockerhost:127.0.0.1"]
@@ -309,6 +310,7 @@ class DockerPluginIntegrationTest extends Specification {
             tag = "latest"
             ports = ["80:8080"]
             env = ["TMP=1"]
+            ignoredEnvKeys = ["no_proxy"]
             cmd = ["ping", "127.0.0.1"]
             volumes = ["/tmp:/data:ro"]
             extraHosts = ["dockerhost:127.0.0.1"]
