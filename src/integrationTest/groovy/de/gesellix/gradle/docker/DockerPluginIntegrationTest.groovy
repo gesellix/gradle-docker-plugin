@@ -244,7 +244,7 @@ class DockerPluginIntegrationTest extends Specification {
 
         then:
         task.images.content.findAll {
-            it.RepoTags.contains "gesellix/images-list:latest"
+            it.RepoTags?.contains "gesellix/images-list:latest"
         }.size() == 1
 
         cleanup:
