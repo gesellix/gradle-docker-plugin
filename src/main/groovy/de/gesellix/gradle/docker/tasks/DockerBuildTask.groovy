@@ -104,7 +104,7 @@ class DockerBuildTask extends DockerTask {
         }
         if (getImageName()) {
             logger.info "tag $imageId as '${getImageName()}'..."
-            getDockerClient().tag(imageId, getImageName(), true)
+            getDockerClient().tag(imageId, getImageName())
         }
         return imageId
     }

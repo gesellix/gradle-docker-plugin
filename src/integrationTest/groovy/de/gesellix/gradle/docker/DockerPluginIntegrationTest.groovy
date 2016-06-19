@@ -99,7 +99,7 @@ class DockerPluginIntegrationTest extends Specification {
         def dockerClient = new DockerClientImpl()
         def authConfig = dockerClient.encodeAuthConfig(authDetails)
         dockerClient.pull("gesellix/docker-client-testimage")
-        dockerClient.tag("gesellix/docker-client-testimage", "gesellix/example", true)
+        dockerClient.tag("gesellix/docker-client-testimage", "gesellix/example")
 
         def task = project.task('testPush', type: DockerPushTask) {
             repositoryName = 'gesellix/example'
@@ -236,7 +236,7 @@ class DockerPluginIntegrationTest extends Specification {
         given:
         def dockerClient = new DockerClientImpl()
         dockerClient.pull("gesellix/docker-client-testimage")
-        dockerClient.tag("gesellix/docker-client-testimage", "gesellix/images-list", true)
+        dockerClient.tag("gesellix/docker-client-testimage", "gesellix/images-list")
         def task = project.task('testImages', type: DockerImagesTask)
 
         when:
@@ -256,7 +256,7 @@ class DockerPluginIntegrationTest extends Specification {
         def hostDir = "/tmp"
         def dockerClient = new DockerClientImpl()
         dockerClient.pull("gesellix/docker-client-testimage")
-        dockerClient.tag("gesellix/docker-client-testimage", "gesellix/run-with-data-volumes", true)
+        dockerClient.tag("gesellix/docker-client-testimage", "gesellix/run-with-data-volumes")
         dockerClient.createContainer([
                 "Cmd"       : ["-"],
                 "Image"     : "gesellix/run-with-data-volumes",
@@ -537,6 +537,6 @@ class DockerPluginIntegrationTest extends Specification {
         task.execute()
 
         then:
-        task.extensions.getByName('version').content.ApiVersion == '1.23'
+        task.extensions.getByName('version').content.ApiVersion == '1.24'
     }
 }
