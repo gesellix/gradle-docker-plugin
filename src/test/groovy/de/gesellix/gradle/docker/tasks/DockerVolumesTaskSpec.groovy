@@ -21,9 +21,23 @@ class DockerVolumesTaskSpec extends Specification {
         task.execute()
 
         then:
-        1 * dockerClient.volumes() >> [["Name":"id"]]
+        1 * dockerClient.volumes([:]) >> [["Name": "id"]]
 
         and:
-        task.volumes == [["Name":"id"]]
+        task.volumes == [["Name": "id"]]
+    }
+
+    def "delegates with query to dockerClient and saves result"() {
+        when:
+        task.configure {
+            query = [filters: [dangling: ["true"]]]
+        }
+        task.execute()
+
+        then:
+        1 * dockerClient.volumes([filters: [dangling: ["true"]]]) >> [["Name": "id"]]
+
+        and:
+        task.volumes == [["Name": "id"]]
     }
 }

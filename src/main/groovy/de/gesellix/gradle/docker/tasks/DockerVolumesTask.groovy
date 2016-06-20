@@ -1,8 +1,13 @@
 package de.gesellix.gradle.docker.tasks
 
+import groovy.json.JsonBuilder
+import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
 
 class DockerVolumesTask extends DockerTask {
+
+    @Input
+    def query = [:]
 
     def volumes
 
@@ -14,6 +19,6 @@ class DockerVolumesTask extends DockerTask {
     @TaskAction
     def volumes() {
         logger.info "docker volume ls"
-        volumes = getDockerClient().volumes()
+        volumes = getDockerClient().volumes(getQuery() ?: [:])
     }
 }
