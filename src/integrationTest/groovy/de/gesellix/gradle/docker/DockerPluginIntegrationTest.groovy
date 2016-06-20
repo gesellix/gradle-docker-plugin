@@ -3,12 +3,14 @@ package de.gesellix.gradle.docker
 import de.gesellix.docker.client.DockerClientImpl
 import de.gesellix.gradle.docker.tasks.DockerBuildTask
 import de.gesellix.gradle.docker.tasks.DockerContainerTask
+import de.gesellix.gradle.docker.tasks.DockerCreateVolumeTask
 import de.gesellix.gradle.docker.tasks.DockerImagesTask
 import de.gesellix.gradle.docker.tasks.DockerInfoTask
 import de.gesellix.gradle.docker.tasks.DockerPsTask
 import de.gesellix.gradle.docker.tasks.DockerPullTask
 import de.gesellix.gradle.docker.tasks.DockerPushTask
 import de.gesellix.gradle.docker.tasks.DockerRmTask
+import de.gesellix.gradle.docker.tasks.DockerRmVolumeTask
 import de.gesellix.gradle.docker.tasks.DockerRunTask
 import de.gesellix.gradle.docker.tasks.DockerStartTask
 import de.gesellix.gradle.docker.tasks.DockerStopTask
@@ -299,6 +301,28 @@ class DockerPluginIntegrationTest extends Specification {
         dockerClient.rm("the-service-example")
         dockerClient.rm("the-data-example")
         dockerClient.rmi("gesellix/run-with-data-volumes:latest")
+    }
+
+    def "test volume create and remove"() {
+        given:
+        def createVolume = project.task('createVolume', type: DockerCreateVolumeTask) {
+            volumeConfig = [
+                    Name      : "my-volume",
+                    Driver    : "local",
+                    DriverOpts: [:]
+            ]
+        }
+        def rmVolume = project.task('rmVolume', type: DockerRmVolumeTask) {
+            volumeName = "my-volume"
+        }
+        createVolume.execute()
+
+        when:
+        rmVolume.execute()
+
+        then:
+        createVolume.response.status.code == 201
+        rmVolume.response.status.code == 204
     }
 
     def "test container reloaded"() {
