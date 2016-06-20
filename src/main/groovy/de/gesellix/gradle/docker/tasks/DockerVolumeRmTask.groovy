@@ -3,12 +3,17 @@ package de.gesellix.gradle.docker.tasks
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
 
-class DockerRmVolumeTask extends DockerTask {
+class DockerVolumeRmTask extends DockerTask {
 
     @Input
     def volumeName
 
     def response
+
+    DockerVolumeRmTask() {
+        description = "Remove a volume"
+        group = "Docker"
+    }
 
     @TaskAction
     def rmVolume() {

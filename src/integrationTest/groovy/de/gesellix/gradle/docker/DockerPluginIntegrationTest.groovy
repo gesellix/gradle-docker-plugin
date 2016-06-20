@@ -3,18 +3,18 @@ package de.gesellix.gradle.docker
 import de.gesellix.docker.client.DockerClientImpl
 import de.gesellix.gradle.docker.tasks.DockerBuildTask
 import de.gesellix.gradle.docker.tasks.DockerContainerTask
-import de.gesellix.gradle.docker.tasks.DockerCreateVolumeTask
 import de.gesellix.gradle.docker.tasks.DockerImagesTask
 import de.gesellix.gradle.docker.tasks.DockerInfoTask
 import de.gesellix.gradle.docker.tasks.DockerPsTask
 import de.gesellix.gradle.docker.tasks.DockerPullTask
 import de.gesellix.gradle.docker.tasks.DockerPushTask
 import de.gesellix.gradle.docker.tasks.DockerRmTask
-import de.gesellix.gradle.docker.tasks.DockerRmVolumeTask
 import de.gesellix.gradle.docker.tasks.DockerRunTask
 import de.gesellix.gradle.docker.tasks.DockerStartTask
 import de.gesellix.gradle.docker.tasks.DockerStopTask
 import de.gesellix.gradle.docker.tasks.DockerTask
+import de.gesellix.gradle.docker.tasks.DockerVolumeCreateTask
+import de.gesellix.gradle.docker.tasks.DockerVolumeRmTask
 import org.gradle.api.Action
 import org.gradle.api.Project
 import org.gradle.api.Task
@@ -305,14 +305,14 @@ class DockerPluginIntegrationTest extends Specification {
 
     def "test volume create and remove"() {
         given:
-        def createVolume = project.task('createVolume', type: DockerCreateVolumeTask) {
+        def createVolume = project.task('createVolume', type: DockerVolumeCreateTask) {
             volumeConfig = [
                     Name      : "my-volume",
                     Driver    : "local",
                     DriverOpts: [:]
             ]
         }
-        def rmVolume = project.task('rmVolume', type: DockerRmVolumeTask) {
+        def rmVolume = project.task('rmVolume', type: DockerVolumeRmTask) {
             volumeName = "my-volume"
         }
         createVolume.execute()
