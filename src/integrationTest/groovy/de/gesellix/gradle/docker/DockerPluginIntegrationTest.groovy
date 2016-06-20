@@ -1,7 +1,18 @@
 package de.gesellix.gradle.docker
 
 import de.gesellix.docker.client.DockerClientImpl
-import de.gesellix.gradle.docker.tasks.*
+import de.gesellix.gradle.docker.tasks.DockerBuildTask
+import de.gesellix.gradle.docker.tasks.DockerContainerTask
+import de.gesellix.gradle.docker.tasks.DockerImagesTask
+import de.gesellix.gradle.docker.tasks.DockerInfoTask
+import de.gesellix.gradle.docker.tasks.DockerPsTask
+import de.gesellix.gradle.docker.tasks.DockerPullTask
+import de.gesellix.gradle.docker.tasks.DockerPushTask
+import de.gesellix.gradle.docker.tasks.DockerRmTask
+import de.gesellix.gradle.docker.tasks.DockerRunTask
+import de.gesellix.gradle.docker.tasks.DockerStartTask
+import de.gesellix.gradle.docker.tasks.DockerStopTask
+import de.gesellix.gradle.docker.tasks.DockerTask
 import org.gradle.api.Action
 import org.gradle.api.Project
 import org.gradle.api.Task
@@ -193,7 +204,9 @@ class DockerPluginIntegrationTest extends Specification {
         given:
         def dockerClient = new DockerClientImpl()
         dockerClient.pull("gesellix/docker-client-testimage", "latest")
-        def containerInfo = dockerClient.createContainer(["Image": "gesellix/docker-client-testimage:latest", "Cmd": ["true"]])
+        def containerInfo = dockerClient.createContainer([
+                "Image": "gesellix/docker-client-testimage:latest",
+                "Cmd"  : ["true"]])
         def task = project.task('testStart', type: DockerStartTask) {
             containerId = containerInfo.content.Id
         }
@@ -345,7 +358,7 @@ class DockerPluginIntegrationTest extends Specification {
             targetState = "reloaded"
             image = "gesellix/docker-client-testimage"
             tag = "latest"
-            ports = [port.toString() + ":8080"]
+            ports = ["$port:8080"]
             cmd = ["nc", "-l", "-p", "8080"]
             healthChecks = [
                     [
@@ -379,7 +392,7 @@ class DockerPluginIntegrationTest extends Specification {
             targetState = "reloaded"
             image = "gesellix/docker-client-testimage"
             tag = "latest"
-            ports = [port.toString() + ":8080"]
+            ports = ["$port:8080"]
             cmd = [
                     "/bin/sh", "-c",
                     "while true; do nc -l -p 8080 -e " +
@@ -417,7 +430,7 @@ class DockerPluginIntegrationTest extends Specification {
             targetState = "reloaded"
             image = "gesellix/docker-client-testimage"
             tag = "latest"
-            ports = [port.toString() + ":8080"]
+            ports = ["$port:8080"]
             cmd = ["ping", "127.0.0.1"]
             healthChecks = [
                     [
@@ -454,7 +467,7 @@ class DockerPluginIntegrationTest extends Specification {
             targetState = "reloaded"
             image = "gesellix/docker-client-testimage"
             tag = "latest"
-            ports = [port.toString() + ":8080"]
+            ports = ["$port:8080"]
             cmd = [
                     "/bin/sh", "-c",
                     "while true; do nc -l -p 8080 -e " +
@@ -497,7 +510,7 @@ class DockerPluginIntegrationTest extends Specification {
             targetState = "reloaded"
             image = "gesellix/docker-client-testimage"
             tag = "latest"
-            ports = [port.toString() + ":8080"]
+            ports = ["$port:8080"]
             cmd = ["echo", "dummy"]
             healthChecks = [
                     [
