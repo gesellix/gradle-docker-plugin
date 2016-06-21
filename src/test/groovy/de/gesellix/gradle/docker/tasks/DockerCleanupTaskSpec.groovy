@@ -25,10 +25,13 @@ class DockerCleanupTaskSpec extends Specification {
         }
         task.shouldKeepContainer = containerPredicate
 
+        def volumePredicate = { volume -> true }
+        task.shouldKeepVolume = volumePredicate
+
         when:
         task.execute()
 
         then:
-        1 * dockerClient.cleanupStorage(containerPredicate)
+        1 * dockerClient.cleanupStorage(containerPredicate, volumePredicate)
     }
 }

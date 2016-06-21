@@ -10,8 +10,12 @@ class DockerCleanupTask extends DockerTask {
     @Optional
     def shouldKeepContainer
 
+    @Input
+    @Optional
+    def shouldKeepVolume = { volume -> true }
+
     DockerCleanupTask() {
-        description = "Removes stopped containers and dangling images"
+        description = "Removes stopped containers, dangling images, and dangling volumes"
         group = "Docker"
     }
 
@@ -19,6 +23,7 @@ class DockerCleanupTask extends DockerTask {
     def cleanup() {
         logger.info "docker cleanup"
         def keepContainer = getShouldKeepContainer() ?: { container -> false }
-        dockerClient.cleanupStorage keepContainer
+        def keepVolume = getShouldKeepVolume() ?: { volume -> true }
+        dockerClient.cleanupStorage keepContainer, keepVolume
     }
 }
