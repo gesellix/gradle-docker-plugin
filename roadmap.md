@@ -5,7 +5,7 @@
 Since the Docker remote api tends to be backwards compatible,
 the underlying Docker Client currently supports most other api versions, too.
 
-Current api coverage (30/74): ![Remote API Coverage Status](http://progressed.io/bar/41)
+Current api coverage (33/74): ![Remote API Coverage Status](http://progressed.io/bar/46)
 
 This project tends to support most api endpoints, but only if there's an actual use case. If you're missing a feature, please file
 a [new issue](https://github.com/gesellix/gradle-docker-plugin/issues) or a [pull request](https://github.com/gesellix/gradle-docker-plugin/pulls)
@@ -81,7 +81,7 @@ on the [Java Docker API Client](https://github.com/docker-java/docker-java) avai
 
 * [x] `docker network ls`: Lists all networks
 * [ ] `docker network inspect`: Display detailed information on a network
-* [ ] `docker network create`: Create a new network
+* [x] `docker network create`: Create a new network
 * [ ] `docker network connect`: Connect a container to a network
 * [ ] `docker network disconnect`: Disconnect a container from a network
 * [ ] `docker network rm`: Remove a network
@@ -96,7 +96,7 @@ on the [Java Docker API Client](https://github.com/docker-java/docker-java) avai
 ## Swarm
 
 * [ ] `docker swarm inspect`: Inspect the Swarm
-* [ ] `docker swarm init`: Initialize a Swarm
+* [x] `docker swarm init`: Initialize a Swarm
 * [ ] `docker swarm join`: Join a Swarm as a node and/or manager
 * [ ] `docker swarm leave`: Leave a Swarm
 * [ ] `docker swarm update`: Update the Swarm
@@ -104,7 +104,7 @@ on the [Java Docker API Client](https://github.com/docker-java/docker-java) avai
 ## Services
 
 * [ ] `docker service ls`: List services
-* [ ] `docker service create`: Create a service
+* [x] `docker service create`: Create a service
 * [ ] `docker service rm`: Remove a service
 * [ ] `docker service inspect`: Return information on the service `<id>`
 * [ ] `docker service update`: Update a service

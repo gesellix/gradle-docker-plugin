@@ -5,13 +5,16 @@ import de.gesellix.gradle.docker.tasks.DockerBuildTask
 import de.gesellix.gradle.docker.tasks.DockerContainerTask
 import de.gesellix.gradle.docker.tasks.DockerImagesTask
 import de.gesellix.gradle.docker.tasks.DockerInfoTask
+import de.gesellix.gradle.docker.tasks.DockerNetworkCreateTask
 import de.gesellix.gradle.docker.tasks.DockerPsTask
 import de.gesellix.gradle.docker.tasks.DockerPullTask
 import de.gesellix.gradle.docker.tasks.DockerPushTask
 import de.gesellix.gradle.docker.tasks.DockerRmTask
 import de.gesellix.gradle.docker.tasks.DockerRunTask
+import de.gesellix.gradle.docker.tasks.DockerServiceCreateTask
 import de.gesellix.gradle.docker.tasks.DockerStartTask
 import de.gesellix.gradle.docker.tasks.DockerStopTask
+import de.gesellix.gradle.docker.tasks.DockerSwarmInitTask
 import de.gesellix.gradle.docker.tasks.DockerTask
 import de.gesellix.gradle.docker.tasks.DockerVolumeCreateTask
 import de.gesellix.gradle.docker.tasks.DockerVolumeRmTask
@@ -323,6 +326,75 @@ class DockerPluginIntegrationTest extends Specification {
         then:
         createVolume.response.status.code == 201
         rmVolume.response.status.code == 204
+    }
+
+    def "test swarm with services"() {
+//    docker swarm init
+//    docker network create -d overlay my-network
+//    docker service create --name my-service --replicas 2 --network my-network -p 80:80/tcp nginx
+        given:
+        def dockerClient = new DockerClientImpl()
+
+        def swarmConfig = [
+                "ListenAddr"     : "0.0.0.0:80",
+                "ForceNewCluster": false,
+                "Spec"           : [
+                        "AcceptancePolicy": [
+                                "Policies": [
+                                        ["Role": "MANAGER", "Autoaccept": false],
+                                        ["Role": "WORKER", "Autoaccept": true]
+                                ]
+                        ]
+                ]
+        ]
+        def initSwarm = project.task('initSwarm', type: DockerSwarmInitTask) {
+            config = swarmConfig
+        }
+        initSwarm.execute()
+
+        def createNetwork = project.task('createNetwork', type: DockerNetworkCreateTask) {
+            networkName = "my-network"
+            networkConfig = [
+                    Driver: "overlay",
+                    "IPAM": [
+                            "Driver": "default"
+                    ]]
+        }
+        createNetwork.execute()
+
+        def config = [
+                "Name"        : "my-service",
+                "TaskTemplate": [
+                        "ContainerSpec": ["Image": "nginx"],
+                        "RestartPolicy": ["Condition": "on_failure"]
+                ],
+                "Mode"        : ["Replicated": ["Replicas": 2]],
+                "Networks"    : [["Target": "my-network"]],
+                "EndpointSpec": [
+                        "Ports": [
+                                [
+                                        "Protocol"     : "tcp",
+                                        "TargetPort"   : 80,
+                                        "PublishedPort": 80
+                                ]
+                        ]
+                ]
+        ]
+
+        def createService = project.task('createService', type: DockerServiceCreateTask) {
+            serviceConfig = config
+        }
+
+        when:
+        createService.execute()
+
+        then:
+        createService.response.status.code == 201
+
+        cleanup:
+        dockerClient.rmService("my-service")
+        dockerClient.rmNetwork("my-network")
+        dockerClient.leaveSwarm([force: true])
     }
 
     def "test container reloaded"() {
