@@ -5,7 +5,7 @@
 Since the Docker remote api tends to be backwards compatible,
 the underlying Docker Client currently supports most other api versions, too.
 
-Current api coverage (36/74): ![Remote API Coverage Status](http://progressed.io/bar/49)
+Current api coverage (38/74): ![Remote API Coverage Status](http://progressed.io/bar/51)
 
 This project tends to support most api endpoints, but only if there's an actual use case. If you're missing a feature, please file
 a [new issue](https://github.com/gesellix/gradle-docker-plugin/issues) or a [pull request](https://github.com/gesellix/gradle-docker-plugin/pulls)
@@ -97,8 +97,8 @@ on the [Java Docker API Client](https://github.com/docker-java/docker-java) avai
 
 * [ ] `docker swarm inspect`: Inspect the Swarm
 * [x] `docker swarm init`: Initialize a Swarm
-* [ ] `docker swarm join`: Join a Swarm as a node and/or manager
-* [ ] `docker swarm leave`: Leave a Swarm
+* [x] `docker swarm join`: Join a Swarm as a node and/or manager
+* [x] `docker swarm leave`: Leave a Swarm
 * [ ] `docker swarm update`: Update the Swarm
 
 ## Services
