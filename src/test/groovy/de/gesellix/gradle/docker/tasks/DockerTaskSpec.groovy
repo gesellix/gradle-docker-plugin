@@ -32,7 +32,7 @@ class DockerTaskSpec extends Specification {
         def dockerClient = task.dockerClient
 
         then:
-        dockerClient.config.dockerHost == new DockerPluginExtension(task.project as Project).dockerHost ?: 'http://127.0.0.1:2375'
+        dockerClient.env.dockerHost == new DockerPluginExtension(task.project as Project).dockerHost ?: 'http://127.0.0.1:2375'
     }
 
     def "delegates to dockerClient with configured dockerHost"() {
@@ -41,7 +41,7 @@ class DockerTaskSpec extends Specification {
         def dockerClient = task.dockerClient
 
         then:
-        dockerClient.config.dockerHost == "http://example.org:4243"
+        dockerClient.env.dockerHost == "http://example.org:4243"
     }
 
     def "delegates to dockerClient with configured certPath"() {
@@ -50,7 +50,7 @@ class DockerTaskSpec extends Specification {
         def dockerClient = task.dockerClient
 
         then:
-        dockerClient.config.certPath == "/path/to/certs"
+        dockerClient.env.certPath == "/path/to/certs"
     }
 
     def "getAuthConfig with plain AuthConfig"() {

@@ -2,7 +2,7 @@ package de.gesellix.gradle.docker.tasks
 
 import de.gesellix.docker.client.DockerClient
 import de.gesellix.docker.client.DockerClientImpl
-import de.gesellix.docker.client.DockerConfig
+import de.gesellix.docker.client.config.DockerEnv
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
@@ -40,7 +40,7 @@ class DockerTask extends DefaultTask {
     @Optional
     String getDockerHost() {
         def host = dockerHost ?: project.extensions.findByName(EXTENSION_NAME)?.dockerHost
-        host ? CollectionUtils.stringize([host])[0] : new DockerConfig().dockerHost
+        host ? CollectionUtils.stringize([host])[0] : new DockerEnv().dockerHost
     }
 
     /**
@@ -142,15 +142,15 @@ class DockerTask extends DefaultTask {
     def getDockerClient() {
         if (!dockerClient) {
             if (getDockerHost() || getCertPath()) {
-                def config = new DockerConfig()
+                def dockerEnv = new DockerEnv()
                 if (getDockerHost()) {
-                    config.dockerHost = getDockerHost()
+                    dockerEnv.dockerHost = getDockerHost()
                 }
                 if (getCertPath()) {
-                    config.certPath = getCertPath()
+                    dockerEnv.certPath = getCertPath()
                 }
                 dockerClient = new DockerClientImpl(
-                        config: config,
+                        env: dockerEnv,
                         proxy: getProxy() ?: NO_PROXY)
             } else {
                 dockerClient = new DockerClientImpl()

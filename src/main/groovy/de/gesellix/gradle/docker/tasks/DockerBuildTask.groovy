@@ -1,6 +1,6 @@
 package de.gesellix.gradle.docker.tasks
 
-import de.gesellix.docker.client.BuildContextBuilder
+import de.gesellix.docker.client.builder.BuildContextBuilder
 import org.gradle.api.Task
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputDirectory
