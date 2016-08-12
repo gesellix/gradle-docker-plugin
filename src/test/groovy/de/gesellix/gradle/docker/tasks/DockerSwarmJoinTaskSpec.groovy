@@ -7,12 +7,12 @@ import spock.lang.Specification
 class DockerSwarmJoinTaskSpec extends Specification {
 
     def project
-    def task
+    DockerSwarmJoinTask task
     def dockerClient = Mock(DockerClient)
 
     def setup() {
         project = ProjectBuilder.builder().build()
-        task = project.task('joinSwarm', type: DockerSwarmJoinTask)
+        task = project.task('joinSwarm', type: DockerSwarmJoinTask) as DockerSwarmJoinTask
         task.dockerClient = dockerClient
     }
 

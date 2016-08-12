@@ -17,7 +17,7 @@ class DockerBuildTask extends DockerTask {
 
     @Input
     @Optional
-    def buildContext
+    InputStream buildContext
 
     @InputDirectory
     @Optional
@@ -30,7 +30,7 @@ class DockerBuildTask extends DockerTask {
     def buildParams
 
     def tarOfBuildcontextTask
-    def targetFile
+    File targetFile
 
     def imageId
 
