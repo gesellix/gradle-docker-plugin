@@ -12,7 +12,7 @@ buildscript {
         classpath 'net.saliman:gradle-cobertura-plugin:2.3.2'
         classpath 'org.kt3k.gradle.plugin:coveralls-gradle-plugin:2.6.3'
 
-        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.5'
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.1'
         classpath 'com.gradle.publish:plugin-publish-plugin:0.9.4'
         classpath 'com.github.ben-manes:gradle-versions-plugin:0.13.0'
     }
@@ -91,7 +91,7 @@ configurations {
 
 def versionOverrides = [
         'junit:junit:4.11',
-        'org.codehaus.groovy:groovy-all:2.4.4',
+        'org.codehaus.groovy:groovy-all:2.4.7',
         'xerces:xercesImpl:2.6.2',
         'xerces:xmlParserAPIs:2.6.2',
         'xml-apis:xml-apis:1.0.b2'
@@ -199,6 +199,6 @@ pluginBundle {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '2.14.1'
+    gradleVersion = '3.0'
     distributionUrl = "http://services.gradle.org/distributions/gradle-${gradleVersion}-all.zip"
 }
