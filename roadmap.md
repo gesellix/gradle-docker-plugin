@@ -5,7 +5,7 @@
 Since the Docker remote api tends to be backwards compatible,
 the underlying Docker Client currently supports most other api versions, too.
 
-Current api coverage (39/74): ![Remote API Coverage Status](http://progressed.io/bar/53)
+Current api coverage (40/74): ![Remote API Coverage Status](http://progressed.io/bar/54)
 
 This project tends to support most api endpoints, but only if there's an actual use case. If you're missing a feature, please file
 a [new issue](https://github.com/gesellix/gradle-docker-plugin/issues) or a [pull request](https://github.com/gesellix/gradle-docker-plugin/pulls)
@@ -111,7 +111,7 @@ on the [Java Docker API Client](https://github.com/docker-java/docker-java) avai
 
 ## Tasks
 
-* [ ] `docker service tasks`: List tasks running on a node
+* [ ] `docker node ps`: List tasks running on a node
 * [ ] Get details on a task
 
 ## Plugins (experimental)
