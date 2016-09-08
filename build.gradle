@@ -26,7 +26,6 @@ plugins {
 
 repositories {
     mavenLocal()
-//    maven { url 'http://dl.bintray.com/gesellix/docker-utils' }
     jcenter()
     mavenCentral()
 }
@@ -92,6 +91,7 @@ configurations {
 }
 
 def versionOverrides = [
+        'com.squareup.okio:okio:1.10.0',
         'junit:junit:4.11',
         'org.codehaus.groovy:groovy-all:2.4.7',
         'xerces:xercesImpl:2.6.2',
@@ -103,7 +103,7 @@ dependencies {
     compile gradleApi()
     compile localGroovy()
 
-    compile 'de.gesellix:docker-client:2016-08-18T20-56-37'
+    compile 'de.gesellix:docker-client:2016-09-08T19-13-14'
 
     testCompile 'org.spockframework:spock-core:1.0-groovy-2.4'
     testCompile 'cglib:cglib-nodep:3.2.4'
