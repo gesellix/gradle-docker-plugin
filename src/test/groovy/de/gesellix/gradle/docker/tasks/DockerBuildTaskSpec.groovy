@@ -54,7 +54,8 @@ class DockerBuildTaskSpec extends Specification {
         then:
         project.tasks.findByName("dockerBuild").getDependsOn().contains project.tasks.findByName("buildTaskDependency")
         and:
-        project.tasks.findByName("tarBuildcontextForDockerBuild").getMustRunAfter().values.contains project.tasks.findByName("buildTaskDependency")
+        def tarBuildcontextForDockerBuild = project.tasks.findByName("tarBuildcontextForDockerBuild")
+        tarBuildcontextForDockerBuild.getMustRunAfter().values.contains project.tasks.findByName("buildTaskDependency")
     }
 
     def "tar of buildContextDirectory contains buildContextDirectory"() {
@@ -140,6 +141,49 @@ class DockerBuildTaskSpec extends Specification {
         task.outputs.files.isEmpty()
     }
 
+    def "delegates to dockerClient with buildContext (with logs)"() {
+        def inputStream = new FileInputStream(File.createTempFile("docker", "test"))
+
+        given:
+        task.buildContext = inputStream
+        task.imageName = "imageName"
+        task.enableBuildLog = true
+
+        when:
+        task.execute()
+
+        then:
+        1 * dockerClient.buildWithLogs(inputStream) >> [imageId: "4711", logs: []]
+
+        then:
+        1 * dockerClient.tag("4711", "imageName")
+
+        and:
+        task.outputs.files.isEmpty()
+    }
+
+    def "delegates to dockerClient with buildContext and buildParams (with logs)"() {
+        def inputStream = new FileInputStream(File.createTempFile("docker", "test"))
+
+        given:
+        task.buildContext = inputStream
+        task.buildParams = [rm: true, dockerfile: './custom.Dockerfile']
+        task.imageName = "imageName"
+        task.enableBuildLog = true
+
+        when:
+        task.execute()
+
+        then:
+        1 * dockerClient.buildWithLogs(inputStream, [rm: true, dockerfile: './custom.Dockerfile']) >> [imageId: "4711", logs: []]
+
+        then:
+        1 * dockerClient.tag("4711", "imageName")
+
+        and:
+        task.outputs.files.isEmpty()
+    }
+
     // TODO this should become an integration test
     def "accepts only task configs with at least one of buildContext or buildContextDirectory"() {
         given:
@@ -187,6 +231,7 @@ class DockerBuildTaskSpec extends Specification {
 
     def wrapInClosure(value) {
         new Closure(null) {
+
             @Override
             Object call() {
                 value

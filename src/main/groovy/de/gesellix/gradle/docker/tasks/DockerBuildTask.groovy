@@ -29,6 +29,10 @@ class DockerBuildTask extends DockerTask {
     @Optional
     def buildParams
 
+    @Input
+    @Optional
+    def enableBuildLog = false
+
     def tarOfBuildcontextTask
     File targetFile
 
@@ -97,11 +101,21 @@ class DockerBuildTask extends DockerTask {
         // at this point we need the buildContext
         assert getBuildContext()
 
-        if (getBuildParams()) {
-            imageId = getDockerClient().build(getBuildContext(), getBuildParams())
+        // TODO this one needs some beautification
+        if (getEnableBuildLog()) {
+            if (getBuildParams()) {
+                imageId = getDockerClient().buildWithLogs(getBuildContext(), getBuildParams()).imageId
+            } else {
+                imageId = getDockerClient().buildWithLogs(getBuildContext()).imageId
+            }
         } else {
-            imageId = getDockerClient().build(getBuildContext())
+            if (getBuildParams()) {
+                imageId = getDockerClient().build(getBuildContext(), getBuildParams())
+            } else {
+                imageId = getDockerClient().build(getBuildContext())
+            }
         }
+
         if (getImageName()) {
             logger.info "tag $imageId as '${getImageName()}'..."
             getDockerClient().tag(imageId, getImageName())
