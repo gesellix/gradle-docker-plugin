@@ -1,6 +1,7 @@
 package de.gesellix.gradle.docker
 
 import de.gesellix.docker.client.DockerClientImpl
+import de.gesellix.docker.client.LocalDocker
 import de.gesellix.gradle.docker.tasks.DockerBuildTask
 import de.gesellix.gradle.docker.tasks.DockerContainerTask
 import de.gesellix.gradle.docker.tasks.DockerImagesTask
