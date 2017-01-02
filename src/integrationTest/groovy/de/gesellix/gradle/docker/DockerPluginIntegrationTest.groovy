@@ -79,15 +79,15 @@ class DockerPluginIntegrationTest extends Specification {
     def "test pull"() {
         given:
         def task = project.task('testPull', type: DockerPullTask) {
-            imageName = 'gesellix/docker-client-testimage'
-            tag = 'latest'
+            imageName = 'gesellix/testimage'
+            tag = 'os-linux'
         }
 
         when:
         task.execute()
 
         then:
-        task.imageId == 'sha256:6b552ee013ffc56b05df78b83a7b9717ebb99aa32224cf012c5dbea811b42334'
+        task.imageId == 'sha256:0ce18ad10d281bef97fe2333a9bdcc2dbf84b5302f66d796fed73aac675320db'
     }
 
     @Ignore
@@ -115,8 +115,8 @@ class DockerPluginIntegrationTest extends Specification {
                            "serveraddress": "https://index.docker.io/v1/"]
         def dockerClient = new DockerClientImpl()
         def authConfig = dockerClient.encodeAuthConfig(authDetails)
-        dockerClient.pull("gesellix/docker-client-testimage")
-        dockerClient.tag("gesellix/docker-client-testimage", "gesellix/example")
+        dockerClient.pull("gesellix/testimage", "os-linux")
+        dockerClient.tag("gesellix/testimage:os-linux", "gesellix/example")
 
         def task = project.task('testPush', type: DockerPushTask) {
             repositoryName = 'gesellix/example'
@@ -147,8 +147,8 @@ class DockerPluginIntegrationTest extends Specification {
         given:
         def task = project.task('testRun', type: DockerRunTask) {
             containerConfiguration = ["Cmd": ["true"]]
-            imageName = 'gesellix/docker-client-testimage'
-            tag = 'latest'
+            imageName = 'gesellix/testimage'
+            tag = 'os-linux'
         }
 
         when:
@@ -170,9 +170,9 @@ class DockerPluginIntegrationTest extends Specification {
         given:
         def dockerClient = new DockerClientImpl()
         def runResult = dockerClient.run(
-                'gesellix/docker-client-testimage',
+                'gesellix/testimage',
                 ["Cmd": ["ping", "127.0.0.1"]],
-                'latest')
+                'os-linux')
         def task = project.task('testStop', type: DockerStopTask) {
             containerId = runResult.container.content.Id
         }
@@ -191,7 +191,7 @@ class DockerPluginIntegrationTest extends Specification {
     def "test rm"() {
         given:
         def dockerClient = new DockerClientImpl()
-        def runResult = dockerClient.run('gesellix/docker-client-testimage', ["Cmd": ["true"]], 'latest')
+        def runResult = dockerClient.run('gesellix/testimage', ["Cmd": ["true"]], 'os-linux')
         def runningContainerId = runResult.container.content.Id
         dockerClient.stop(runningContainerId)
         dockerClient.wait(runningContainerId)
@@ -209,9 +209,9 @@ class DockerPluginIntegrationTest extends Specification {
     def "test start"() {
         given:
         def dockerClient = new DockerClientImpl()
-        dockerClient.pull("gesellix/docker-client-testimage", "latest")
+        dockerClient.pull("gesellix/testimage", "os-linux")
         def containerInfo = dockerClient.createContainer([
-                "Image": "gesellix/docker-client-testimage:latest",
+                "Image": "gesellix/testimage:os-linux",
                 "Cmd"  : ["true"]])
         def task = project.task('testStart', type: DockerStartTask) {
             containerId = containerInfo.content.Id
@@ -234,7 +234,7 @@ class DockerPluginIntegrationTest extends Specification {
         def task = project.task('testPs', type: DockerPsTask)
         def uuid = UUID.randomUUID().toString()
         def cmd = "true || $uuid".toString()
-        def containerInfo = new DockerClientImpl().run('gesellix/docker-client-testimage', ["Cmd": [cmd]], 'latest')
+        def containerInfo = new DockerClientImpl().run('gesellix/testimage', ["Cmd": [cmd]], 'os-linux')
 
         when:
         task.execute()
@@ -254,8 +254,8 @@ class DockerPluginIntegrationTest extends Specification {
     def "test images"() {
         given:
         def dockerClient = new DockerClientImpl()
-        dockerClient.pull("gesellix/docker-client-testimage")
-        dockerClient.tag("gesellix/docker-client-testimage", "gesellix/images-list")
+        dockerClient.pull("gesellix/testimage", "os-linux")
+        dockerClient.tag("gesellix/testimage:os-linux", "gesellix/images-list")
         def task = project.task('testImages', type: DockerImagesTask)
 
         when:
@@ -274,8 +274,8 @@ class DockerPluginIntegrationTest extends Specification {
         given:
         def hostDir = "/tmp"
         def dockerClient = new DockerClientImpl()
-        dockerClient.pull("gesellix/docker-client-testimage")
-        dockerClient.tag("gesellix/docker-client-testimage", "gesellix/run-with-data-volumes")
+        dockerClient.pull("gesellix/testimage", "os-linux")
+        dockerClient.tag("gesellix/testimage", "gesellix/run-with-data-volumes")
         dockerClient.createContainer([
                 "Cmd"       : ["-"],
                 "Image"     : "gesellix/run-with-data-volumes",
@@ -367,7 +367,7 @@ class DockerPluginIntegrationTest extends Specification {
                 "Name"        : "my-service",
                 "TaskTemplate": [
                         "ContainerSpec": ["Image": "nginx"],
-                        "RestartPolicy": ["Condition": "on_failure"]
+                        "RestartPolicy": ["Condition": "on-failure"]
                 ],
                 "Mode"        : ["Replicated": ["Replicas": 2]],
                 "Networks"    : [["Target": "my-network"]],
@@ -404,8 +404,8 @@ class DockerPluginIntegrationTest extends Specification {
         def task = project.task('testContainer', type: DockerContainerTask) {
             containerName = "docker-test"
             targetState = "reloaded"
-            image = "gesellix/docker-client-testimage"
-            tag = "latest"
+            image = "gesellix/testimage"
+            tag = "os-linux"
             ports = ["80:8080"]
             env = ["TMP=1"]
             ignoredEnvKeys = ["no_proxy"]
@@ -416,8 +416,8 @@ class DockerPluginIntegrationTest extends Specification {
         def task2 = project.task('testContainer2', type: DockerContainerTask) {
             containerName = "docker-test"
             targetState = "reloaded"
-            image = "gesellix/docker-client-testimage"
-            tag = "latest"
+            image = "gesellix/testimage"
+            tag = "os-linux"
             ports = ["80:8080"]
             env = ["TMP=1"]
             ignoredEnvKeys = ["no_proxy"]
@@ -453,8 +453,8 @@ class DockerPluginIntegrationTest extends Specification {
         def task = project.task('testContainer', type: DockerContainerTask) {
             containerName = "docker-test-health"
             targetState = "reloaded"
-            image = "gesellix/docker-client-testimage"
-            tag = "latest"
+            image = "gesellix/testimage"
+            tag = "os-linux"
             ports = ["$port:8080"]
             cmd = ["nc", "-l", "-p", "8080"]
             healthChecks = [
@@ -487,8 +487,8 @@ class DockerPluginIntegrationTest extends Specification {
         def task = project.task('testContainer', type: DockerContainerTask) {
             containerName = "docker-test-health"
             targetState = "reloaded"
-            image = "gesellix/docker-client-testimage"
-            tag = "latest"
+            image = "gesellix/testimage"
+            tag = "os-linux"
             ports = ["$port:8080"]
             cmd = [
                     "/bin/sh", "-c",
@@ -525,8 +525,8 @@ class DockerPluginIntegrationTest extends Specification {
         def task = project.task('testContainer', type: DockerContainerTask) {
             containerName = "docker-test-health"
             targetState = "reloaded"
-            image = "gesellix/docker-client-testimage"
-            tag = "latest"
+            image = "gesellix/testimage"
+            tag = "os-linux"
             ports = ["$port:8080"]
             cmd = ["ping", "127.0.0.1"]
             healthChecks = [
@@ -562,8 +562,8 @@ class DockerPluginIntegrationTest extends Specification {
         def task = project.task('testContainer', type: DockerContainerTask) {
             containerName = "docker-test-health"
             targetState = "reloaded"
-            image = "gesellix/docker-client-testimage"
-            tag = "latest"
+            image = "gesellix/testimage"
+            tag = "os-linux"
             ports = ["$port:8080"]
             cmd = [
                     "/bin/sh", "-c",
@@ -605,8 +605,8 @@ class DockerPluginIntegrationTest extends Specification {
         def task = project.task('testContainer', type: DockerContainerTask) {
             containerName = "docker-test-health"
             targetState = "reloaded"
-            image = "gesellix/docker-client-testimage"
-            tag = "latest"
+            image = "gesellix/testimage"
+            tag = "os-linux"
             ports = ["$port:8080"]
             cmd = ["echo", "dummy"]
             healthChecks = [
@@ -647,6 +647,6 @@ class DockerPluginIntegrationTest extends Specification {
         task.execute()
 
         then:
-        task.extensions.getByName('version').content.ApiVersion == '1.24'
+        task.extensions.getByName('version').content.ApiVersion == '1.25'
     }
 }
