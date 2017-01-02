@@ -66,7 +66,7 @@ class DockerTask extends DefaultTask {
     /**
      * Sets a proxy other than the one in the {@code docker} project extension.
      *
-     * @param proxy A proxy object as understood by {@link de.gesellix.docker.client.DockerClientImpl}.
+     * @param proxy A proxy object as understood by {@link DockerClientImpl}.
      */
     void setProxy(def proxy) {
         this.proxy = proxy

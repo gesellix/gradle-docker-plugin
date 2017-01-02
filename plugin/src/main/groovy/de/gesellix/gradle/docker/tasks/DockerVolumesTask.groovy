@@ -1,6 +1,5 @@
 package de.gesellix.gradle.docker.tasks
 
-import groovy.json.JsonBuilder
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
 

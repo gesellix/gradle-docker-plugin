@@ -24,129 +24,28 @@ plugins {
     id 'com.gradle.build-scan' version '1.0'
 }
 
-repositories {
-    mavenLocal()
-    jcenter()
-    mavenCentral()
-}
-
-apply plugin: "com.gradle.plugin-publish"
-
-apply plugin: 'groovy'
-
-apply plugin: 'idea'
-
-apply plugin: 'net.saliman.cobertura'
-apply plugin: 'com.github.kt3k.coveralls'
-
-apply plugin: 'maven'
-apply plugin: 'maven-publish'
-apply plugin: 'com.jfrog.bintray'
-
-apply plugin: 'com.github.ben-manes.versions'
-
-group = 'de.gesellix'
-
-task sourcesJar(type: Jar) {
-    dependsOn classes
-    classifier 'sources'
-    from sourceSets.main.allSource
-}
-
-idea {
-    module {
-        testSourceDirs += file('src/integrationTest/groovy')
-        testSourceDirs += file('src/integrationTest/resources')
+subprojects {
+    ext {
+        artifactVersion = new SimpleDateFormat('yyyy-MM-dd\'T\'HH-mm-ss').format(new Date())
+        bintrayDryRun = false
     }
-}
 
-sourceSets {
-    integrationTest {
-        compileClasspath += main.output + test.output
-        runtimeClasspath += main.output + test.output
-        groovy {
-            srcDir 'src/integrationTest/groovy'
-        }
-        resources {
-            srcDir 'src/integrationTest/resources'
-        }
-    }
-}
+    apply plugin: 'groovy'
+    apply plugin: 'com.github.ben-manes.versions'
 
-cobertura {
-    coverageSourceDirs = sourceSets.main.groovy.srcDirs
-    // TODO should be removed when this issue has been resolved:
-    // https://github.com/stevesaliman/gradle-cobertura-plugin/issues/81
-    coberturaVersion = '2.0.3'
-}
+    def dependencyVersions = [
+            'com.squareup.okio:okio:1.10.0',
+            'junit:junit:4.11',
+            'org.codehaus.groovy:groovy-all:2.4.7',
+            'xerces:xercesImpl:2.6.2',
+            'xerces:xmlParserAPIs:2.6.2',
+            'xml-apis:xml-apis:1.0.b2'
+    ]
 
-ext {
-    artifactVersion = new SimpleDateFormat('yyyy-MM-dd\'T\'HH-mm-ss').format(new Date())
-    bintrayDryRun = false
-}
-
-configurations {
-    integrationTestCompile.extendsFrom testCompile
-    integrationTestRuntime.extendsFrom testRuntime
-}
-
-def versionOverrides = [
-        'com.squareup.okio:okio:1.10.0',
-        'junit:junit:4.11',
-        'org.codehaus.groovy:groovy-all:2.4.7',
-        'xerces:xercesImpl:2.6.2',
-        'xerces:xmlParserAPIs:2.6.2',
-        'xml-apis:xml-apis:1.0.b2'
-]
-
-dependencies {
-    compile gradleApi()
-    compile localGroovy()
-
-    compile 'de.gesellix:docker-client:2017-01-02T17-52-31'
-
-    testCompile 'org.spockframework:spock-core:1.0-groovy-2.4'
-    testCompile 'cglib:cglib-nodep:3.2.4'
-
-    // see https://docs.gradle.org/current/userguide/test_kit.html
-//  testCompile gradleTestKit()
-}
-
-configurations.all {
-    resolutionStrategy {
-        failOnVersionConflict()
-        force versionOverrides
-    }
-}
-
-task integrationTest(type: Test) {
-    group = 'verification'
-    description = 'Runs the integration tests.'
-    testClassesDir = sourceSets.integrationTest.output.classesDir
-    classpath = sourceSets.integrationTest.runtimeClasspath
-}
-integrationTest.mustRunAfter test
-check.dependsOn integrationTest
-
-task aggregateTestReports(type: TestReport) {
-    destinationDir = test.reports.html.destination
-    reportOn test, integrationTest
-}
-aggregateTestReports.mustRunAfter integrationTest
-check.dependsOn aggregateTestReports
-
-cobertura.coverageFormats = ['html', 'xml']
-
-artifacts {
-    archives sourcesJar
-}
-
-publishing {
-    publications {
-        gradleDockerPlugin(MavenPublication) {
-            version artifactVersion
-            from components.java
-            artifact sourcesJar
+    configurations.all {
+        resolutionStrategy {
+            failOnVersionConflict()
+            force dependencyVersions
         }
     }
 }
@@ -154,50 +53,6 @@ publishing {
 buildScan {
     licenseAgreementUrl = 'https://gradle.com/terms-of-service'
     licenseAgree = 'yes'
-}
-
-bintray {
-    user = System.env.BINTRAY_USER ?: project["bintray.user"]
-    key = System.env.BINTRAY_API_KEY ?: project["bintray.key"]
-    publications = ['gradleDockerPlugin']
-    pkg {
-        repo = 'docker-utils'
-        name = 'gradle-docker-plugin'
-        desc = 'A Docker plugin for Gradle'
-        licenses = ['Apache-2.0']
-        labels = ['docker', 'gradle', 'remote api', 'plugin']
-        websiteUrl = 'https://github.com/gesellix/gradle-docker-plugin'
-        issueTrackerUrl = 'https://github.com/gesellix/gradle-docker-plugin/issues'
-        vcsUrl = 'https://github.com/gesellix/gradle-docker-plugin.git'
-        attributes = ['gradle-plugin': 'de.gesellix.docker:de.gesellix:gradle-docker-plugin']
-        version = [
-                name      : artifactVersion,
-                attributes: ['gradle-plugin': 'de.gesellix.docker:de.gesellix:gradle-docker-plugin']
-        ]
-    }
-    dryRun = bintrayDryRun
-}
-bintrayUpload.dependsOn build
-
-pluginBundle {
-    website = 'https://github.com/gesellix/gradle-docker-plugin'
-    vcsUrl = 'https://github.com/gesellix/gradle-docker-plugin.git'
-    description = 'A Docker plugin for Gradle'
-    tags = ['docker', 'gradle', 'remote api', 'plugin']
-
-    plugins {
-        gradleDockerPlugin {
-            id = 'de.gesellix.docker'
-            displayName = 'Gradle Docker plugin'
-            version artifactVersion
-        }
-    }
-
-    mavenCoordinates {
-        groupId = "de.gesellix"
-        artifactId = "gradle-docker-plugin"
-        version = artifactVersion
-    }
 }
 
 task wrapper(type: Wrapper) {

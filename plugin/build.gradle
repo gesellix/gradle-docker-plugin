@@ -1,0 +1,123 @@
+import java.text.SimpleDateFormat
+
+buildscript {
+    repositories {
+        mavenLocal()
+        jcenter()
+        maven { url "https://plugins.gradle.org/m2/" }
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath 'net.saliman:gradle-cobertura-plugin:2.4.0'
+        classpath 'org.kt3k.gradle.plugin:coveralls-gradle-plugin:2.7.1'
+
+        // breaks `./gradlew pubPlug`?
+//        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.5'
+        classpath 'com.gradle.publish:plugin-publish-plugin:0.9.4'
+    }
+}
+
+repositories {
+    mavenLocal()
+    jcenter()
+    mavenCentral()
+}
+
+apply plugin: "com.gradle.plugin-publish"
+
+apply plugin: 'net.saliman.cobertura'
+apply plugin: 'com.github.kt3k.coveralls'
+
+apply plugin: 'maven'
+apply plugin: 'maven-publish'
+apply plugin: 'com.jfrog.bintray'
+
+group = 'de.gesellix'
+
+cobertura {
+    coverageSourceDirs = sourceSets.main.groovy.srcDirs
+    // TODO should be removed when this issue has been resolved:
+    // https://github.com/stevesaliman/gradle-cobertura-plugin/issues/81
+    coberturaVersion = '2.0.3'
+}
+
+dependencies {
+    compile gradleApi()
+    compile localGroovy()
+
+    compile 'de.gesellix:docker-client:2017-01-02T17-52-31'
+
+    testCompile 'org.spockframework:spock-core:1.0-groovy-2.4'
+    testCompile 'cglib:cglib-nodep:3.2.4'
+
+    // see https://docs.gradle.org/current/userguide/test_kit.html
+//  testCompile gradleTestKit()
+}
+
+cobertura.coverageFormats = ['html', 'xml']
+
+task sourcesJar(type: Jar) {
+    dependsOn classes
+    classifier 'sources'
+    from sourceSets.main.allSource
+}
+
+artifacts {
+    archives sourcesJar
+}
+
+publishing {
+    publications {
+        gradleDockerPlugin(MavenPublication) {
+            version artifactVersion
+            from components.java
+            artifact sourcesJar
+        }
+    }
+}
+
+bintray {
+    user = System.env.BINTRAY_USER ?: project["bintray.user"]
+    key = System.env.BINTRAY_API_KEY ?: project["bintray.key"]
+    publications = ['gradleDockerPlugin']
+    pkg {
+        repo = 'docker-utils'
+        name = 'gradle-docker-plugin'
+        desc = 'A Docker plugin for Gradle'
+        licenses = ['Apache-2.0']
+        labels = ['docker', 'gradle', 'remote api', 'plugin']
+        websiteUrl = 'https://github.com/gesellix/gradle-docker-plugin'
+        issueTrackerUrl = 'https://github.com/gesellix/gradle-docker-plugin/issues'
+        vcsUrl = 'https://github.com/gesellix/gradle-docker-plugin.git'
+        attributes = ['gradle-plugin': 'de.gesellix.docker:de.gesellix:gradle-docker-plugin']
+        version = [
+                name      : artifactVersion,
+                attributes: ['gradle-plugin': 'de.gesellix.docker:de.gesellix:gradle-docker-plugin']
+        ]
+    }
+    dryRun = bintrayDryRun
+}
+bintrayUpload.dependsOn build
+
+pluginBundle {
+    website = 'https://github.com/gesellix/gradle-docker-plugin'
+    vcsUrl = 'https://github.com/gesellix/gradle-docker-plugin.git'
+    description = 'A Docker plugin for Gradle'
+    tags = ['docker', 'gradle', 'remote api', 'plugin']
+
+    plugins {
+        gradleDockerPlugin {
+            id = 'de.gesellix.docker'
+            displayName = 'Gradle Docker plugin'
+            version artifactVersion
+        }
+    }
+
+    mavenCoordinates {
+        groupId = "de.gesellix"
+        artifactId = "gradle-docker-plugin"
+        version = artifactVersion
+    }
+}
