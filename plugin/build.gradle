@@ -71,6 +71,7 @@ artifacts {
 publishing {
     publications {
         gradleDockerPlugin(MavenPublication) {
+            artifactId "gradle-docker-plugin"
             version artifactVersion
             from components.java
             artifact sourcesJar
