@@ -9,11 +9,11 @@ buildscript {
     }
 
     dependencies {
-        classpath 'net.saliman:gradle-cobertura-plugin:2.3.2'
-        classpath 'org.kt3k.gradle.plugin:coveralls-gradle-plugin:2.6.3'
+        classpath 'net.saliman:gradle-cobertura-plugin:2.4.0'
+        classpath 'org.kt3k.gradle.plugin:coveralls-gradle-plugin:2.7.1'
 
-        // breaks `./gradlew pubPlug`
-//        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.1'
+        // breaks `./gradlew pubPlug`?
+//        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'
         classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.5'
         classpath 'com.gradle.publish:plugin-publish-plugin:0.9.4'
         classpath 'com.github.ben-manes:gradle-versions-plugin:0.13.0'
@@ -103,7 +103,7 @@ dependencies {
     compile gradleApi()
     compile localGroovy()
 
-    compile 'de.gesellix:docker-client:2016-10-07T18-47-59'
+    compile 'de.gesellix:docker-client:2017-01-02T00-24-19'
 
     testCompile 'org.spockframework:spock-core:1.0-groovy-2.4'
     testCompile 'cglib:cglib-nodep:3.2.4'
@@ -201,6 +201,6 @@ pluginBundle {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '3.1'
-    distributionUrl = "http://services.gradle.org/distributions/gradle-${gradleVersion}-all.zip"
+    gradleVersion = '3.2.1'
+    distributionType = Wrapper.DistributionType.ALL
 }
