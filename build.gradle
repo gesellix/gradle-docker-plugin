@@ -34,8 +34,6 @@ subprojects {
     apply plugin: 'com.github.ben-manes.versions'
 
     def dependencyVersions = [
-            'com.squareup.okio:okio:1.10.0',
-            'junit:junit:4.11',
             'org.codehaus.groovy:groovy-all:2.4.7',
             'xerces:xercesImpl:2.6.2',
             'xerces:xmlParserAPIs:2.6.2',
