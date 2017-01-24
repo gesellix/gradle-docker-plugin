@@ -32,13 +32,14 @@ class DockerCommitTask extends DockerTask {
 
     @TaskAction
     def commit() {
-        logger.info "docker commit"
+        logger.info "docker commit changes to container"
         return getDockerClient().commit(getContainerId(),[
                                           repo   : getRepo(),
                                           tag    : getTag(),
                                           comment: getComment(),
                                           author : getAuthor(),
-                                          changes: getChanges()
-                                  ])
+                                          changes: getChanges(),
+                                          pause  : "true"
+                                      ])
     }
 }
