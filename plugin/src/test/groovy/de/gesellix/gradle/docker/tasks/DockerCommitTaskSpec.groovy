@@ -1,9 +1,6 @@
 package de.gesellix.gradle.docker.tasks
 
 import de.gesellix.docker.client.DockerClient
-
-import java.net.URLPermission.Authority
-
 import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.Specification
 
