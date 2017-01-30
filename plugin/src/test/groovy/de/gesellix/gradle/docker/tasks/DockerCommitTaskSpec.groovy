@@ -22,7 +22,7 @@ class DockerCommitTaskSpec extends Specification {
     @Unroll
     def "delegates to dockerClient with registry=#registry"() {
         given:
-        def repo = "localhost:5000"
+        def repo = "your.local.repo"
         def tag = "container-changed:1.0"
         task.imageName = "hello-world"
         task.tag = "latest"
@@ -37,6 +37,15 @@ class DockerCommitTaskSpec extends Specification {
                 "hello-world",
                 [],
                 "latest", "container-to-be-changed")
+		
+		1 * dockerClient.commit(
+				"container-to-be-changed", [
+				repo   : getRepo(),
+				tag    : getTag(),
+				comment: 'a test',
+				author : 'Tue Dissing <tue@somersault.dk>'
+		]
+			)
 
     }
 }
