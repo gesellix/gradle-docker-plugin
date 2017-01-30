@@ -1,51 +1,45 @@
 package de.gesellix.gradle.docker.tasks
 
 import de.gesellix.docker.client.DockerClient
+
+import java.net.URLPermission.Authority
+
 import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.Specification
-import spock.lang.Unroll
 
 class DockerCommitTaskSpec extends Specification {
 
     def project
     def task
-    def container
     def dockerClient = Mock(DockerClient)
 
     def setup() {
         project = ProjectBuilder.builder().build()
-        //task = project.task('dockerCommit', type: DockerCommitTask)
-        task = project.task('dockerRun', type: DockerRunTask)
+        task = project.task('dockerCommit', type: DockerCommitTask)
         task.dockerClient = dockerClient
     }
 
-    @Unroll
-    def "delegates to dockerClient with registry=#registry"() {
+    def "delegates to dockerClient"() {
         given:
-        def repo = "your.local.repo"
-        def tag = "container-changed:1.0"
-        task.imageName = "hello-world"
-        task.tag = "latest"
-        task.containerName = "container-to-be-changed"
-        
+		task.repo = "your.local.repo" 
+		task.tag = "container-changed:1.0"
+		task.containerId = "a-container"
+		task.author = "Tue Dissing <tue@somersault.dk>"
+		task.comment = "a test"
+		task.changes "change description"
+		task.pauseContainer = "true"
 
         when:
         task.execute()
 
         then:
-        1 * dockerClient.run(
-                "hello-world",
-                [],
-                "latest", "container-to-be-changed")
-		
-		1 * dockerClient.commit(
-				"container-to-be-changed", [
-				repo   : getRepo(),
-				tag    : getTag(),
-				comment: 'a test',
-				author : 'Tue Dissing <tue@somersault.dk>'
-		]
-			)
-
+        1 * dockerClient.commit("a-container", [
+								repo   : 'your.local.repo',
+								tag    : 'container-changed:1.0',
+							    comment: 'a test',
+								author : 'Tue Dissing <tue@somersault.dk>',
+								changes: "change description",
+								pause  : "true"
+							])
     }
 }

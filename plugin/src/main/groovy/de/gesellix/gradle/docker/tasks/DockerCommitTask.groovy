@@ -39,7 +39,7 @@ class DockerCommitTask extends DockerTask {
                                           comment: getComment(),
                                           author : getAuthor(),
                                           changes: getChanges(),
-                                          pause  : "true"
+                                          pause  : getPauseContainer()
                                       ])
     }
 }
