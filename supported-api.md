@@ -5,7 +5,7 @@
 Since the Docker engine api tends to be backwards compatible,
 the underlying Docker Client currently supports most other api versions, too.
 
-Current api coverage (39/114): ![Remote API Coverage Status](http://progressed.io/bar/34)
+Current api coverage (40/114): ![Remote API Coverage Status](http://progressed.io/bar/35)
 
 This project tends to support most api endpoints, but only if there's an actual use case. If you're missing a feature, please file
 a [new issue](https://github.com/gesellix/gradle-docker-plugin/issues) or a [pull request](https://github.com/gesellix/gradle-docker-plugin/pulls)
@@ -21,12 +21,12 @@ on the [Java Docker API Client](https://github.com/docker-java/docker-java) avai
 * [ ] `docker checkpoints ls`: List checkpoints for a container
 * [ ] `docker checkpoints rm`: Remove a checkpoint
 
-## Container - Manage containers (17/32)
+## Container - Manage containers (18/32)
 
 * [ ] `docker container attach <container>`: Attach to a running container (supports interactive tty)
 * [ ] Attach to a running container (websocket)
 * [ ] Resize a container TTY
-* [ ] `docker container commit <container>`: Create a new image from a container's changes
+* [x] `docker container commit <container>`: Create a new image from a container's changes
 * [x] `docker container cp <container>:<path> <hostpath>`: Get an archive of a filesystem resource in a container
 * [x] `docker container cp <hostpath> <container>:<path>`: Extract an archive of files or folders to a directory in a container
 * [ ] Retrieve information about files and folders in a container
