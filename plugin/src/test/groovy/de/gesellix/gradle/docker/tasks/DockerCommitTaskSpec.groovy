@@ -18,25 +18,25 @@ class DockerCommitTaskSpec extends Specification {
 
     def "delegates to dockerClient"() {
         given:
-		task.repo = "your.local.repo" 
-		task.tag = "container-changed:1.0"
-		task.containerId = "a-container"
-		task.author = "Tue Dissing <tue@somersault.dk>"
-		task.comment = "a test"
-		task.changes "change description"
-		task.pauseContainer = "true"
+        task.repo = "your.local.repo"
+        task.tag = "container-changed:1.0"
+        task.containerId = "a-container"
+        task.author = "Tue Dissing <tue@somersault.dk>"
+        task.comment = "a test"
+        task.changes "change description"
+        task.pauseContainer = "true"
 
         when:
         task.execute()
 
         then:
         1 * dockerClient.commit("a-container", [
-								repo   : 'your.local.repo',
-								tag    : 'container-changed:1.0',
-							    comment: 'a test',
-								author : 'Tue Dissing <tue@somersault.dk>',
-								changes: "change description",
-								pause  : "true"
-							])
+                repo   : 'your.local.repo',
+                tag    : 'container-changed:1.0',
+                comment: 'a test',
+                author : 'Tue Dissing <tue@somersault.dk>',
+                changes: "change description",
+                pause  : "true"
+        ])
     }
 }
