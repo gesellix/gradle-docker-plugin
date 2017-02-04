@@ -51,9 +51,6 @@ dependencies {
 
     testCompile 'org.spockframework:spock-core:1.0-groovy-2.4'
     testCompile 'cglib:cglib-nodep:3.2.4'
-
-    // see https://docs.gradle.org/current/userguide/test_kit.html
-//  testCompile gradleTestKit()
 }
 
 cobertura.coverageFormats = ['html', 'xml']
