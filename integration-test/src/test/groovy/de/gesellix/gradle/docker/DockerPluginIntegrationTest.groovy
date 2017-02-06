@@ -91,7 +91,7 @@ class DockerPluginIntegrationTest extends Specification {
     }
 
     @Ignore
-    def "test pull with auth"() {
+    "test pull with auth"() {
         given:
         def dockerClient = new DockerClientImpl()
         def task = project.task('testPull', type: DockerPullTask) {
@@ -445,9 +445,9 @@ class DockerPluginIntegrationTest extends Specification {
 
     def "test container tcp health check"() {
         given:
-        ServerSocket ss = new ServerSocket(0);
-        int port = ss.getLocalPort();
-        ss.close();
+        ServerSocket ss = new ServerSocket(0)
+        int port = ss.getLocalPort()
+        ss.close()
 
         def dockerClient = new DockerClientImpl()
         def task = project.task('testContainer', type: DockerContainerTask) {
