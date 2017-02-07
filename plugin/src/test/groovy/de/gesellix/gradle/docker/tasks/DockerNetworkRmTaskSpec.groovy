@@ -2,6 +2,7 @@ package de.gesellix.gradle.docker.tasks
 
 import de.gesellix.docker.client.DockerClient
 import org.gradle.testfixtures.ProjectBuilder
+import spock.lang.FailsWith
 import spock.lang.Specification
 
 class DockerNetworkRmTaskSpec extends Specification {
@@ -28,5 +29,35 @@ class DockerNetworkRmTaskSpec extends Specification {
 
         and:
         task.response == [content: "result"]
+    }
+
+    @FailsWith(RuntimeException)
+    def "fails on error"() {
+        given:
+        task.networkName = "a-network"
+
+        when:
+        task.execute()
+
+        then:
+        1 * dockerClient.rmNetwork("a-network") >> { throw new RuntimeException("expected error") }
+
+        and:
+        task.response == null
+    }
+
+    def "can ignore errors"() {
+        given:
+        task.networkName = "a-network"
+        task.ignoreError = true
+
+        when:
+        task.execute()
+
+        then:
+        1 * dockerClient.rmNetwork("a-network") >> { throw new RuntimeException("expected error") }
+
+        and:
+        task.response == null
     }
 }
