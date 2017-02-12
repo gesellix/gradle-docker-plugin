@@ -28,7 +28,11 @@ class DockerNetworkRmTask extends DockerTask {
             if (!ignoreError) {
                 throw new RuntimeException(e)
             } else {
-                logger.warn("docker network rm ${networkName} failed", e)
+                if (logger.isInfoEnabled()) {
+                    logger.warn("docker network rm ${networkName} failed", e)
+                } else {
+                    logger.warn("docker network rm ${networkName} failed")
+                }
                 response = null
             }
         }
