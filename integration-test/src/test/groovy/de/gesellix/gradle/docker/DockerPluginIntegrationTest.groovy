@@ -647,6 +647,6 @@ class DockerPluginIntegrationTest extends Specification {
         task.execute()
 
         then:
-        task.extensions.getByName('version').content.ApiVersion == '1.25'
+        task.extensions.getByName('version').content.ApiVersion == '1.26'
     }
 }
