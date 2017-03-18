@@ -33,8 +33,14 @@ subprojects {
     apply plugin: 'groovy'
     apply plugin: 'com.github.ben-manes.versions'
 
+    sourceCompatibility = JavaVersion.VERSION_1_7
+    targetCompatibility = JavaVersion.VERSION_1_7
+
     def dependencyVersions = [
+            'org.codehaus.groovy:groovy:2.4.7',
+            'org.codehaus.groovy:groovy-json:2.4.7',
             'org.codehaus.groovy:groovy-all:2.4.7',
+            'org.slf4j:slf4j-api:1.7.25',
             'xerces:xercesImpl:2.6.2',
             'xerces:xmlParserAPIs:2.6.2',
             'xml-apis:xml-apis:1.0.b2'
@@ -54,6 +60,6 @@ buildScan {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '3.4'
+    gradleVersion = '3.4.1'
     distributionType = Wrapper.DistributionType.ALL
 }
