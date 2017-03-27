@@ -24,6 +24,18 @@ class DockerRmTaskSpec extends Specification {
         task.execute()
 
         then:
-        1 * dockerClient.rm("4712")
+        1 * dockerClient.rm("4712", [v: 0])
+    }
+
+    def "allows to removeVolumes"() {
+        given:
+        task.containerId = "4712"
+        task.removeVolumes = true
+
+        when:
+        task.execute()
+
+        then:
+        1 * dockerClient.rm("4712", [v: 1])
     }
 }
