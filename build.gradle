@@ -9,13 +9,6 @@ buildscript {
     }
 
     dependencies {
-        classpath 'net.saliman:gradle-cobertura-plugin:2.4.0'
-        classpath 'org.kt3k.gradle.plugin:coveralls-gradle-plugin:2.7.1'
-
-        // breaks `./gradlew pubPlug`?
-//        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'
-        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.5'
-        classpath 'com.gradle.publish:plugin-publish-plugin:0.9.4'
         classpath 'com.github.ben-manes:gradle-versions-plugin:0.13.0'
     }
 }
@@ -37,7 +30,7 @@ subprojects {
     targetCompatibility = JavaVersion.VERSION_1_7
 
     def dependencyVersions = [
-            'org.codehaus.groovy:groovy:2.4.10',
+            'com.squareup.okio:okio:1.12.0',
             'org.codehaus.groovy:groovy-json:2.4.10',
             'org.codehaus.groovy:groovy-all:2.4.10',
             'org.slf4j:slf4j-api:1.7.25',
@@ -60,6 +53,6 @@ buildScan {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '3.5-rc-2'
+    gradleVersion = '3.5'
     distributionType = Wrapper.DistributionType.ALL
 }

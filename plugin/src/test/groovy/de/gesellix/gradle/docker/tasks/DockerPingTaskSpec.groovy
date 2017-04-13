@@ -1,6 +1,7 @@
 package de.gesellix.gradle.docker.tasks
 
 import de.gesellix.docker.client.DockerClient
+import de.gesellix.docker.client.DockerResponse
 import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.Specification
 
@@ -17,13 +18,16 @@ class DockerPingTaskSpec extends Specification {
     }
 
     def "delegates to dockerClient and saves result"() {
+        given:
+        def response = new DockerResponse()
+
         when:
         task.execute()
 
         then:
-        1 * dockerClient.ping() >> ["some result"]
+        1 * dockerClient.ping() >> response
 
         and:
-        task.result == ["some result"]
+        task.result == response
     }
 }

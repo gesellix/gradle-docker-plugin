@@ -1,6 +1,7 @@
 package de.gesellix.gradle.docker.tasks
 
 import de.gesellix.docker.client.DockerClient
+import de.gesellix.docker.client.DockerResponse
 import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.Specification
 
@@ -18,6 +19,7 @@ class DockerServiceCreateTaskSpec extends Specification {
 
     def "delegates to dockerClient and saves result"() {
         given:
+        def response = new DockerResponse()
         task.serviceConfig = [
                 "Name"        : "a-service",
                 "TaskTemplate": ["ContainerSpec": ["Image": "nginx"]]
@@ -30,9 +32,9 @@ class DockerServiceCreateTaskSpec extends Specification {
         1 * dockerClient.createService([
                 "Name"        : "a-service",
                 "TaskTemplate": ["ContainerSpec": ["Image": "nginx"]]
-        ]) >> [content: "service-result"]
+        ]) >> response
 
         and:
-        task.response == [content: "service-result"]
+        task.response == response
     }
 }
