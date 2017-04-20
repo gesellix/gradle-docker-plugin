@@ -1,5 +1,7 @@
 # Gradle-Docker-Plugin
 
+[![Join the chat at https://gitter.im/gesellix/gradle-docker-plugin](https://badges.gitter.im/gesellix/gradle-docker-plugin.svg)](https://gitter.im/gesellix/gradle-docker-plugin?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 [![Build Status](https://travis-ci.org/gesellix/gradle-docker-plugin.svg)](https://travis-ci.org/gesellix/gradle-docker-plugin)
 [![Latest version](https://api.bintray.com/packages/gesellix/docker-utils/gradle-docker-plugin/images/download.svg) ](https://bintray.com/gesellix/docker-utils/gradle-docker-plugin/_latestVersion)
 [![Join the chat at https://gitter.im/gesellix/gradle-docker-plugin](https://badges.gitter.im/gesellix/gradle-docker-plugin.svg)](https://gitter.im/gesellix/gradle-docker-plugin)
