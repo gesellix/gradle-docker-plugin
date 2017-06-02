@@ -31,6 +31,7 @@ subprojects {
 
     def dependencyVersions = [
             'com.squareup.okio:okio:1.13.0',
+            'org.bouncycastle:bcpkix-jdk15on:1.57',
             'org.codehaus.groovy:groovy-json:2.4.10',
             'org.codehaus.groovy:groovy-all:2.4.10',
             'org.slf4j:slf4j-api:1.7.25',
