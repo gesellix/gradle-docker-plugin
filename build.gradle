@@ -26,14 +26,16 @@ subprojects {
     apply plugin: 'groovy'
     apply plugin: 'com.github.ben-manes.versions'
 
-    sourceCompatibility = JavaVersion.VERSION_1_7
-    targetCompatibility = JavaVersion.VERSION_1_7
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
 
     def dependencyVersions = [
             'com.squareup.okio:okio:1.13.0',
             'org.bouncycastle:bcpkix-jdk15on:1.57',
-            'org.codehaus.groovy:groovy-json:2.4.10',
-            'org.codehaus.groovy:groovy-all:2.4.10',
+            'org.codehaus.groovy:groovy:2.4.11',
+            'org.codehaus.groovy:groovy-json:2.4.11',
+            'org.codehaus.groovy:groovy-all:2.4.11',
+            'org.jetbrains.kotlin:kotlin-stdlib:1.1.2',
             'org.slf4j:slf4j-api:1.7.25',
             'xerces:xercesImpl:2.6.2',
             'xerces:xmlParserAPIs:2.6.2',
@@ -54,6 +56,6 @@ buildScan {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '3.5'
+    gradleVersion = '4.0-rc-3'
     distributionType = Wrapper.DistributionType.ALL
 }
