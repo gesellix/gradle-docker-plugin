@@ -1,6 +1,6 @@
 sudo: false
 language: java
-jdk: openjdk7
+jdk: oraclejdk8
 env:
   global:
     - TERM=dumb
