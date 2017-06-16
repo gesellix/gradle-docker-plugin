@@ -7,8 +7,8 @@ buildscript {
     }
 
     dependencies {
-        classpath 'net.saliman:gradle-cobertura-plugin:2.4.0'
-        classpath 'org.kt3k.gradle.plugin:coveralls-gradle-plugin:2.8.1'
+//        classpath 'net.saliman:gradle-cobertura-plugin:2.4.0'
+//        classpath 'org.kt3k.gradle.plugin:coveralls-gradle-plugin:2.8.1'
 
         classpath 'com.gradle.publish:plugin-publish-plugin:0.9.4'
         classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'
@@ -21,8 +21,8 @@ repositories {
     mavenCentral()
 }
 
-apply plugin: 'net.saliman.cobertura'
-apply plugin: 'com.github.kt3k.coveralls'
+//apply plugin: 'net.saliman.cobertura'
+//apply plugin: 'com.github.kt3k.coveralls'
 
 apply plugin: "com.gradle.plugin-publish"
 apply plugin: 'maven-publish'
@@ -30,12 +30,12 @@ apply plugin: 'com.jfrog.bintray'
 
 group = 'de.gesellix'
 
-cobertura {
-    coverageSourceDirs = sourceSets.main.groovy.srcDirs
-    // TODO should be removed when this issue has been resolved:
-    // https://github.com/stevesaliman/gradle-cobertura-plugin/issues/81
-    coberturaVersion = '2.0.3'
-}
+//cobertura {
+//    coverageSourceDirs = sourceSets.main.groovy.srcDirs
+//    // TODO should be removed when this issue has been resolved:
+//    // https://github.com/stevesaliman/gradle-cobertura-plugin/issues/81
+//    coberturaVersion = '2.0.3'
+//}
 
 dependencies {
     compile gradleApi()
@@ -47,7 +47,7 @@ dependencies {
     testCompile 'cglib:cglib-nodep:3.2.5'
 }
 
-cobertura.coverageFormats = ['html', 'xml']
+//cobertura.coverageFormats = ['html', 'xml']
 
 task sourcesJar(type: Jar) {
     dependsOn classes

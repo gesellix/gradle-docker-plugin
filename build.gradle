@@ -14,7 +14,7 @@ buildscript {
 }
 
 plugins {
-    id 'com.gradle.build-scan' version '1.0'
+    id 'com.gradle.build-scan' version '1.8'
 }
 
 subprojects {
@@ -56,6 +56,6 @@ buildScan {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '4.0-rc-3'
+    gradleVersion = '4.0'
     distributionType = Wrapper.DistributionType.ALL
 }
