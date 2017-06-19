@@ -55,8 +55,20 @@ class DockerRunTask extends DockerTask {
             throw new UnsupportedOperationException("please use `containerConfiguration.HostConfig`!")
         }
         def containerConfig = getActualContainerConfig()
-        result = getDockerClient().run(getImageName(), containerConfig, getTag(), getContainerName())
+        result = getDockerClient().run(
+                getAsString(getImageName()),
+                containerConfig,
+                getAsString(getTag()),
+                getAsString(getContainerName()))
         return result
+    }
+
+    def getAsString(def closureOrString) {
+        if (closureOrString instanceof Closure) {
+            return (closureOrString as Closure)()
+        } else {
+            return closureOrString?.toString()
+        }
     }
 
     def getActualContainerConfig() {
