@@ -7,6 +7,7 @@ env:
     - secure: LAWB0oiiXluz6bmM/sXoyCUScBxD4y2dVZ5wcjOevlY3n45qRvRa/9Z4XpYYlQTR7dvXZfYc0BUMsG0IdK/LI4aDNSVDUGJ+CNaNa+5w7cwNu1cVLJ0mj1SaG0m1cLuBcGkQ66ryW0rjWfuXqWdmdI2kYoTVia5uURqta0cmkx8=
     - secure: MKxLzR60sUdwD9kTDv/t5G2VQfrN5UqphcfFlUzXuUXk6LTIjyjF7DeCVtkVl8+TpUZceJbFg1xdToFc/TrevJjtUV96bVtjyYt2cs7TF9jCdOQbfr2FJcZqFENkIinMPDLeZRBV/MK+1YWc6GIy1h+x/vKTgbqq2pzTkzc7oF0=
 script:
-  - ./gradlew clean build cobertura coveralls --stacktrace --info -Dscan
+  - ./gradlew clean build --stacktrace --info -Dscan
+#  - ./gradlew clean build cobertura coveralls --stacktrace --info -Dscan
 after_success:
   - ./gradlew bintrayUpload --info
