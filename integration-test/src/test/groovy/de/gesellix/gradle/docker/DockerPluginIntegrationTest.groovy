@@ -348,10 +348,16 @@ class DockerPluginIntegrationTest extends Specification {
                         ]
                 ]
         ]
-        def initSwarm = project.task('initSwarm', type: DockerSwarmInitTask) {
-            config = swarmConfig
+
+        def swarmCreated = false
+        def dockerInfo = dockerClient.info().content
+        if (dockerInfo.Swarm.LocalNodeState != "active") {
+            def initSwarm = project.task('initSwarm', type: DockerSwarmInitTask) {
+                config = swarmConfig
+            }
+            initSwarm.execute()
+            swarmCreated = true
         }
-        initSwarm.execute()
 
         def createNetwork = project.task('createNetwork', type: DockerNetworkCreateTask) {
             networkName = "my-network"
@@ -395,7 +401,9 @@ class DockerPluginIntegrationTest extends Specification {
         cleanup:
         dockerClient.rmService("my-service")
         dockerClient.rmNetwork("my-network")
-        dockerClient.leaveSwarm([force: true])
+        if (swarmCreated) {
+            dockerClient.leaveSwarm([force: true])
+        }
     }
 
     def "test container reloaded"() {
@@ -632,6 +640,7 @@ class DockerPluginIntegrationTest extends Specification {
 
     def "test certPath"() {
         given:
+        def dockerClient = new DockerClientImpl()
         def task = project.task('testTask', type: DockerTask) {
             certPath = "${System.getProperty('user.home')}/.docker/machine/machines/default"
         }
@@ -647,6 +656,6 @@ class DockerPluginIntegrationTest extends Specification {
         task.execute()
 
         then:
-        task.extensions.getByName('version').content.ApiVersion == '1.29'
+        task.extensions.getByName('version').content.ApiVersion == dockerClient.version().content.ApiVersion
     }
 }
