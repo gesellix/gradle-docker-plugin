@@ -10,6 +10,8 @@ buildscript {
 repositories {
     mavenLocal()
     jcenter()
+    // docker-engine
+    maven { url "http://dl.bintray.com/gesellix/docker-utils" }
     mavenCentral()
 }
 
