@@ -80,7 +80,6 @@ class DockerRunTask extends DockerTask {
                 def parsedEnv = envFileParser.parse(file)
                 containerConfig.Env.addAll(parsedEnv)
             }
-            logger.info "effective container.env: ${containerConfig.Env}"
         }
         if (getEnv()) {
             containerConfig.Env = containerConfig.Env ?: []
@@ -104,6 +103,7 @@ class DockerRunTask extends DockerTask {
                                                                            HostPort: hostPort]]
             }
         }
+        logger.info "effective container config: ${containerConfig}"
         return containerConfig
     }
 }
