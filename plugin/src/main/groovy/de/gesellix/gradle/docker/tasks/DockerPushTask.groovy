@@ -22,7 +22,7 @@ class DockerPushTask extends DockerTask {
     @TaskAction
     def push() {
         logger.info "docker push"
-        result = dockerClient.push(getRepositoryName(), getAuthConfig(), getRegistry())
+        result = dockerClient.push(getRepositoryName() as String, getAuthConfig() as String, getRegistry() as String)
         return result
     }
 }
