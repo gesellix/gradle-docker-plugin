@@ -55,6 +55,9 @@ class DockerPublishTask extends DockerTask {
         }
         configureResult.dependsOn buildImageTask
 
+        if ((getTargetRegistries() ?: [:]).isEmpty()) {
+            logger.warn("No targetRegistries configured, image won't be pushed to any registry.")
+        }
         getTargetRegistries().each { name, targetRegistry ->
             def pushTask = createUniquePushTask(name, targetRegistry, imageNameWithTag, getAuthConfig())
             pushTask.dependsOn buildImageTask
