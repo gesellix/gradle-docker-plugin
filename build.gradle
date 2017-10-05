@@ -30,18 +30,12 @@ subprojects {
     targetCompatibility = JavaVersion.VERSION_1_8
 
     def dependencyVersions = [
-            'com.squareup.okio:okio:1.13.0',
-            'io.github.microutils:kotlin-logging:1.4.6',
-            'org.bouncycastle:bcpkix-jdk15on:1.57',
-            'org.codehaus.groovy:groovy:2.4.11',
-            'org.codehaus.groovy:groovy-json:2.4.11',
-            'org.codehaus.groovy:groovy-all:2.4.11',
-            'org.jetbrains.kotlin:kotlin-reflect:1.1.4-2',
-            'org.jetbrains.kotlin:kotlin-stdlib:1.1.4-2',
+            'org.codehaus.groovy:groovy:2.4.12',
+            'org.codehaus.groovy:groovy-json:2.4.12',
+            'org.codehaus.groovy:groovy-all:2.4.12',
+            'org.jetbrains.kotlin:kotlin-reflect:1.1.4-3',
+            'org.jetbrains.kotlin:kotlin-stdlib:1.1.4-3',
             'org.slf4j:slf4j-api:1.7.25',
-            'xerces:xercesImpl:2.6.2',
-            'xerces:xmlParserAPIs:2.6.2',
-            'xml-apis:xml-apis:1.0.b2'
     ]
 
     configurations.all {
@@ -58,6 +52,6 @@ buildScan {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '4.1'
+    gradleVersion = '4.2.1'
     distributionType = Wrapper.DistributionType.ALL
 }
