@@ -30,11 +30,12 @@ subprojects {
     targetCompatibility = JavaVersion.VERSION_1_8
 
     def dependencyVersions = [
+            'org.apache.commons:commons-compress:1.15',
             'org.codehaus.groovy:groovy:2.4.12',
             'org.codehaus.groovy:groovy-json:2.4.12',
             'org.codehaus.groovy:groovy-all:2.4.12',
-            'org.jetbrains.kotlin:kotlin-reflect:1.1.4-3',
-            'org.jetbrains.kotlin:kotlin-stdlib:1.1.4-3',
+            'org.jetbrains.kotlin:kotlin-reflect:1.1.51',
+            'org.jetbrains.kotlin:kotlin-stdlib:1.1.51',
             'org.slf4j:slf4j-api:1.7.25',
     ]
 

@@ -29,7 +29,8 @@ class DockerExecTask extends DockerTask {
                 "Cmd"         : getCommandLine()
         ]
         if (!(getCommandLine() instanceof Collection<String>)) {
-            execCreateConfig.Cmd = ['sh', '-c', getCommandLine()?.toString()]
+            String[] cmd = ['sh', '-c', getCommandLine()?.toString()]
+            execCreateConfig.Cmd = cmd
         }
         logger.debug("exec cmd: '${execCreateConfig.Cmd}'")
         def execCreateResult = dockerClient.createExec(getContainerId(), execCreateConfig)

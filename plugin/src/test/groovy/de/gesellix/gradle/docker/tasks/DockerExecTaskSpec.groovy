@@ -1,6 +1,7 @@
 package de.gesellix.gradle.docker.tasks
 
 import de.gesellix.docker.client.DockerClient
+import de.gesellix.docker.engine.EngineResponse
 import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.Specification
 
@@ -24,6 +25,8 @@ class DockerExecTaskSpec extends Specification {
         def commandLine = 'echo "foo" > /bar.txt && cat /bar.txt'
         task.commandLine = commandLine
 
+        def expectedResult = new EngineResponse(content: "some exec result")
+
         when:
         task.execute()
 
@@ -34,14 +37,14 @@ class DockerExecTaskSpec extends Specification {
                 "AttachStderr": true,
                 "Tty"         : false,
                 "Cmd"         : ["sh", "-c", commandLine]
-        ]) >> [content: [Id: "exec-id"]]
+        ]) >> new EngineResponse(content: [Id: "exec-id"])
 
         1 * dockerClient.startExec("exec-id", [
                 "Detach": false,
-                "Tty"   : false]) >> ["some exec result"]
+                "Tty"   : false]) >> expectedResult
 
         and:
-        task.result == ["some exec result"]
+        task.result == expectedResult
     }
 
     def "delegates exec commands to dockerClient and saves result"() {
@@ -51,6 +54,8 @@ class DockerExecTaskSpec extends Specification {
 
         def commands = ['sh', '-c', 'echo "foo" > /baz.txt && cat /baz.txt']
         task.commandLine = commands
+
+        def expectedResult = new EngineResponse(content: "some exec result")
 
         when:
         task.execute()
@@ -62,13 +67,13 @@ class DockerExecTaskSpec extends Specification {
                 "AttachStderr": true,
                 "Tty"         : false,
                 "Cmd"         : commands
-        ]) >> [content: [Id: "exec-id"]]
+        ]) >> new EngineResponse(content: [Id: "exec-id"])
 
         1 * dockerClient.startExec("exec-id", [
                 "Detach": false,
-                "Tty"   : false]) >> ["some exec result"]
+                "Tty"   : false]) >> expectedResult
 
         and:
-        task.result == ["some exec result"]
+        task.result == expectedResult
     }
 }

@@ -1,6 +1,7 @@
 package de.gesellix.gradle.docker.tasks
 
 import de.gesellix.docker.client.DockerClient
+import de.gesellix.docker.engine.EngineResponse
 import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.Specification
 
@@ -17,17 +18,23 @@ class DockerVolumesTaskSpec extends Specification {
     }
 
     def "delegates to dockerClient and saves result"() {
+        given:
+        def expectedResult = new EngineResponse(content: ["Name": "id"])
+
         when:
         task.execute()
 
         then:
-        1 * dockerClient.volumes([:]) >> [["Name": "id"]]
+        1 * dockerClient.volumes([:]) >> expectedResult
 
         and:
-        task.volumes == [["Name": "id"]]
+        task.volumes == expectedResult
     }
 
     def "delegates with query to dockerClient and saves result"() {
+        given:
+        def expectedResult = new EngineResponse(content: ["Name": "id"])
+
         when:
         task.configure {
             query = [filters: [dangling: ["true"]]]
@@ -35,9 +42,9 @@ class DockerVolumesTaskSpec extends Specification {
         task.execute()
 
         then:
-        1 * dockerClient.volumes([filters: [dangling: ["true"]]]) >> [["Name": "id"]]
+        1 * dockerClient.volumes([filters: [dangling: ["true"]]]) >> expectedResult
 
         and:
-        task.volumes == [["Name": "id"]]
+        task.volumes == expectedResult
     }
 }

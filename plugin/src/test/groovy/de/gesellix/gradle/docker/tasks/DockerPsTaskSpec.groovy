@@ -1,6 +1,7 @@
 package de.gesellix.gradle.docker.tasks
 
 import de.gesellix.docker.client.DockerClient
+import de.gesellix.docker.engine.EngineResponse
 import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.Specification
 
@@ -17,13 +18,15 @@ class DockerPsTaskSpec extends Specification {
     }
 
     def "delegates to dockerClient and saves result"() {
+        given:
+        def expectedResult = new EngineResponse(content: "container")
+
         when:
         task.execute()
 
         then:
-        1 * dockerClient.ps() >> ["container"]
-
+        1 * dockerClient.ps() >> expectedResult
         and:
-        task.containers == ["container"]
+        task.containers == expectedResult
     }
 }

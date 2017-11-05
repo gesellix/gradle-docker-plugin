@@ -1,6 +1,7 @@
 package de.gesellix.gradle.docker.tasks
 
 import de.gesellix.docker.client.DockerClient
+import de.gesellix.docker.engine.EngineResponse
 import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.Specification
 
@@ -22,14 +23,15 @@ class DockerVolumeCreateTaskSpec extends Specification {
         task.configure {
             volumeConfig = config
         }
+        def expectedResult = new EngineResponse(status: [code: 201])
 
         when:
         task.execute()
 
         then:
-        1 * dockerClient.createVolume(config) >> [status: [code: 201]]
+        1 * dockerClient.createVolume(config) >> expectedResult
 
         and:
-        task.response == [status: [code: 201]]
+        task.response == expectedResult
     }
 }

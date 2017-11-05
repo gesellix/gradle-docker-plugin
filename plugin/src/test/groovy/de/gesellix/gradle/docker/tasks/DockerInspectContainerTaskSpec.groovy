@@ -1,6 +1,7 @@
 package de.gesellix.gradle.docker.tasks
 
 import de.gesellix.docker.client.DockerClient
+import de.gesellix.docker.engine.EngineResponse
 import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.Specification
 
@@ -19,13 +20,14 @@ class DockerInspectContainerTaskSpec extends Specification {
     def "delegates to dockerClient and returns result"() {
         given:
         task.containerId = "4711"
+        def expectedResponse = new EngineResponse(content: ["container": "details"])
 
         when:
         task.execute()
 
         then:
-        1 * dockerClient.inspectContainer("4711") >> ["container": "details"]
+        1 * dockerClient.inspectContainer("4711") >> expectedResponse
         and:
-        task.containerInfo == ["container": "details"]
+        task.containerInfo == expectedResponse
     }
 }

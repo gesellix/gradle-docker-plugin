@@ -1,6 +1,7 @@
 package de.gesellix.gradle.docker.tasks
 
 import de.gesellix.docker.client.DockerClient
+import de.gesellix.docker.engine.EngineResponse
 import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.Specification
 
@@ -23,6 +24,7 @@ class DockerNetworkCreateTaskSpec extends Specification {
                 Driver: "overlay",
                 "IPAM": ["Driver": "default"]
         ]
+        def expectedResult = new EngineResponse(content: "result")
 
         when:
         task.execute()
@@ -32,9 +34,9 @@ class DockerNetworkCreateTaskSpec extends Specification {
                 Driver: "overlay",
                 "IPAM": [
                         "Driver": "default"
-                ]]) >> [content: "result"]
+                ]]) >> expectedResult
 
         and:
-        task.response == [content: "result"]
+        task.response == expectedResult
     }
 }
