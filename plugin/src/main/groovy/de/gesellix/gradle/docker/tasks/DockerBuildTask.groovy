@@ -101,25 +101,23 @@ class DockerBuildTask extends DockerTask {
         // at this point we need the buildContext
         assert getBuildContext()
 
-        // TODO this one needs some beautification
-        if (getEnableBuildLog()) {
-            if (getBuildParams()) {
-                imageId = getDockerClient().buildWithLogs(getBuildContext(), getBuildParams()).imageId
-            } else {
-                imageId = getDockerClient().buildWithLogs(getBuildContext()).imageId
+        // Add tag to build params
+        def buildParams = getBuildParams() ?: [rm: true]
+        if (getImageName()) {
+            buildParams.putIfAbsent("rm", true)
+            if (buildParams.t) {
+                logger.warn "Overriding build parameter \"t\" with imageName as both were given"
             }
-        } else {
-            if (getBuildParams()) {
-                imageId = getDockerClient().build(getBuildContext(), getBuildParams())
-            } else {
-                imageId = getDockerClient().build(getBuildContext())
-            }
+            buildParams.t = getImageName()
         }
 
-        if (getImageName()) {
-            logger.info "tag $imageId as '${getImageName()}'..."
-            getDockerClient().tag(imageId, getImageName())
+        // TODO this one needs some beautification
+        if (getEnableBuildLog()) {
+            imageId = getDockerClient().buildWithLogs(getBuildContext(), buildParams).imageId
+        } else {
+            imageId = getDockerClient().build(getBuildContext(), buildParams)
         }
+
         return imageId
     }
 
