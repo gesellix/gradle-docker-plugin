@@ -59,7 +59,7 @@ class DockerPluginIntegrationTest extends Specification {
 //    def resource = getClass().getResourceAsStream('build.tar')
         def resource = getClass().getResource('/docker/Dockerfile')
         def task = project.task('testBuild', type: DockerBuildTask) {
-            imageName = "buildTest"
+            imageName = "build-test"
 //    buildContext = resource
             buildContextDirectory = new File(resource.toURI()).parentFile
         }
@@ -73,7 +73,7 @@ class DockerPluginIntegrationTest extends Specification {
 
         cleanup:
         def dockerClient = new DockerClientImpl()
-        dockerClient.rmi("buildTest")
+        dockerClient.rmi("build-test")
     }
 
     def "test pull"() {
