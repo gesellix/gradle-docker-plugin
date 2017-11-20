@@ -97,7 +97,7 @@ class DockerBuildTaskSpec extends Specification {
         task.execute()
 
         then:
-        1 * dockerClient.build({ FileInputStream })
+        1 * dockerClient.build({ FileInputStream }, [t: 'user/imageName', rm: true])
     }
 
     def "delegates to dockerClient with buildContext"() {
@@ -111,10 +111,7 @@ class DockerBuildTaskSpec extends Specification {
         task.execute()
 
         then:
-        1 * dockerClient.build(inputStream) >> "4711"
-
-        then:
-        1 * dockerClient.tag("4711", "imageName")
+        1 * dockerClient.build(inputStream, [rm: true, t: "imageName"]) >> "4711"
 
         and:
         task.outputs.files.isEmpty()
@@ -132,10 +129,26 @@ class DockerBuildTaskSpec extends Specification {
         task.execute()
 
         then:
-        1 * dockerClient.build(inputStream, [rm: true, dockerfile: './custom.Dockerfile']) >> "4711"
+        1 * dockerClient.build(inputStream, [rm: true, t: "imageName", dockerfile: './custom.Dockerfile']) >> "4711"
+
+        and:
+        task.outputs.files.isEmpty()
+    }
+
+
+    def "does not override rm build param if given"() {
+        def inputStream = new FileInputStream(File.createTempFile("docker", "test"))
+
+        given:
+        task.buildContext = inputStream
+        task.buildParams = [rm: false, dockerfile: './custom.Dockerfile']
+        task.imageName = "imageName"
+
+        when:
+        task.execute()
 
         then:
-        1 * dockerClient.tag("4711", "imageName")
+        1 * dockerClient.build(inputStream, [rm: false, t: "imageName", dockerfile: './custom.Dockerfile']) >> "4711"
 
         and:
         task.outputs.files.isEmpty()
@@ -153,10 +166,7 @@ class DockerBuildTaskSpec extends Specification {
         task.execute()
 
         then:
-        1 * dockerClient.buildWithLogs(inputStream) >> [imageId: "4711", logs: []]
-
-        then:
-        1 * dockerClient.tag("4711", "imageName")
+        1 * dockerClient.buildWithLogs(inputStream, [rm: true, t: "imageName"]) >> [imageId: "4711", logs: []]
 
         and:
         task.outputs.files.isEmpty()
@@ -175,10 +185,8 @@ class DockerBuildTaskSpec extends Specification {
         task.execute()
 
         then:
-        1 * dockerClient.buildWithLogs(inputStream, [rm: true, dockerfile: './custom.Dockerfile']) >> [imageId: "4711", logs: []]
-
-        then:
-        1 * dockerClient.tag("4711", "imageName")
+        1 * dockerClient.buildWithLogs(inputStream, [rm: true, t: "imageName", dockerfile: './custom.Dockerfile']) >>
+                [imageId: "4711", logs: []]
 
         and:
         task.outputs.files.isEmpty()
