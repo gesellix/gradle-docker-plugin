@@ -108,7 +108,7 @@ class DockerBuildTask extends DockerTask {
             if (buildParams.t) {
                 logger.warn "Overriding build parameter \"t\" with imageName as both were given"
             }
-            buildParams.t = getImageName()
+            buildParams.t = getImageName() as String
         }
 
         // TODO this one needs some beautification
