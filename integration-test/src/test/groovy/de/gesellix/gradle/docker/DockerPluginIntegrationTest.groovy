@@ -69,7 +69,7 @@ class DockerPluginIntegrationTest extends Specification {
         task.execute()
 
         then:
-        task.imageId ==~ "[a-z0-9]+"
+        task.imageId ==~ "(sha256:)?[a-z0-9]+"
 
         cleanup:
         def dockerClient = new DockerClientImpl()
