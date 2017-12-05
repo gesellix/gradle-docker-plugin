@@ -164,7 +164,7 @@ class DockerTask extends DefaultTask {
      *
      * @return Authentication object
      */
-    def getAuthConfig() {
+    String getAuthConfig() {
         // NOTE: To keep behaviour from previous versions we need to access the fields directly.
         //       Once we know the field is set we can proceed as per normal as we'll obtain the
         //       same result. In the older versions values were pushed down to task instances from

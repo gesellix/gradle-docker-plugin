@@ -59,7 +59,8 @@ class DockerRunTask extends DockerTask {
                 getAsString(getImageName()),
                 containerConfig,
                 getAsString(getTag()),
-                getAsString(getContainerName()))
+                getAsString(getContainerName()),
+                getAuthConfig())
         return result
     }
 

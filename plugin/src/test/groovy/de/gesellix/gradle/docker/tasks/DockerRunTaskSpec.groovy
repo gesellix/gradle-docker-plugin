@@ -47,7 +47,9 @@ class DockerRunTaskSpec extends Specification {
                                          ["HostIp"  : "0.0.0.0",
                                           "HostPort": "8889"]]
                          ]]],
-                "aTag", "aContainerName")
+                "aTag",
+                "aContainerName",
+                "")
     }
 
     def "parses env-file to containerConfig.Env"() {
@@ -69,7 +71,9 @@ class DockerRunTaskSpec extends Specification {
                 "anImage",
                 ["Env"       : ['THE_WIND=CAUGHT_IT', 'FOO=BAR Baz'],
                  "HostConfig": ["PublishAllPorts": false]],
-                '', ''
+                '',
+                '',
+                ''
         )
     }
 
@@ -100,6 +104,28 @@ class DockerRunTaskSpec extends Specification {
                                          [HostIp  : "0.0.0.0",
                                           HostPort: "8889"]]
                          ]]],
-                "aTag", "aContainerName")
+                "aTag",
+                "aContainerName",
+                '')
+    }
+
+    def "passes auth config to docker client"() {
+        given:
+        task.imageName = "anImage"
+        task.tag = "theTag"
+        task.containerName = "anotherContainerName"
+        task.authConfigPlain = [foo: "bar"]
+
+        when:
+        task.execute()
+
+        then:
+        1 * dockerClient.encodeAuthConfig([foo: "bar"]) >> "encoded-auth"
+        1 * dockerClient.run(
+                "anImage",
+                [HostConfig: [:]],
+                "theTag",
+                "anotherContainerName",
+                "encoded-auth")
     }
 }
