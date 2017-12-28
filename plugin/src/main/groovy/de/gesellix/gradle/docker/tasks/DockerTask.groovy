@@ -149,9 +149,7 @@ class DockerTask extends DefaultTask {
                 if (getCertPath()) {
                     dockerEnv.certPath = getCertPath()
                 }
-                dockerClient = new DockerClientImpl(
-                        env: dockerEnv,
-                        proxy: getProxy() ?: NO_PROXY)
+                dockerClient = new DockerClientImpl(dockerEnv, (getProxy() ?: NO_PROXY) as Proxy)
             } else {
                 dockerClient = new DockerClientImpl()
             }
