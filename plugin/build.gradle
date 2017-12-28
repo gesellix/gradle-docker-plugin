@@ -25,6 +25,7 @@ repositories {
 //apply plugin: 'com.github.kt3k.coveralls'
 
 apply plugin: "com.gradle.plugin-publish"
+apply plugin: 'maven'
 apply plugin: 'maven-publish'
 apply plugin: 'com.jfrog.bintray'
 
@@ -57,6 +58,16 @@ task sourcesJar(type: Jar) {
 
 artifacts {
     archives sourcesJar
+}
+
+install {
+    repositories{
+        mavenInstaller {
+            pom.groupId = 'de.gesellix'
+            pom.artifactId = 'gradle-docker-plugin'
+            pom.version = '1.0.0-SNAPSHOT'
+        }
+    }
 }
 
 publishing {
