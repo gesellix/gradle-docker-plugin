@@ -1,6 +1,7 @@
 package de.gesellix.gradle.docker.tasks
 
 import de.gesellix.docker.client.builder.BuildContextBuilder
+import de.gesellix.docker.client.image.BuildConfig
 import org.gradle.api.Task
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputDirectory
@@ -113,9 +114,9 @@ class DockerBuildTask extends DockerTask {
 
         // TODO this one needs some beautification
         if (getEnableBuildLog()) {
-            imageId = getDockerClient().buildWithLogs(getBuildContext(), buildParams).imageId
+            imageId = getDockerClient().buildWithLogs(getBuildContext(), new BuildConfig(query: buildParams)).imageId
         } else {
-            imageId = getDockerClient().build(getBuildContext(), buildParams)
+            imageId = getDockerClient().build(getBuildContext(), new BuildConfig(query: buildParams)).imageId
         }
 
         return imageId

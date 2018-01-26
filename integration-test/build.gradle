@@ -19,7 +19,7 @@ dependencies {
     compile project(':plugin')
 
     testCompile 'org.spockframework:spock-core:1.1-groovy-2.4'
-    testCompile 'cglib:cglib-nodep:3.2.5'
+    testCompile 'cglib:cglib-nodep:3.2.6'
 
     // see https://docs.gradle.org/current/userguide/test_kit.html
 //  testCompile gradleTestKit()

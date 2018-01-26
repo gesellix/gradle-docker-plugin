@@ -1,6 +1,8 @@
 package de.gesellix.gradle.docker.tasks
 
 import de.gesellix.docker.client.DockerClient
+import de.gesellix.docker.client.image.BuildConfig
+import de.gesellix.docker.client.image.BuildResult
 import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.Specification
 import spock.lang.Unroll
@@ -97,7 +99,10 @@ class DockerBuildTaskSpec extends Specification {
         task.execute()
 
         then:
-        1 * dockerClient.build({ FileInputStream }, [t: 'user/imageName', rm: true])
+        1 * dockerClient.build({
+            FileInputStream
+        }, new BuildConfig(query: [t: 'user/imageName', rm: true])) >>
+                new BuildResult(imageId: "4711")
     }
 
     def "delegates to dockerClient with buildContext"() {
@@ -111,7 +116,8 @@ class DockerBuildTaskSpec extends Specification {
         task.execute()
 
         then:
-        1 * dockerClient.build(inputStream, [rm: true, t: "imageName"]) >> "4711"
+        1 * dockerClient.build(inputStream, new BuildConfig(query: [rm: true, t: "imageName"])) >>
+                new BuildResult(imageId: "4711")
 
         and:
         task.outputs.files.isEmpty()
@@ -129,7 +135,8 @@ class DockerBuildTaskSpec extends Specification {
         task.execute()
 
         then:
-        1 * dockerClient.build(inputStream, [rm: true, t: "imageName", dockerfile: './custom.Dockerfile']) >> "4711"
+        1 * dockerClient.build(inputStream, new BuildConfig(query: [rm: true, t: "imageName", dockerfile: './custom.Dockerfile'])) >>
+                new BuildResult(imageId: "4711")
 
         and:
         task.outputs.files.isEmpty()
@@ -148,7 +155,8 @@ class DockerBuildTaskSpec extends Specification {
         task.execute()
 
         then:
-        1 * dockerClient.build(inputStream, [rm: false, t: "imageName", dockerfile: './custom.Dockerfile']) >> "4711"
+        1 * dockerClient.build(inputStream, new BuildConfig(query: [rm: false, t: "imageName", dockerfile: './custom.Dockerfile'])) >>
+                new BuildResult(imageId: "4711")
 
         and:
         task.outputs.files.isEmpty()
@@ -166,7 +174,8 @@ class DockerBuildTaskSpec extends Specification {
         task.execute()
 
         then:
-        1 * dockerClient.buildWithLogs(inputStream, [rm: true, t: "imageName"]) >> [imageId: "4711", logs: []]
+        1 * dockerClient.buildWithLogs(inputStream, new BuildConfig(query: [rm: true, t: "imageName"])) >>
+                new BuildResult(imageId: "4711", log: [])
 
         and:
         task.outputs.files.isEmpty()
@@ -185,8 +194,8 @@ class DockerBuildTaskSpec extends Specification {
         task.execute()
 
         then:
-        1 * dockerClient.buildWithLogs(inputStream, [rm: true, t: "imageName", dockerfile: './custom.Dockerfile']) >>
-                [imageId: "4711", logs: []]
+        1 * dockerClient.buildWithLogs(inputStream, new BuildConfig(query: [rm: true, t: "imageName", dockerfile: './custom.Dockerfile'])) >>
+                new BuildResult(imageId: "4711", log: [])
 
         and:
         task.outputs.files.isEmpty()
