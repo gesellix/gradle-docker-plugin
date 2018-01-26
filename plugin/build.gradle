@@ -43,7 +43,7 @@ dependencies {
     compile localGroovy()
 
 //    compile 'de.gesellix:docker-client:local'
-    compile 'de.gesellix:docker-client:2018-01-26T21-07-56'
+    compile 'de.gesellix:docker-client:2018-01-26T21-28-05'
 
     testCompile 'org.spockframework:spock-core:1.1-groovy-2.4'
     testCompile 'cglib:cglib-nodep:3.2.6'
