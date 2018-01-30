@@ -32,6 +32,10 @@ class DockerBuildTask extends DockerTask {
 
     @Input
     @Optional
+    def buildOptions
+
+    @Input
+    @Optional
     def enableBuildLog = false
 
     def tarOfBuildcontextTask
@@ -112,11 +116,13 @@ class DockerBuildTask extends DockerTask {
             buildParams.t = getImageName() as String
         }
 
+        def buildOptions = getBuildOptions() ?: [:]
+
         // TODO this one needs some beautification
         if (getEnableBuildLog()) {
-            imageId = getDockerClient().buildWithLogs(getBuildContext(), new BuildConfig(query: buildParams)).imageId
+            imageId = getDockerClient().buildWithLogs(getBuildContext(), new BuildConfig(query: buildParams, options: buildOptions)).imageId
         } else {
-            imageId = getDockerClient().build(getBuildContext(), new BuildConfig(query: buildParams)).imageId
+            imageId = getDockerClient().build(getBuildContext(), new BuildConfig(query: buildParams, options: buildOptions)).imageId
         }
 
         return imageId
