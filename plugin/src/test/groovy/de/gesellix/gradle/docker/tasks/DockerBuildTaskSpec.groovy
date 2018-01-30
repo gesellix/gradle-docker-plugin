@@ -142,6 +142,24 @@ class DockerBuildTaskSpec extends Specification {
         task.outputs.files.isEmpty()
     }
 
+    def "delegates to dockerClient with buildContext and buildOptions"() {
+        def inputStream = new FileInputStream(File.createTempFile("docker", "test"))
+
+        given:
+        task.buildContext = inputStream
+        task.buildOptions = [EncodedRegistryConfig: [foo: [:]]]
+        task.imageName = "imageName"
+
+        when:
+        task.execute()
+
+        then:
+        1 * dockerClient.build(inputStream, new BuildConfig(query: [rm: true, t: "imageName"], options: [EncodedRegistryConfig: [foo: [:]]])) >>
+                new BuildResult(imageId: "4711")
+
+        and:
+        task.outputs.files.isEmpty()
+    }
 
     def "does not override rm build param if given"() {
         def inputStream = new FileInputStream(File.createTempFile("docker", "test"))
