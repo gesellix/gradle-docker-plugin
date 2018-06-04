@@ -10,7 +10,7 @@ buildscript {
 //        classpath 'net.saliman:gradle-cobertura-plugin:2.4.0'
 //        classpath 'org.kt3k.gradle.plugin:coveralls-gradle-plugin:2.8.1'
 
-        classpath 'com.gradle.publish:plugin-publish-plugin:0.9.9'
+        classpath 'com.gradle.publish:plugin-publish-plugin:0.9.10'
         classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.0'
     }
 }
@@ -43,7 +43,7 @@ dependencies {
     compile localGroovy()
 
 //    compile 'de.gesellix:docker-client:local'
-    compile 'de.gesellix:docker-client:2018-01-26T21-28-05'
+    compile 'de.gesellix:docker-client:2018-06-02T10-49-31'
 
     testCompile 'org.spockframework:spock-core:1.1-groovy-2.4'
     testCompile 'cglib:cglib-nodep:3.2.6'

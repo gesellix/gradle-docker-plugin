@@ -57,7 +57,7 @@ class DockerBuildTaskSpec extends Specification {
         project.tasks.findByName("dockerBuild").getDependsOn().contains project.tasks.findByName("buildTaskDependency")
         and:
         def tarBuildcontextForDockerBuild = project.tasks.findByName("tarBuildcontextForDockerBuild")
-        tarBuildcontextForDockerBuild.getMustRunAfter().values.contains project.tasks.findByName("buildTaskDependency")
+        tarBuildcontextForDockerBuild.getMustRunAfter().mutableValues.contains project.tasks.findByName("buildTaskDependency")
     }
 
     def "tar of buildContextDirectory contains buildContextDirectory"() {

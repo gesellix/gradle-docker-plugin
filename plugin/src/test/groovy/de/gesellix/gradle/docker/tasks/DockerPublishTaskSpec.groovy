@@ -49,7 +49,7 @@ class DockerPublishTaskSpec extends Specification {
         then:
         project.tasks.findByName("dockerPublish").getDependsOn().contains project.tasks.findByName("buildImageForDockerPublish")
         and:
-        project.tasks.findByName("buildImageForDockerPublish").getMustRunAfter().values.contains project.tasks.findByName("publishTaskDependency")
+        project.tasks.findByName("buildImageForDockerPublish").getMustRunAfter().mutableValues.contains project.tasks.findByName("publishTaskDependency")
     }
 
     def "delegates to DockerPushTask when targetRegistries are configured"() {
@@ -73,7 +73,7 @@ class DockerPublishTaskSpec extends Specification {
         and:
         project.tasks.findByName("pushImageToPrivateInternal").getDependsOn().contains project.tasks.findByName("buildImageForDockerPublish")
         and:
-        project.tasks.findByName("pushImageToPrivateInternal").getFinalizedBy().values.contains project.tasks.findByName("rmiPrivateImage")
+        project.tasks.findByName("pushImageToPrivateInternal").getFinalizedBy().mutableValues.contains project.tasks.findByName("rmiPrivateImage")
         and:
         project.tasks.findByName("dockerPublish").getDependsOn().contains project.tasks.findByName("buildImageForDockerPublish")
         project.tasks.findByName("dockerPublish").getDependsOn().contains project.tasks.findByName("pushImageToPrivateInternal")
