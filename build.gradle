@@ -30,8 +30,8 @@ subprojects {
             'org.codehaus.groovy:groovy:2.4.15',
             'org.codehaus.groovy:groovy-json:2.4.15',
             'org.codehaus.groovy:groovy-all:2.4.15',
-            'org.jetbrains.kotlin:kotlin-reflect:1.2.21',
-            'org.jetbrains.kotlin:kotlin-stdlib:1.2.21',
+            'org.jetbrains.kotlin:kotlin-reflect:1.3.10',
+            'org.jetbrains.kotlin:kotlin-stdlib:1.3.10',
     ]
 
     configurations.all {
