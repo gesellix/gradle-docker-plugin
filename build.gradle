@@ -4,17 +4,13 @@ buildscript {
     repositories {
         mavenLocal()
         jcenter()
-        maven { url "https://plugins.gradle.org/m2/" }
+        gradlePluginPortal()
         mavenCentral()
     }
 
     dependencies {
-        classpath 'com.github.ben-manes:gradle-versions-plugin:0.17.0'
+        classpath 'com.github.ben-manes:gradle-versions-plugin:0.20.0'
     }
-}
-
-plugins {
-    id 'com.gradle.build-scan' version '1.11'
 }
 
 subprojects {
@@ -30,10 +26,10 @@ subprojects {
     targetCompatibility = JavaVersion.VERSION_1_8
 
     def dependencyVersions = [
-            'com.squareup.okio:okio:1.14.0',
-            'org.codehaus.groovy:groovy:2.4.12',
-            'org.codehaus.groovy:groovy-json:2.4.12',
-            'org.codehaus.groovy:groovy-all:2.4.12',
+            'com.squareup.okio:okio:1.16.0',
+            'org.codehaus.groovy:groovy:2.4.15',
+            'org.codehaus.groovy:groovy-json:2.4.15',
+            'org.codehaus.groovy:groovy-all:2.4.15',
             'org.jetbrains.kotlin:kotlin-reflect:1.2.21',
             'org.jetbrains.kotlin:kotlin-stdlib:1.2.21',
     ]
@@ -46,12 +42,7 @@ subprojects {
     }
 }
 
-buildScan {
-    licenseAgreementUrl = 'https://gradle.com/terms-of-service'
-    licenseAgree = 'yes'
-}
-
-task wrapper(type: Wrapper) {
-    gradleVersion = '4.7'
+task updateWrapper(type: Wrapper) {
+    gradleVersion = '4.10.2'
     distributionType = Wrapper.DistributionType.ALL
 }
