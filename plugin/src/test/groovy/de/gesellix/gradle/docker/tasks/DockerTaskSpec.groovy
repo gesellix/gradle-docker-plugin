@@ -50,7 +50,7 @@ class DockerTaskSpec extends Specification {
         def dockerClient = task.dockerClient
 
         then:
-        dockerClient.env.certPath == "/path/to/certs"
+        dockerClient.env.certPath.endsWith "/path/to/certs".replaceAll('/', "\\${File.separator}")
     }
 
     def "getAuthConfig with plain AuthConfig"() {
