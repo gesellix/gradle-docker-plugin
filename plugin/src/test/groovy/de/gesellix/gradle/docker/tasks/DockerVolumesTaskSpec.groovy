@@ -22,7 +22,7 @@ class DockerVolumesTaskSpec extends Specification {
         def expectedResult = new EngineResponse(content: ["Name": "id"])
 
         when:
-        task.execute()
+        task.volumes()
 
         then:
         1 * dockerClient.volumes([:]) >> expectedResult
@@ -39,7 +39,7 @@ class DockerVolumesTaskSpec extends Specification {
         task.configure {
             query = [filters: [dangling: ["true"]]]
         }
-        task.execute()
+        task.volumes()
 
         then:
         1 * dockerClient.volumes([filters: [dangling: ["true"]]]) >> expectedResult

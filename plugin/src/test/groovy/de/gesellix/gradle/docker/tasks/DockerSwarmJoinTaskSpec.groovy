@@ -25,7 +25,7 @@ class DockerSwarmJoinTaskSpec extends Specification {
         ]
 
         when:
-        task.execute()
+        task.joinSwarm()
 
         then:
         1 * dockerClient.joinSwarm([

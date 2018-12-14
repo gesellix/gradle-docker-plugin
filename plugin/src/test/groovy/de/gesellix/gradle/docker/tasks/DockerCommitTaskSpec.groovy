@@ -27,7 +27,7 @@ class DockerCommitTaskSpec extends Specification {
         task.pauseContainer = "true"
 
         when:
-        task.execute()
+        task.commit()
 
         then:
         1 * dockerClient.commit("a-container", [

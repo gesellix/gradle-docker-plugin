@@ -24,7 +24,7 @@ class DockerNetworkDisconnectTaskSpec extends Specification {
         def expectedResult = new EngineResponse(content: "result")
 
         when:
-        task.execute()
+        task.disconnectNetwork()
 
         then:
         1 * dockerClient.disconnectNetwork("a-network", "a-container") >> expectedResult

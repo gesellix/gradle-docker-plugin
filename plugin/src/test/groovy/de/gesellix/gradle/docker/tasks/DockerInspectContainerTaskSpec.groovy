@@ -23,7 +23,7 @@ class DockerInspectContainerTaskSpec extends Specification {
         def expectedResponse = new EngineResponse(content: ["container": "details"])
 
         when:
-        task.execute()
+        task.inspect()
 
         then:
         1 * dockerClient.inspectContainer("4711") >> expectedResponse

@@ -26,7 +26,7 @@ class DockerServiceCreateTaskSpec extends Specification {
         ]
 
         when:
-        task.execute()
+        task.createService()
 
         then:
         1 * dockerClient.createService([

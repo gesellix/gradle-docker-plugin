@@ -21,7 +21,7 @@ class DockerStopTaskSpec extends Specification {
         task.containerId = "4711"
 
         when:
-        task.execute()
+        task.stop()
 
         then:
         1 * dockerClient.stop("4711")

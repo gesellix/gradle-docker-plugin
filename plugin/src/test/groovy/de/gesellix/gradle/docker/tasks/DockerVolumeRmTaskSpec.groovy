@@ -25,7 +25,7 @@ class DockerVolumeRmTaskSpec extends Specification {
         def expectedResult = new EngineResponse(status: [code: 204])
 
         when:
-        task.execute()
+        task.rmVolume()
 
         then:
         1 * dockerClient.rmVolume("foo") >> expectedResult

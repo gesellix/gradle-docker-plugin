@@ -21,7 +21,7 @@ class DockerRmTaskSpec extends Specification {
         task.containerId = "4712"
 
         when:
-        task.execute()
+        task.rm()
 
         then:
         1 * dockerClient.rm("4712", [v: 0])
@@ -33,7 +33,7 @@ class DockerRmTaskSpec extends Specification {
         task.removeVolumes = true
 
         when:
-        task.execute()
+        task.rm()
 
         then:
         1 * dockerClient.rm("4712", [v: 1])

@@ -21,7 +21,7 @@ class DockerKillTaskSpec extends Specification {
         task.containerId = "4711"
 
         when:
-        task.execute()
+        task.kill()
 
         then:
         1 * dockerClient.kill("4711")

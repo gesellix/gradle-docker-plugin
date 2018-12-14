@@ -33,7 +33,7 @@ class DockerRunTaskSpec extends Specification {
         ]
 
         when:
-        task.execute()
+        task.run()
 
         then:
         1 * dockerClient.run(
@@ -64,7 +64,7 @@ class DockerRunTaskSpec extends Specification {
         task.environmentFiles = [new File(envfile.toURI())]
 
         when:
-        task.execute()
+        task.run()
 
         then:
         1 * dockerClient.run(
@@ -86,7 +86,7 @@ class DockerRunTaskSpec extends Specification {
         task.ports = ["8080:80", "8889:8889"]
 
         when:
-        task.execute()
+        task.run()
 
         then:
         1 * dockerClient.run(
@@ -117,7 +117,7 @@ class DockerRunTaskSpec extends Specification {
         task.authConfigPlain = [foo: "bar"]
 
         when:
-        task.execute()
+        task.run()
 
         then:
         1 * dockerClient.encodeAuthConfig([foo: "bar"]) >> "encoded-auth"

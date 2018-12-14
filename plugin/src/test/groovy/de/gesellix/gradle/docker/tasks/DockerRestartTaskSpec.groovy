@@ -21,7 +21,7 @@ class DockerRestartTaskSpec extends Specification {
         task.containerId = "4711"
 
         when:
-        task.execute()
+        task.restart()
 
         then:
         1 * dockerClient.restart("4711")

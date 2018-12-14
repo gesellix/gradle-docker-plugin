@@ -28,7 +28,7 @@ class DockerExecTaskSpec extends Specification {
         def expectedResult = new EngineResponse(content: "some exec result")
 
         when:
-        task.execute()
+        task.exec()
 
         then:
         1 * dockerClient.createExec(containerId, [
@@ -58,7 +58,7 @@ class DockerExecTaskSpec extends Specification {
         def expectedResult = new EngineResponse(content: "some exec result")
 
         when:
-        task.execute()
+        task.exec()
 
         then:
         1 * dockerClient.createExec(containerId, [

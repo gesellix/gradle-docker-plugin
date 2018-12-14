@@ -22,7 +22,7 @@ class DockerPingTaskSpec extends Specification {
         def response = new EngineResponse()
 
         when:
-        task.execute()
+        task.ping()
 
         then:
         1 * dockerClient.ping() >> response

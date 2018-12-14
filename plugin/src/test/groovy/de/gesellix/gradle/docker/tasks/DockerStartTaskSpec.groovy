@@ -21,7 +21,7 @@ class DockerStartTaskSpec extends Specification {
         task.containerId = "4711"
 
         when:
-        task.execute()
+        task.start()
 
         then:
         1 * dockerClient.startContainer("4711")

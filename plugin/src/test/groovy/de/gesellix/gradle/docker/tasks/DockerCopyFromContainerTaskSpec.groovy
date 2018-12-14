@@ -24,7 +24,7 @@ class DockerCopyFromContainerTaskSpec extends Specification {
         def expectedResponse = new EngineResponse(content: "file-content")
 
         when:
-        task.execute()
+        task.copyFromContainer()
 
         then:
         1 * dockerClient.getArchive("4711", "/file.txt") >> expectedResponse

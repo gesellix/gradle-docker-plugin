@@ -20,7 +20,7 @@ class DockerRenameTask extends DockerTask {
     @TaskAction
     def rename() {
         logger.info "docker rename"
-        result = dockerClient.rename(getContainerId(), getNewName())
+        result = dockerClient.rename(getContainerId() as String, getNewName() as String)
         return result
     }
 }

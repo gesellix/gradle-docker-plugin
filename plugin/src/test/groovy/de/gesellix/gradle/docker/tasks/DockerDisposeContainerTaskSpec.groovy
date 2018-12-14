@@ -22,7 +22,7 @@ class DockerDisposeContainerTaskSpec extends Specification {
         task.containerId = "4712"
 
         when:
-        task.execute()
+        task.dispose()
 
         then:
         1 * dockerClient.stop("4712")
@@ -41,7 +41,7 @@ class DockerDisposeContainerTaskSpec extends Specification {
         dockerClient.inspectContainer("4712") >> [content: [Image: "an-image-id"]]
 
         when:
-        task.execute()
+        task.dispose()
 
         then:
         1 * dockerClient.stop("4712")
@@ -58,7 +58,7 @@ class DockerDisposeContainerTaskSpec extends Specification {
         task.containerId = "4711"
 
         when:
-        task.execute()
+        task.dispose()
 
         then:
         1 * dockerClient.inspectContainer("4711") >> {

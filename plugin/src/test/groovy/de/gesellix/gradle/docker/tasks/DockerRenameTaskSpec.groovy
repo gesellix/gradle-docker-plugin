@@ -28,7 +28,7 @@ class DockerRenameTaskSpec extends Specification {
         def expectedResult = new EngineResponse(content: "result")
 
         when:
-        task.execute()
+        task.rename()
 
         then:
         1 * dockerClient.rename(containerId, newName) >> expectedResult

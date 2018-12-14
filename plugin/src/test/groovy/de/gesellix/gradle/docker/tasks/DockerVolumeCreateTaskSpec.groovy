@@ -26,7 +26,7 @@ class DockerVolumeCreateTaskSpec extends Specification {
         def expectedResult = new EngineResponse(status: [code: 201])
 
         when:
-        task.execute()
+        task.createVolume()
 
         then:
         1 * dockerClient.createVolume(config) >> expectedResult

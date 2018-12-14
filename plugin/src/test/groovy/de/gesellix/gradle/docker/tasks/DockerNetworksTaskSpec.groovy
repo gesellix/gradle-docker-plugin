@@ -22,7 +22,7 @@ class DockerNetworksTaskSpec extends Specification {
         def response = new EngineResponse()
 
         when:
-        task.execute()
+        task.networks()
 
         then:
         1 * dockerClient.networks() >> response

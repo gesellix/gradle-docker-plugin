@@ -16,7 +16,7 @@ class DockerWaitTask extends DockerTask {
     }
 
     @TaskAction
-    def stop() {
+    def awaitStop() {
         logger.info "docker wait"
         result = getDockerClient().wait(getContainerId())
         return result
