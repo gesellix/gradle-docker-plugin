@@ -21,7 +21,7 @@ class DockerPauseTaskSpec extends Specification {
         task.containerId = "4711"
 
         when:
-        task.execute()
+        task.pause()
 
         then:
         1 * dockerClient.pause("4711")

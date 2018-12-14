@@ -33,7 +33,7 @@ class DockerCreateTaskSpec extends Specification {
         ]
 
         when:
-        task.execute()
+        task.create()
 
         then:
         1 * dockerClient.createContainer(
@@ -62,7 +62,7 @@ class DockerCreateTaskSpec extends Specification {
         task.environmentFiles = [new File(envfile.toURI())]
 
         when:
-        task.execute()
+        task.create()
 
         then:
         1 * dockerClient.createContainer(
@@ -82,7 +82,7 @@ class DockerCreateTaskSpec extends Specification {
         task.ports = ["8080:80", "8889:8889"]
 
         when:
-        task.execute()
+        task.create()
 
         then:
         1 * dockerClient.createContainer(

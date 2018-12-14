@@ -24,7 +24,7 @@ class DockerNetworkRmTaskSpec extends Specification {
         def expectedResult = new EngineResponse(content: "result")
 
         when:
-        task.execute()
+        task.rmNetwork()
 
         then:
         1 * dockerClient.rmNetwork("a-network") >> expectedResult
@@ -39,7 +39,7 @@ class DockerNetworkRmTaskSpec extends Specification {
         task.networkName = "a-network"
 
         when:
-        task.execute()
+        task.rmNetwork()
 
         then:
         1 * dockerClient.rmNetwork("a-network") >> { throw new RuntimeException("expected error") }
@@ -54,7 +54,7 @@ class DockerNetworkRmTaskSpec extends Specification {
         task.ignoreError = true
 
         when:
-        task.execute()
+        task.rmNetwork()
 
         then:
         1 * dockerClient.rmNetwork("a-network") >> { throw new RuntimeException("expected error") }

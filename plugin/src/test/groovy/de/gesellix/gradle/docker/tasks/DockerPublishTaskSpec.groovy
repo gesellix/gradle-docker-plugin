@@ -23,7 +23,7 @@ class DockerPublishTaskSpec extends Specification {
         }
 
         when:
-        task.execute()
+        task.publish()
 
         then:
         project.tasks.findByName("dockerPublish") instanceof DockerPublishTask
@@ -44,7 +44,7 @@ class DockerPublishTaskSpec extends Specification {
         }
 
         when:
-        task.execute()
+        task.publish()
 
         then:
         project.tasks.findByName("dockerPublish").getDependsOn().contains project.tasks.findByName("buildImageForDockerPublish")
@@ -60,7 +60,7 @@ class DockerPublishTaskSpec extends Specification {
         }
 
         when:
-        task.execute()
+        task.publish()
 
         then:
         project.tasks.findByName("dockerPublish") instanceof DockerPublishTask

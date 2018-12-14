@@ -22,7 +22,7 @@ class DockerInspectImageTaskSpec extends Specification {
         def expectedResponse = new EngineResponse(content: ["id": "sha256:1234"])
 
         when:
-        task.execute()
+        task.inspect()
 
         then:
         1 * dockerClient.inspectImage("my.image:dev") >> expectedResponse

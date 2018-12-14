@@ -22,7 +22,7 @@ class DockerVersionTaskSpec extends Specification {
         def response = new EngineResponse()
 
         when:
-        task.execute()
+        task.version()
 
         then:
         1 * dockerClient.version() >> response

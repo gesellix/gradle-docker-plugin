@@ -25,7 +25,22 @@ class DockerPullTask extends DockerTask {
     @TaskAction
     def pull() {
         logger.info "docker pull"
-        imageId = dockerClient.pull(getImageName(), getTag(), getAuthConfig(), getRegistry())
+
+        def query = [fromImage: getImageName(),
+                     tag      : getTag()]
+        if (getRegistry()) {
+            query.fromImage = "${getRegistry()}/${getImageName()}".toString()
+        }
+
+        def options = [EncodedRegistryAuth: getAuthConfig()]
+
+        def response = dockerClient.create(query, options)
+        if (response.status.success) {
+            imageId = dockerClient.findImageId(query.fromImage, query.tag)
+        }
+        else {
+            imageId = null
+        }
         return imageId
     }
 }

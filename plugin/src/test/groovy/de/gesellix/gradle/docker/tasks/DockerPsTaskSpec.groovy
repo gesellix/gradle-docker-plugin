@@ -22,7 +22,7 @@ class DockerPsTaskSpec extends Specification {
         def expectedResult = new EngineResponse(content: "container")
 
         when:
-        task.execute()
+        task.ps()
 
         then:
         1 * dockerClient.ps() >> expectedResult

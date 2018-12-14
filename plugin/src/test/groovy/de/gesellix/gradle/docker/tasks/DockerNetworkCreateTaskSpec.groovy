@@ -27,7 +27,7 @@ class DockerNetworkCreateTaskSpec extends Specification {
         def expectedResult = new EngineResponse(content: "result")
 
         when:
-        task.execute()
+        task.createNetwork()
 
         then:
         1 * dockerClient.createNetwork("a-network", [

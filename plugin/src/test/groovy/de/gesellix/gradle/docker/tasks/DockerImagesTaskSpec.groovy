@@ -19,7 +19,7 @@ class DockerImagesTaskSpec extends Specification {
 
     def "delegates to dockerClient and saves result"() {
         when:
-        task.execute()
+        task.images()
 
         then:
         1 * dockerClient.images() >> new EngineResponse(content: ["image"])

@@ -21,7 +21,7 @@ class DockerUnpauseTaskSpec extends Specification {
         task.containerId = "4711"
 
         when:
-        task.execute()
+        task.unpause()
 
         then:
         1 * dockerClient.unpause("4711")

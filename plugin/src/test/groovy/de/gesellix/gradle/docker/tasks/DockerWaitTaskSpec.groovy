@@ -21,7 +21,7 @@ class DockerWaitTaskSpec extends Specification {
         task.containerId = "4711"
 
         when:
-        task.execute()
+        task.awaitStop()
 
         then:
         1 * dockerClient.wait("4711")

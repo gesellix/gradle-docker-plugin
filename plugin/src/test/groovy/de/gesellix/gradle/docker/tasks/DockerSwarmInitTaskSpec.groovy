@@ -23,7 +23,7 @@ class DockerSwarmInitTaskSpec extends Specification {
         ]
 
         when:
-        task.execute()
+        task.initSwarm()
 
         then:
         1 * dockerClient.initSwarm([

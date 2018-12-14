@@ -1,6 +1,8 @@
 package de.gesellix.gradle.docker.tasks
 
 import de.gesellix.docker.client.DockerClient
+import de.gesellix.docker.engine.EngineResponse
+import de.gesellix.docker.engine.EngineResponseStatus
 import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.Specification
 
@@ -22,13 +24,15 @@ class DockerPullTaskSpec extends Specification {
         task.imageName = "imageName"
         task.tag = "latest"
         task.registry = "registry.example.com:4711"
+        def response = Mock(EngineResponse)
+        response.status >> Mock(EngineResponseStatus)
 
         when:
-        task.execute()
+        task.pull()
 
         then:
         1 * dockerClient.encodeAuthConfig(['username': 'user', 'password': 'pass']) >> "-foo-"
         then:
-        1 * dockerClient.pull("imageName", "latest", "-foo-", "registry.example.com:4711")
+        1 * dockerClient.create([fromImage: "registry.example.com:4711/imageName", tag: "latest"], [EncodedRegistryAuth: "-foo-"]) >> response
     }
 }

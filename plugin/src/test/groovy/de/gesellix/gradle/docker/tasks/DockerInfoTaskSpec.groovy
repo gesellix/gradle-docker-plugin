@@ -22,7 +22,7 @@ class DockerInfoTaskSpec extends Specification {
         def response = new EngineResponse()
 
         when:
-        task.execute()
+        task.info()
 
         then:
         1 * dockerClient.info() >> response

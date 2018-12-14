@@ -22,7 +22,7 @@ class DockerTagTaskSpec extends Specification {
         task.tag = "aTag"
 
         when:
-        task.execute()
+        task.tag()
 
         then:
         1 * dockerClient.tag("4711", "aTag")

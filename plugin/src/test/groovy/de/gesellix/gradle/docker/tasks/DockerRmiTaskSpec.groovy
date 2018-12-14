@@ -21,7 +21,7 @@ class DockerRmiTaskSpec extends Specification {
         task.imageId = "4712"
 
         when:
-        task.execute()
+        task.rmi()
 
         then:
         1 * dockerClient.rmi("4712")

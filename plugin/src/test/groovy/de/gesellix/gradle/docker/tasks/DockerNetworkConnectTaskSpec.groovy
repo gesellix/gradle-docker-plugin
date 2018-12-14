@@ -24,7 +24,7 @@ class DockerNetworkConnectTaskSpec extends Specification {
         def expectedResult = new EngineResponse(content: "result")
 
         when:
-        task.execute()
+        task.connectNetwork()
 
         then:
         1 * dockerClient.connectNetwork("a-network", "a-container") >> expectedResult

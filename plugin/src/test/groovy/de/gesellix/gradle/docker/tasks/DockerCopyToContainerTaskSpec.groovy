@@ -25,7 +25,7 @@ class DockerCopyToContainerTaskSpec extends Specification {
         task.tarInputStream = stream
 
         when:
-        task.execute()
+        task.copyToContainer()
 
         then:
         1 * dockerClient.putArchive("4711", "/tmp/.", stream)

@@ -23,7 +23,7 @@ class DockerSwarmLeaveTaskSpec extends Specification {
         ]
 
         when:
-        task.execute()
+        task.leaveSwarm()
 
         then:
         1 * dockerClient.leaveSwarm([
