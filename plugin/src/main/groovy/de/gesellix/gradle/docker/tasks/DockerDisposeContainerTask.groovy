@@ -5,7 +5,7 @@ import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.TaskAction
 
-class DockerDisposeContainerTask extends DockerTask {
+class DockerDisposeContainerTask extends GenericDockerTask {
 
     @Input
     def containerId

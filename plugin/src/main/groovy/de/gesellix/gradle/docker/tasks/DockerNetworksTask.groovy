@@ -2,7 +2,7 @@ package de.gesellix.gradle.docker.tasks
 
 import org.gradle.api.tasks.TaskAction
 
-class DockerNetworksTask extends DockerTask {
+class DockerNetworksTask extends GenericDockerTask {
 
     def networks
 

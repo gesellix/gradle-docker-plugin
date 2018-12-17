@@ -6,7 +6,7 @@ import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.TaskAction
 
-class DockerPublishTask extends DockerTask {
+class DockerPublishTask extends GenericDockerTask {
 
     def buildContextDirectory
 

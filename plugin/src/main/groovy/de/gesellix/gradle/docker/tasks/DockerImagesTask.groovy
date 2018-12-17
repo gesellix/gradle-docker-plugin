@@ -2,7 +2,7 @@ package de.gesellix.gradle.docker.tasks
 
 import org.gradle.api.tasks.TaskAction
 
-class DockerImagesTask extends DockerTask {
+class DockerImagesTask extends GenericDockerTask {
 
     def images
 

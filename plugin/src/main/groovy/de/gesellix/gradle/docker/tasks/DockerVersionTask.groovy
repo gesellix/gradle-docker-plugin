@@ -2,7 +2,7 @@ package de.gesellix.gradle.docker.tasks
 
 import org.gradle.api.tasks.TaskAction
 
-class DockerVersionTask extends DockerTask {
+class DockerVersionTask extends GenericDockerTask {
 
     def version
 

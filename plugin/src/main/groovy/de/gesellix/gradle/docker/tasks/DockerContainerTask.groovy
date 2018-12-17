@@ -6,7 +6,7 @@ import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.TaskAction
 
-class DockerContainerTask extends DockerTask {
+class DockerContainerTask extends GenericDockerTask {
 
     enum State {
 
@@ -143,7 +143,8 @@ class DockerContainerTask extends DockerTask {
                 if (!changed) {
                     try {
                         doHealthChecks()
-                    } catch (Exception e) {
+                    }
+                    catch (Exception e) {
                         throw new GradleException("UpToDate check failed", e)
                     }
                 }
@@ -153,7 +154,8 @@ class DockerContainerTask extends DockerTask {
                 if (!changed) {
                     try {
                         doHealthChecks()
-                    } catch (Exception e) {
+                    }
+                    catch (Exception e) {
                         throw new GradleException("UpToDate check failed", e)
                     }
                 }
@@ -249,14 +251,17 @@ class DockerContainerTask extends DockerTask {
 
                 if (parts.size() == 1) {
                     config.HostConfig.PortBindings[container_port] << [HostIp: "0.0.0.0", HostPort: ""]
-                } else if (parts.size() == 2) {
+                }
+                else if (parts.size() == 2) {
                     config.HostConfig.PortBindings[container_port] << [HostIp  : "0.0.0.0",
                                                                        HostPort: parts.get(0).toString()]
-                } else if (parts.size() == 3) {
+                }
+                else if (parts.size() == 3) {
                     if (parts.get(1)) {
                         config.HostConfig.PortBindings[container_port] << [HostIp  : parts.get(1).toString(),
                                                                            HostPort: parts.get(0).toString()]
-                    } else {
+                    }
+                    else {
                         config.HostConfig.PortBindings[container_port] << [HostIp  : "0.0.0.0",
                                                                            HostPort: parts.get(0).toString()]
                     }
@@ -273,15 +278,18 @@ class DockerContainerTask extends DockerTask {
                 if (parts.size() == 2) {
                     config.Volumes[(String) parts.get(1)] = {}
                     config.HostConfig.Binds << v
-                } else if (parts.size() == 3) {
+                }
+                else if (parts.size() == 3) {
                     if (!(parts.get(2) in ['ro'])) {
                         throw new IllegalArgumentException('any third argument in bind must be "ro"')
                     }
                     config.Volumes[(String) parts.get(1)] = {}
                     config.HostConfig.Binds << v
-                } else if (parts.size() == 1) {
+                }
+                else if (parts.size() == 1) {
                     config.Volumes[(String) parts.get(0)] = {}
-                } else {
+                }
+                else {
                     throw new IllegalArgumentException("Malformed volume string: ${v}")
                 }
             }
@@ -348,8 +356,10 @@ class DockerContainerTask extends DockerTask {
                             logger.info "HealthCheck/tcp: Container is healthy."
                             socket.close()
                             return true
-                        } catch (SocketTimeoutException ignored) {
-                        } catch (IOException ignored) {
+                        }
+                        catch (SocketTimeoutException ignored) {
+                        }
+                        catch (IOException ignored) {
                         }
 
                         counter = counter + 1
@@ -372,9 +382,12 @@ class DockerContainerTask extends DockerTask {
                                 logger.info "HealthCheck/http: Container is healthy: ${connection.getResponseCode()}"
                                 return true
                             }
-                        } catch (SocketTimeoutException ignored) {
-                        } catch (IOException ignored) {
-                        } finally {
+                        }
+                        catch (SocketTimeoutException ignored) {
+                        }
+                        catch (IOException ignored) {
+                        }
+                        finally {
                             if (connection) {
                                 connection.disconnect()
                             }

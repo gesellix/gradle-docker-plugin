@@ -5,7 +5,7 @@ import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.TaskAction
 
-class DockerCreateTask extends DockerTask {
+class DockerCreateTask extends GenericDockerTask {
 
     @Input
     def imageName

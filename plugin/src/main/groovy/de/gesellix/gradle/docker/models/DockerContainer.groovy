@@ -42,7 +42,8 @@ class DockerContainer {
             }
             if (containers.size() > 0) {
                 id = containers[0].Id
-            } else {
+            }
+            else {
                 id = null
                 imageId = null
                 running = false
@@ -60,13 +61,14 @@ class DockerContainer {
             running = response.content.State.Running
 
             return response.content
-
-        } catch (FileNotFoundException ignored) {
+        }
+        catch (FileNotFoundException ignored) {
             id = null
             imageId = null
             running = false
             exists = false
-        } catch (IllegalStateException ignored) {
+        }
+        catch (IllegalStateException ignored) {
             id = null
             imageId = null
             running = false
@@ -340,7 +342,7 @@ class DockerContainer {
 
         // Exposed Ports
         def expectedExposed = (image.ContainerConfig.ExposedPorts ?: [:]).keySet() +
-                (config.ExposedPorts ?: [:]).keySet()
+                              (config.ExposedPorts ?: [:]).keySet()
         def currentExposed = (current.Config.ExposedPorts ?: [:]).keySet()
         if (currentExposed != expectedExposed) {
             return "Exposed ports do not match: ${currentExposed} != ${expectedExposed}"
@@ -348,7 +350,7 @@ class DockerContainer {
 
         // Volumes
         def expectedVolumes = (image.ContainerConfig.Volumes ?: [:]).keySet() +
-                (config.Volumes ?: [:]).keySet()
+                              (config.Volumes ?: [:]).keySet()
         def currentVolumes = (current.Config.Volumes ?: [:]).keySet()
         if (currentVolumes != expectedVolumes) {
             return "Volumes do not match: ${currentVolumes} != ${expectedVolumes}"
@@ -356,7 +358,7 @@ class DockerContainer {
 
         // Environment
         def expectedEnv = splitEnv((Collection<String>) image.ContainerConfig.Env) +
-                splitEnv((Collection<String>) config.Env)
+                          splitEnv((Collection<String>) config.Env)
         expectedEnv = expectedEnv.collectEntries { k, v ->
             (k in ignoredEnvKeys) ? [:] : [(k): v]
         }
@@ -382,7 +384,8 @@ class DockerContainer {
         if (config.Entrypoint) {
             expectedCmd += config.Entrypoint
             expectedCmd += config.Cmd ?: []
-        } else {
+        }
+        else {
             expectedCmd += image.Config.Entrypoint ?: []
             expectedCmd += (config.Cmd ? config.Cmd : image.Config.Cmd ?: [])
         }
@@ -396,31 +399,31 @@ class DockerContainer {
         // Binds
         if (current.HostConfig.Binds != config.HostConfig.Binds) {
             return "Binds do not match: ${current.HostConfig.Binds} != " +
-                    "${config.HostConfig.Binds}"
+                   "${config.HostConfig.Binds}"
         }
 
         // Port Bindings
         if (current.HostConfig.PortBindings != config.HostConfig.PortBindings) {
             return "Port Bindings do not match: ${current.HostConfig.PortBindings} != " +
-                    "${config.HostConfig.PortBindings}"
+                   "${config.HostConfig.PortBindings}"
         }
 
         // Links
         if (current.HostConfig.Links != config.HostConfig.Links) {
             return "Links do not match: ${current.HostConfig.Links} != " +
-                    "${config.HostConfig.Links}"
+                   "${config.HostConfig.Links}"
         }
 
         // Privileged
         if (current.HostConfig.Privileged != config.HostConfig.Privileged) {
             return "Privileged does not match: ${current.HostConfig.Privileged} != " +
-                    "${config.HostConfig.Privileged}"
+                   "${config.HostConfig.Privileged}"
         }
 
         // ExtraHosts
         if (current.HostConfig.ExtraHosts != config.HostConfig.ExtraHosts) {
             return "ExtraHosts do not match: ${current.HostConfig.ExtraHosts} != " +
-                    "${config.HostConfig.ExtraHosts}"
+                   "${config.HostConfig.ExtraHosts}"
         }
 
         return null
