@@ -7,6 +7,7 @@ import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.Specification
 
 class DockerContainerTaskSpec extends Specification {
+
     def project
     def task
     def dockerClient = Mock(DockerClient)
@@ -522,11 +523,13 @@ class DockerContainerTaskSpec extends Specification {
     def "healthcheck on already running container"() {
         given:
         Thread server = new Thread() {
+
             boolean initialized = false
             int serverPort = 0
             boolean stopped = false
 
-            public void run() {
+            @Override
+            void run() {
                 ServerSocket ss
                 synchronized (this) {
                     serverPort = PortFinder.findFreePort()

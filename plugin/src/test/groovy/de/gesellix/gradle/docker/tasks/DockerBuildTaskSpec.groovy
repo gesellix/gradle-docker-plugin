@@ -82,29 +82,6 @@ class DockerBuildTaskSpec extends Specification {
         tarOfBuildcontextTask.outputs.files.asPath == task.targetFile.absolutePath
     }
 
-    // TODO this should become an integration test, so that the 'task dependsOn tarOfBuildcontext' also works
-    def "delegates to dockerClient with tar of buildContextDirectory as buildContext"() {
-        URL dockerfile = getClass().getResource('/docker/Dockerfile')
-        def baseDir = new File(dockerfile.toURI()).parentFile
-
-        given:
-        task.buildContextDirectory = baseDir
-        task.imageName = "user/imageName"
-        task.dockerClient = dockerClient
-        task.configure()
-        def tarOfBuildcontextTask = project.getTasksByName("tarBuildcontextForDockerBuild", false).first()
-        tarOfBuildcontextTask.execute()
-
-        when:
-        task.execute()
-
-        then:
-        1 * dockerClient.build({
-            FileInputStream
-        }, new BuildConfig(query: [t: 'user/imageName', rm: true])) >>
-                new BuildResult(imageId: "4711")
-    }
-
     def "delegates to dockerClient with buildContext"() {
         def inputStream = new FileInputStream(File.createTempFile("docker", "test"))
 
@@ -113,11 +90,11 @@ class DockerBuildTaskSpec extends Specification {
         task.imageName = "imageName"
 
         when:
-        task.execute()
+        task.build()
 
         then:
         1 * dockerClient.build(inputStream, new BuildConfig(query: [rm: true, t: "imageName"])) >>
-                new BuildResult(imageId: "4711")
+        new BuildResult(imageId: "4711")
 
         and:
         task.outputs.files.isEmpty()
@@ -132,11 +109,11 @@ class DockerBuildTaskSpec extends Specification {
         task.imageName = "imageName"
 
         when:
-        task.execute()
+        task.build()
 
         then:
         1 * dockerClient.build(inputStream, new BuildConfig(query: [rm: true, t: "imageName", dockerfile: './custom.Dockerfile'])) >>
-                new BuildResult(imageId: "4711")
+        new BuildResult(imageId: "4711")
 
         and:
         task.outputs.files.isEmpty()
@@ -151,11 +128,11 @@ class DockerBuildTaskSpec extends Specification {
         task.imageName = "imageName"
 
         when:
-        task.execute()
+        task.build()
 
         then:
         1 * dockerClient.build(inputStream, new BuildConfig(query: [rm: true, t: "imageName"], options: [EncodedRegistryConfig: [foo: [:]]])) >>
-                new BuildResult(imageId: "4711")
+        new BuildResult(imageId: "4711")
 
         and:
         task.outputs.files.isEmpty()
@@ -170,11 +147,11 @@ class DockerBuildTaskSpec extends Specification {
         task.imageName = "imageName"
 
         when:
-        task.execute()
+        task.build()
 
         then:
         1 * dockerClient.build(inputStream, new BuildConfig(query: [rm: false, t: "imageName", dockerfile: './custom.Dockerfile'])) >>
-                new BuildResult(imageId: "4711")
+        new BuildResult(imageId: "4711")
 
         and:
         task.outputs.files.isEmpty()
@@ -189,11 +166,11 @@ class DockerBuildTaskSpec extends Specification {
         task.enableBuildLog = true
 
         when:
-        task.execute()
+        task.build()
 
         then:
         1 * dockerClient.buildWithLogs(inputStream, new BuildConfig(query: [rm: true, t: "imageName"])) >>
-                new BuildResult(imageId: "4711", log: [])
+        new BuildResult(imageId: "4711", log: [])
 
         and:
         task.outputs.files.isEmpty()
@@ -209,50 +186,14 @@ class DockerBuildTaskSpec extends Specification {
         task.enableBuildLog = true
 
         when:
-        task.execute()
+        task.build()
 
         then:
         1 * dockerClient.buildWithLogs(inputStream, new BuildConfig(query: [rm: true, t: "imageName", dockerfile: './custom.Dockerfile'])) >>
-                new BuildResult(imageId: "4711", log: [])
+        new BuildResult(imageId: "4711", log: [])
 
         and:
         task.outputs.files.isEmpty()
-    }
-
-    // TODO this should become an integration test
-    def "accepts only task configs with at least one of buildContext or buildContextDirectory"() {
-        given:
-        task.buildContextDirectory = null
-        task.buildContext = null
-
-        when:
-        task.execute()
-
-        then:
-        Exception exception = thrown()
-        exception.message == "Execution failed for task ':dockerBuild'."
-        and:
-        exception.cause.message ==~ "assert getBuildContext\\(\\)\n\\s{7}\\|\n\\s{7}null"
-    }
-
-    // TODO this should become an integration test
-    def "accepts exactly one of buildContext or buildContextDirectory"() {
-        URL dockerfile = getClass().getResource('/docker/Dockerfile')
-        def baseDir = new File(dockerfile.toURI()).parentFile
-        def inputStream = new FileInputStream(File.createTempFile("docker", "test"))
-
-        given:
-        task.buildContextDirectory = baseDir
-        task.buildContext = inputStream
-
-        when:
-        task.execute()
-
-        then:
-        Exception exception = thrown()
-        exception.message == "Execution failed for task ':dockerBuild'."
-        and:
-        exception.cause.message ==~ "assert !getBuildContext\\(\\)\n\\s{7}\\|\\|\n\\s{7}\\|java.io.FileInputStream@\\w+\n\\s{7}false"
     }
 
     def "normalizedImageName should match [a-z0-9-_.]"() {

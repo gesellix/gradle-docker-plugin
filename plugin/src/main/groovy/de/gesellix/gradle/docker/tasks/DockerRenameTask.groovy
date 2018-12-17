@@ -3,7 +3,7 @@ package de.gesellix.gradle.docker.tasks
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
 
-class DockerRenameTask extends DockerTask {
+class DockerRenameTask extends GenericDockerTask {
 
     @Input
     def containerId

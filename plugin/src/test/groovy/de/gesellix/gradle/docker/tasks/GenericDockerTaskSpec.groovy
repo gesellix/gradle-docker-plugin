@@ -6,7 +6,7 @@ import org.gradle.api.Project
 import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.Specification
 
-class DockerTaskSpec extends Specification {
+class GenericDockerTaskSpec extends Specification {
 
     def task
 

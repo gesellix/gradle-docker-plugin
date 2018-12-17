@@ -3,7 +3,7 @@ package de.gesellix.gradle.docker.tasks
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
 
-class DockerNetworkDisconnectTask extends DockerTask {
+class DockerNetworkDisconnectTask extends GenericDockerTask {
 
     @Input
     String networkName

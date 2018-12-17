@@ -3,7 +3,7 @@ package de.gesellix.gradle.docker.tasks
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
 
-class DockerWaitTask extends DockerTask {
+class DockerWaitTask extends GenericDockerTask {
 
     @Input
     def containerId

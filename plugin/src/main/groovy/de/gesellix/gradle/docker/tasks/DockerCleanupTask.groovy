@@ -3,7 +3,7 @@ package de.gesellix.gradle.docker.tasks
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.TaskAction
 
-class DockerCleanupTask extends DockerTask {
+class DockerCleanupTask extends GenericDockerTask {
 
     @Optional
     def shouldKeepContainer

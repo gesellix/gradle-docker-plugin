@@ -4,6 +4,7 @@ import de.gesellix.docker.client.DockerClient
 import spock.lang.Specification
 
 class DockerContainerSpec extends Specification {
+
     def dockerClient = Mock(DockerClient)
 
     def "reloaded w/ different image"() {

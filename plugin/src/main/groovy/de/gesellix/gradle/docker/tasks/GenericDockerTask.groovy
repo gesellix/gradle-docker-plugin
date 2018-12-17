@@ -5,6 +5,7 @@ import de.gesellix.docker.client.DockerClientImpl
 import de.gesellix.docker.engine.DockerEnv
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Optional
 import org.gradle.util.CollectionUtils
 
@@ -14,7 +15,7 @@ import static java.net.Proxy.NO_PROXY
 /**
  * The base class for all Docker-related tasks.
  */
-class DockerTask extends DefaultTask {
+class GenericDockerTask extends DefaultTask {
 
     private Object dockerHost
     private Object certPath
@@ -139,6 +140,7 @@ class DockerTask extends DefaultTask {
 
     DockerClient dockerClient
 
+    @Internal
     def getDockerClient() {
         if (!dockerClient) {
             if (getDockerHost() || getCertPath()) {
@@ -150,7 +152,8 @@ class DockerTask extends DefaultTask {
                     dockerEnv.certPath = getCertPath()
                 }
                 dockerClient = new DockerClientImpl(dockerEnv, (getProxy() ?: NO_PROXY) as Proxy)
-            } else {
+            }
+            else {
                 dockerClient = new DockerClientImpl()
             }
         }
@@ -162,6 +165,7 @@ class DockerTask extends DefaultTask {
      *
      * @return Authentication object
      */
+    @Internal
     String getAuthConfig() {
         // NOTE: To keep behaviour from previous versions we need to access the fields directly.
         //       Once we know the field is set we can proceed as per normal as we'll obtain the

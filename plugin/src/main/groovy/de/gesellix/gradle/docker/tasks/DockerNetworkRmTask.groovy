@@ -4,7 +4,7 @@ import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.TaskAction
 
-class DockerNetworkRmTask extends DockerTask {
+class DockerNetworkRmTask extends GenericDockerTask {
 
     @Input
     String networkName
