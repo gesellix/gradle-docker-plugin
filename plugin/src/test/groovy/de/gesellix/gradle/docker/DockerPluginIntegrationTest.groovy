@@ -1,11 +1,13 @@
 package de.gesellix.gradle.docker
 
+import de.gesellix.docker.client.DockerClient
 import de.gesellix.docker.client.DockerClientImpl
 import de.gesellix.docker.client.LocalDocker
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
+import org.spockframework.util.Assert
 import spock.lang.Ignore
 import spock.lang.Requires
 import spock.lang.Specification
@@ -108,8 +110,8 @@ class DockerPluginIntegrationTest extends Specification {
                            "serveraddress": "https://index.docker.io/v1/"]
         def dockerClient = new DockerClientImpl()
         def authConfig = dockerClient.encodeAuthConfig(authDetails)
-        dockerClient.pull("gesellix/testimage", "os-linux")
-        dockerClient.tag("gesellix/testimage:os-linux", "gesellix/example")
+        pull(dockerClient, "gesellix/testimage", "os-linux")
+        tag(dockerClient, "gesellix/testimage:os-linux", "gesellix/example")
 
         buildFile << """
           task dockerPush(type: de.gesellix.gradle.docker.tasks.DockerPushTask) {
@@ -258,7 +260,7 @@ class DockerPluginIntegrationTest extends Specification {
     def "test start"() {
         given:
         def dockerClient = new DockerClientImpl()
-        dockerClient.pull("gesellix/testimage", "os-linux")
+        pull(dockerClient, "gesellix/testimage", "os-linux")
         def containerInfo = dockerClient.createContainer([
                 "Image"     : "gesellix/testimage:os-linux",
                 "Cmd"       : ["true"],
@@ -334,8 +336,8 @@ class DockerPluginIntegrationTest extends Specification {
     def "test images"() {
         given:
         def dockerClient = new DockerClientImpl()
-        dockerClient.pull("gesellix/testimage", "os-linux")
-        dockerClient.tag("gesellix/testimage:os-linux", "gesellix/images-list")
+        pull(dockerClient, "gesellix/testimage", "os-linux")
+        tag(dockerClient, "gesellix/testimage:os-linux", "gesellix/images-list")
 
         buildFile << """
           task dockerImages(type: de.gesellix.gradle.docker.tasks.DockerImagesTask) {
@@ -368,18 +370,20 @@ class DockerPluginIntegrationTest extends Specification {
         given:
         def hostDir = "/tmp"
         def dockerClient = new DockerClientImpl()
-        dockerClient.pull("gesellix/testimage", "os-linux")
-        dockerClient.tag("gesellix/testimage", "gesellix/run-with-data-volumes")
+
+        pull(dockerClient, "gesellix/testimage", "os-linux")
+        tag(dockerClient, "gesellix/testimage:os-linux", "gesellix/run-with-data-volumes")
+
         dockerClient.createContainer([
-                                             "Cmd"       : ["-"],
-                                             "Image"     : "gesellix/run-with-data-volumes",
-                                             "HostConfig": [
-                                                     "Binds"     : ["$hostDir:/data"],
-                                                     "AutoRemove": true
-                                             ],
-                                     ], [
-                                             name: "the-data-example"
-                                     ])
+                "Cmd"       : ["-"],
+                "Image"     : "gesellix/run-with-data-volumes",
+                "HostConfig": [
+                        "Binds"     : ["$hostDir:/data"],
+                        "AutoRemove": true
+                ],
+        ], [
+                name: "the-data-example"
+        ])
 
         buildFile << """
           task dockerRun(type: de.gesellix.gradle.docker.tasks.DockerRunTask) {
@@ -421,18 +425,20 @@ class DockerPluginIntegrationTest extends Specification {
         given:
         def hostDir = "/tmp"
         def dockerClient = new DockerClientImpl()
-        dockerClient.pull("gesellix/testimage", "os-linux")
-        dockerClient.tag("gesellix/testimage", "gesellix/run-with-data-volumes")
+
+        pull(dockerClient, "gesellix/testimage", "os-linux")
+        tag(dockerClient, "gesellix/testimage:os-linux", "gesellix/run-with-data-volumes")
+
         dockerClient.createContainer([
-                                             "Cmd"       : ["-"],
-                                             "Image"     : "gesellix/run-with-data-volumes",
-                                             "HostConfig": [
-                                                     "Binds"     : ["$hostDir:/data"],
-                                                     "AutoRemove": true
-                                             ],
-                                     ], [
-                                             name: "the-data-example"
-                                     ])
+                "Cmd"       : ["-"],
+                "Image"     : "gesellix/run-with-data-volumes",
+                "HostConfig": [
+                        "Binds"     : ["$hostDir:/data"],
+                        "AutoRemove": true
+                ],
+        ], [
+                name: "the-data-example"
+        ])
 
         buildFile << """
           task dockerVolumeCreate(type: de.gesellix.gradle.docker.tasks.DockerVolumeCreateTask) {
@@ -593,5 +599,21 @@ class DockerPluginIntegrationTest extends Specification {
         then:
         result.output.contains("same version: true")
         result.task(':testTask').outcome == TaskOutcome.SUCCESS
+    }
+
+    void pull(DockerClient dockerClient, String image, String tag) {
+        def createResponse = dockerClient.create([fromImage: image, tag: tag], [:])
+        if (!createResponse.status.success) {
+            println "create: ${createResponse}"
+            Assert.fail("`docker pull $image:$tag` failed")
+        }
+    }
+
+    void tag(DockerClient dockerClient, String from, String to) {
+        def tagResponse = dockerClient.tag(from, to)
+        if (!tagResponse.status.success) {
+            println "tag: ${tagResponse}"
+            Assert.fail("`docker tag $from $to` failed")
+        }
     }
 }
