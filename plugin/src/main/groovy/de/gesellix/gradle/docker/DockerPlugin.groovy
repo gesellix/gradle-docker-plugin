@@ -5,7 +5,7 @@ import org.gradle.api.Project
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
 
-public class DockerPlugin implements Plugin<Project> {
+class DockerPlugin implements Plugin<Project> {
 
     private static final Logger logger = Logging.getLogger(DockerPlugin)
 
