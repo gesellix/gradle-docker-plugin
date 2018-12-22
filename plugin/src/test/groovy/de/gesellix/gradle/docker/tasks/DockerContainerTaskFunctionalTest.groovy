@@ -178,24 +178,605 @@ class DockerContainerTaskFunctionalTest extends Specification {
     }
 
     def "start already running container"() {
+        given:
+        buildFile << """
+          task dockerContainer(type: de.gesellix.gradle.docker.tasks.DockerContainerTask) {
+              targetState = "started"
+              image = "testImage:latest"
+              containerName = "example"
+              doLast {
+                  logger.lifecycle("Done.")
+              }
+          }
+        """
+        dockerEngineHttpHandler.expectedRequests = [
+                new ExpectedRequestWithResponse(
+                        request: "GET /containers/json?filters=%7B%22name%22%3A%5B%22example%22%5D%7D&all=true&size=false",
+                        response: JsonOutput.toJson([[Names: ["/example"], Id: "123"]])
+                ),
+                new ExpectedRequestWithResponse(
+                        request: "GET /containers/123/json",
+                        response: JsonOutput.toJson([Image: "testImage", State: [Running: true]])
+                ),
+                new ExpectedRequestWithResponse(
+                        request: "GET /containers/json?filters=%7B%22name%22%3A%5B%22example%22%5D%7D&all=true&size=false",
+                        response: JsonOutput.toJson([[Names: ["/example"], Id: "123"]])
+                ),
+                new ExpectedRequestWithResponse(
+                        request: "GET /containers/123/json",
+                        response: JsonOutput.toJson([Image: "testImage", State: [Running: true]])
+                ),
+        ]
+
         when:
-        task.targetState = "started"
-        task.image = "testImage:latest"
-        task.containerName = "example"
-        def upToDate = task.checkIfUpToDate()
-        task.execute()
+        def result = GradleRunner.create()
+                .withProjectDir(testProjectDir.root)
+                .withArguments('dockerContainer')
+                .withPluginClasspath()
+                .build()
 
         then:
-        3 * dockerClient.ps([filters: [name: ["example"]]]) >> [
-                content: [[Names: ["/example"], Id: "123"]]
-        ]
-        3 * dockerClient.inspectContainer("123") >> [
-                content: [Image: task.image, State: [Running: true]]
+        result.task(':dockerContainer').outcome != TaskOutcome.UP_TO_DATE
+        result.output.contains("Done.")
+        dockerEngineHttpHandler.expectedRequests.empty
+    }
+
+    def "stop running container"() {
+        given:
+        buildFile << """
+          task dockerContainer(type: de.gesellix.gradle.docker.tasks.DockerContainerTask) {
+              targetState = "stopped"
+              image = "testImage:latest"
+              containerName = "example"
+              doLast {
+                  logger.lifecycle("Done.")
+              }
+          }
+        """
+        dockerEngineHttpHandler.expectedRequests = [
+                new ExpectedRequestWithResponse(
+                        request: "GET /containers/json?filters=%7B%22name%22%3A%5B%22example%22%5D%7D&all=true&size=false",
+                        response: JsonOutput.toJson([[Names: ["/example"], Id: "123"]])
+                ),
+                new ExpectedRequestWithResponse(
+                        request: "GET /containers/123/json",
+                        response: JsonOutput.toJson([Image: "testImage", State: [Running: true]])
+                ),
+                new ExpectedRequestWithResponse(
+                        request: "GET /containers/json?filters=%7B%22name%22%3A%5B%22example%22%5D%7D&all=true&size=false",
+                        response: JsonOutput.toJson([[Names: ["/example"], Id: "123"]])
+                ),
+                new ExpectedRequestWithResponse(
+                        request: "GET /containers/123/json",
+                        response: JsonOutput.toJson([Image: "testImage", State: [Running: true]])
+                ),
+                new ExpectedRequestWithResponse(
+                        request: "POST /containers/123/stop?t=10",
+                        response: JsonOutput.toJson([:])
+                ),
+                new ExpectedRequestWithResponse(
+                        request: "GET /containers/123/json",
+                        response: JsonOutput.toJson([Image: "testImage", State: [Running: false]])
+                ),
         ]
 
-        and:
-        upToDate == true
-        task.changed == false
+        when:
+        def result = GradleRunner.create()
+                .withProjectDir(testProjectDir.root)
+                .withArguments('dockerContainer')
+                .withPluginClasspath()
+                .build()
+
+        then:
+        result.task(':dockerContainer').outcome != TaskOutcome.UP_TO_DATE
+        result.output.contains("Done.")
+        dockerEngineHttpHandler.expectedRequests.empty
+    }
+
+    def "stop already stopped container"() {
+        given:
+        buildFile << """
+          task dockerContainer(type: de.gesellix.gradle.docker.tasks.DockerContainerTask) {
+              targetState = "stopped"
+              image = "testImage:latest"
+              containerName = "example"
+              doLast {
+                  logger.lifecycle("Done.")
+              }
+          }
+        """
+        dockerEngineHttpHandler.expectedRequests = [
+                new ExpectedRequestWithResponse(
+                        request: "GET /containers/json?filters=%7B%22name%22%3A%5B%22example%22%5D%7D&all=true&size=false",
+                        response: JsonOutput.toJson([[Names: ["/example"], Id: "123"]])
+                ),
+                new ExpectedRequestWithResponse(
+                        request: "GET /containers/123/json",
+                        response: JsonOutput.toJson([Image: "testImage", State: [Running: false]])
+                ),
+                new ExpectedRequestWithResponse(
+                        request: "GET /containers/json?filters=%7B%22name%22%3A%5B%22example%22%5D%7D&all=true&size=false",
+                        response: JsonOutput.toJson([[Names: ["/example"], Id: "123"]])
+                ),
+                new ExpectedRequestWithResponse(
+                        request: "GET /containers/123/json",
+                        response: JsonOutput.toJson([Image: "testImage", State: [Running: false]])
+                ),
+        ]
+
+        when:
+        def result = GradleRunner.create()
+                .withProjectDir(testProjectDir.root)
+                .withArguments('dockerContainer')
+                .withPluginClasspath()
+                .build()
+
+        then:
+        result.task(':dockerContainer').outcome == TaskOutcome.SUCCESS
+//        result.task(':dockerContainer').outcome == TaskOutcome.UP_TO_DATE
+        result.output.contains("Done.")
+        dockerEngineHttpHandler.expectedRequests.empty
+    }
+
+    def "remove running container"() {
+        given:
+        buildFile << """
+          task dockerContainer(type: de.gesellix.gradle.docker.tasks.DockerContainerTask) {
+              targetState = "absent"
+              image = "testImage:latest"
+              containerName = "example"
+              doLast {
+                  logger.lifecycle("Done.")
+              }
+          }
+        """
+        dockerEngineHttpHandler.expectedRequests = [
+                new ExpectedRequestWithResponse(
+                        request: "GET /containers/json?filters=%7B%22name%22%3A%5B%22example%22%5D%7D&all=true&size=false",
+                        response: JsonOutput.toJson([[Names: ["/example"], Id: "123"]])
+                ),
+                new ExpectedRequestWithResponse(
+                        request: "GET /containers/123/json",
+                        response: JsonOutput.toJson([Image: "testImage", State: [Running: true]])
+                ),
+                new ExpectedRequestWithResponse(
+                        request: "GET /containers/json?filters=%7B%22name%22%3A%5B%22example%22%5D%7D&all=true&size=false",
+                        response: JsonOutput.toJson([[Names: ["/example"], Id: "123"]])
+                ),
+                new ExpectedRequestWithResponse(
+                        request: "GET /containers/123/json",
+                        response: JsonOutput.toJson([Image: "testImage", State: [Running: true]])
+                ),
+                new ExpectedRequestWithResponse(
+                        request: "POST /containers/123/stop?t=10",
+                        response: JsonOutput.toJson([:])
+                ),
+                new ExpectedRequestWithResponse(
+                        request: "GET /containers/123/json",
+                        response: JsonOutput.toJson([Image: "testImage", State: [Running: false]])
+                ),
+                new ExpectedRequestWithResponse(
+                        request: "DELETE /containers/123",
+                        response: JsonOutput.toJson([:])
+                ),
+        ]
+
+        when:
+        def result = GradleRunner.create()
+                .withProjectDir(testProjectDir.root)
+                .withArguments('dockerContainer')
+                .withPluginClasspath()
+                .build()
+
+        then:
+        result.task(':dockerContainer').outcome != TaskOutcome.UP_TO_DATE
+        result.output.contains("Done.")
+        dockerEngineHttpHandler.expectedRequests.empty
+    }
+
+    def "remove stopped container"() {
+        given:
+        buildFile << """
+          task dockerContainer(type: de.gesellix.gradle.docker.tasks.DockerContainerTask) {
+              targetState = "absent"
+              image = "testImage:latest"
+              containerName = "example"
+              doLast {
+                  logger.lifecycle("Done.")
+              }
+          }
+        """
+        dockerEngineHttpHandler.expectedRequests = [
+                new ExpectedRequestWithResponse(
+                        request: "GET /containers/json?filters=%7B%22name%22%3A%5B%22example%22%5D%7D&all=true&size=false",
+                        response: JsonOutput.toJson([[Names: ["/example"], Id: "123"]])
+                ),
+                new ExpectedRequestWithResponse(
+                        request: "GET /containers/123/json",
+                        response: JsonOutput.toJson([Image: "testImage", State: [Running: false]])
+                ),
+                new ExpectedRequestWithResponse(
+                        request: "GET /containers/json?filters=%7B%22name%22%3A%5B%22example%22%5D%7D&all=true&size=false",
+                        response: JsonOutput.toJson([[Names: ["/example"], Id: "123"]])
+                ),
+                new ExpectedRequestWithResponse(
+                        request: "GET /containers/123/json",
+                        response: JsonOutput.toJson([Image: "testImage", State: [Running: false]])
+                ),
+                new ExpectedRequestWithResponse(
+                        request: "DELETE /containers/123",
+                        response: JsonOutput.toJson([:])
+                ),
+        ]
+
+        when:
+        def result = GradleRunner.create()
+                .withProjectDir(testProjectDir.root)
+                .withArguments('dockerContainer')
+                .withPluginClasspath()
+                .build()
+
+        then:
+        result.task(':dockerContainer').outcome != TaskOutcome.UP_TO_DATE
+        result.output.contains("Done.")
+        dockerEngineHttpHandler.expectedRequests.empty
+    }
+
+    def "remove non-existing container"() {
+        given:
+        buildFile << """
+          task dockerContainer(type: de.gesellix.gradle.docker.tasks.DockerContainerTask) {
+              targetState = "absent"
+              image = "testImage:latest"
+              containerName = "example"
+              doLast {
+                  logger.lifecycle("Done.")
+              }
+          }
+        """
+        dockerEngineHttpHandler.expectedRequests = [
+                new ExpectedRequestWithResponse(
+                        request: "GET /containers/json?filters=%7B%22name%22%3A%5B%22example%22%5D%7D&all=true&size=false",
+                        response: JsonOutput.toJson([])
+                ),
+                new ExpectedRequestWithResponse(
+                        request: "GET /containers/json?filters=%7B%22name%22%3A%5B%22example%22%5D%7D&all=true&size=false",
+                        response: JsonOutput.toJson([])
+                ),
+        ]
+
+        when:
+        def result = GradleRunner.create()
+                .withProjectDir(testProjectDir.root)
+                .withArguments('dockerContainer')
+                .withPluginClasspath()
+                .build()
+
+        then:
+        result.task(':dockerContainer').outcome == TaskOutcome.SUCCESS
+//        result.task(':dockerContainer').outcome == TaskOutcome.UP_TO_DATE
+        result.output.contains("Done.")
+        dockerEngineHttpHandler.expectedRequests.empty
+    }
+
+    def "reload new non-existing container"() {
+        given:
+        buildFile << """
+          task dockerContainer(type: de.gesellix.gradle.docker.tasks.DockerContainerTask) {
+              targetState = "reloaded"
+              image = "testImage:latest"
+              containerName = "example"
+              doLast {
+                  logger.lifecycle("Done.")
+              }
+          }
+        """
+        dockerEngineHttpHandler.expectedRequests = [
+                new ExpectedRequestWithResponse(
+                        request: "GET /containers/json?filters=%7B%22name%22%3A%5B%22example%22%5D%7D&all=true&size=false",
+                        response: JsonOutput.toJson([])
+                ),
+                new ExpectedRequestWithResponse(
+                        request: "GET /containers/json?filters=%7B%22name%22%3A%5B%22example%22%5D%7D&all=true&size=false",
+                        response: JsonOutput.toJson([])
+                ),
+                new ExpectedRequestWithResponse(
+                        request: "GET /containers/json?filters=%7B%22name%22%3A%5B%22example%22%5D%7D&all=true&size=false",
+                        response: JsonOutput.toJson([])
+                ),
+                new ExpectedRequestWithResponse(
+                        request: "POST /containers/create?name=example",
+                        response: JsonOutput.toJson([id: "123"])
+                ),
+                new ExpectedRequestWithResponse(
+                        request: "GET /containers/json?filters=%7B%22name%22%3A%5B%22example%22%5D%7D&all=true&size=false",
+                        response: JsonOutput.toJson([[Names: ["/example"], Id: "123"]])
+                ),
+                new ExpectedRequestWithResponse(
+                        request: "GET /containers/123/json",
+                        response: JsonOutput.toJson([Image: "testImage", State: [Running: false]])
+                ),
+                new ExpectedRequestWithResponse(
+                        request: "POST /containers/123/start",
+                        response: JsonOutput.toJson([Image: "testImage", State: [Running: true]])
+                ),
+                new ExpectedRequestWithResponse(
+                        request: "GET /containers/123/json",
+                        response: JsonOutput.toJson([Image: "testImage", State: [Running: true]])
+                ),
+        ]
+
+        when:
+        def result = GradleRunner.create()
+                .withProjectDir(testProjectDir.root)
+                .withArguments('dockerContainer')
+                .withPluginClasspath()
+                .build()
+
+        then:
+        result.task(':dockerContainer').outcome != TaskOutcome.UP_TO_DATE
+        result.output.contains("Done.")
+        dockerEngineHttpHandler.expectedRequests.empty
+    }
+
+    def "reload non-running container"() {
+        given:
+        buildFile << """
+          task dockerContainer(type: de.gesellix.gradle.docker.tasks.DockerContainerTask) {
+              targetState = "reloaded"
+              image = "testImage:latest"
+              containerName = "example"
+              doLast {
+                  logger.lifecycle("Done.")
+              }
+          }
+        """
+        dockerEngineHttpHandler.expectedRequests = [
+                new ExpectedRequestWithResponse(
+                        request: "GET /containers/json?filters=%7B%22name%22%3A%5B%22example%22%5D%7D&all=true&size=false",
+                        response: JsonOutput.toJson([[Names: ["/example"], Id: "123"]])
+                ),
+                new ExpectedRequestWithResponse(
+                        request: "GET /containers/123/json",
+                        response: JsonOutput.toJson([Image: "testImage", State: [Running: false]])
+                ),
+                new ExpectedRequestWithResponse(
+                        request: "GET /containers/json?filters=%7B%22name%22%3A%5B%22example%22%5D%7D&all=true&size=false",
+                        response: JsonOutput.toJson([[Names: ["/example"], Id: "123"]])
+                ),
+                new ExpectedRequestWithResponse(
+                        request: "GET /containers/123/json",
+                        response: JsonOutput.toJson([Image: "testImage", State: [Running: false]])
+                ),
+                new ExpectedRequestWithResponse(
+                        request: "GET /containers/123/json",
+                        response: JsonOutput.toJson([Image: "testImage", State: [Running: false]])
+                ),
+                new ExpectedRequestWithResponse(
+                        request: "DELETE /containers/123",
+                        response: JsonOutput.toJson([:])
+                ),
+                new ExpectedRequestWithResponse(
+                        request: "POST /containers/create?name=example",
+                        response: JsonOutput.toJson([id: "234"])
+                ),
+                new ExpectedRequestWithResponse(
+                        request: "GET /containers/json?filters=%7B%22name%22%3A%5B%22example%22%5D%7D&all=true&size=false",
+                        response: JsonOutput.toJson([[Names: ["/example"], Id: "234"]])
+                ),
+                new ExpectedRequestWithResponse(
+                        request: "GET /containers/234/json",
+                        response: JsonOutput.toJson([Image: "testImage", State: [Running: false]])
+                ),
+                new ExpectedRequestWithResponse(
+                        request: "POST /containers/234/start",
+                        response: JsonOutput.toJson([Image: "testImage", State: [Running: true]])
+                ),
+                new ExpectedRequestWithResponse(
+                        request: "GET /containers/234/json",
+                        response: JsonOutput.toJson([Image: "testImage", State: [Running: true]])
+                ),
+        ]
+
+        when:
+        def result = GradleRunner.create()
+                .withProjectDir(testProjectDir.root)
+                .withArguments('dockerContainer')
+                .withPluginClasspath()
+                .build()
+
+        then:
+        result.task(':dockerContainer').outcome != TaskOutcome.UP_TO_DATE
+        result.output.contains("Done.")
+        dockerEngineHttpHandler.expectedRequests.empty
+    }
+
+    def "reload running container with different image"() {
+        given:
+        buildFile << """
+          task dockerContainer(type: de.gesellix.gradle.docker.tasks.DockerContainerTask) {
+              targetState = "reloaded"
+              image = "testImage:latest"
+              containerName = "example"
+              doLast {
+                  logger.lifecycle("Done.")
+              }
+          }
+        """
+        dockerEngineHttpHandler.expectedRequests = [
+                new ExpectedRequestWithResponse(
+                        request: "GET /containers/json?filters=%7B%22name%22%3A%5B%22example%22%5D%7D&all=true&size=false",
+                        response: JsonOutput.toJson([[Names: ["/example"], Id: "123"]])
+                ),
+                new ExpectedRequestWithResponse(
+                        request: "GET /containers/123/json",
+                        response: JsonOutput.toJson([Image: "image1", State: [Running: true]])
+                ),
+                new ExpectedRequestWithResponse(
+                        request: "GET /images/testImage:latest/json",
+                        response: JsonOutput.toJson([Id: "image0"])
+                ),
+                new ExpectedRequestWithResponse(
+                        request: "GET /containers/json?filters=%7B%22name%22%3A%5B%22example%22%5D%7D&all=true&size=false",
+                        response: JsonOutput.toJson([[Names: ["/example"], Id: "123"]])
+                ),
+                new ExpectedRequestWithResponse(
+                        request: "GET /containers/123/json",
+                        response: JsonOutput.toJson([Image: "image1", State: [Running: true]])
+                ),
+                new ExpectedRequestWithResponse(
+                        request: "GET /images/testImage:latest/json",
+                        response: JsonOutput.toJson([Id: "image0"])
+                ),
+                new ExpectedRequestWithResponse(
+                        request: "GET /containers/123/json",
+                        response: JsonOutput.toJson([Image: "image1", State: [Running: true]])
+                ),
+                new ExpectedRequestWithResponse(
+                        request: "POST /containers/123/stop",
+                        response: JsonOutput.toJson([:])
+                ),
+                new ExpectedRequestWithResponse(
+                        request: "DELETE /containers/123",
+                        response: JsonOutput.toJson([:])
+                ),
+                new ExpectedRequestWithResponse(
+                        request: "POST /containers/create?name=example",
+                        response: JsonOutput.toJson([id: "234"])
+                ),
+                new ExpectedRequestWithResponse(
+                        request: "GET /containers/json?filters=%7B%22name%22%3A%5B%22example%22%5D%7D&all=true&size=false",
+                        response: JsonOutput.toJson([[Names: ["/example"], Id: "234"]])
+                ),
+                new ExpectedRequestWithResponse(
+                        request: "GET /containers/234/json",
+                        response: JsonOutput.toJson([Image: "testImage", State: [Running: false]])
+                ),
+                new ExpectedRequestWithResponse(
+                        request: "POST /containers/234/start",
+                        response: JsonOutput.toJson([Image: "testImage", State: [Running: true]])
+                ),
+                new ExpectedRequestWithResponse(
+                        request: "GET /containers/234/json",
+                        response: JsonOutput.toJson([Image: "testImage", State: [Running: true]])
+                ),
+        ]
+
+        when:
+        def result = GradleRunner.create()
+                .withProjectDir(testProjectDir.root)
+                .withArguments('dockerContainer')
+                .withPluginClasspath()
+                .build()
+
+        then:
+        result.task(':dockerContainer').outcome != TaskOutcome.UP_TO_DATE
+        result.output.contains("Done.")
+        dockerEngineHttpHandler.expectedRequests.empty
+    }
+
+    def "reload running container with everything same"() {
+        given:
+        buildFile << """
+          task dockerContainer(type: de.gesellix.gradle.docker.tasks.DockerContainerTask) {
+              targetState = "reloaded"
+              image = "testImage:latest"
+              containerName = "example"
+              ports = ["80:8080"]
+              env = ["TMP=1"]
+              cmd = ["jar", "myjarfile.jar"]
+              links = ["mycontainer:myalias"]
+              volumes = [
+                  "/mnt/data:/data",
+                  "/mnt/readonly:/input:ro"
+              ]
+              extraHosts = ["dockerhost:127.0.0.1"]
+              doLast {
+                  logger.lifecycle("Done.")
+              }
+          }
+        """
+        def containerConfig = [
+                Image     : "image1",
+                State     : [
+                        Running: true
+                ],
+                Config    : [
+                        ExposedPorts: ["8080/tcp": []],
+                        Volumes     : [
+                                "/data" : [],
+                                "/spec" : [],
+                                "/input": []
+                        ],
+                        Env         : ["TMP=1", "MYVAR=myval"],
+                        Cmd         : ["java", "jar", "myjarfile.jar"]
+                ],
+                HostConfig: [
+                        Binds       : [
+                                "/mnt/data:/data",
+                                "/mnt/readonly:/input:ro"
+                        ],
+                        Links       : ["mycontainer:myalias"],
+                        ExtraHosts  : ["dockerhost:127.0.0.1"],
+                        Privileged  : false,
+                        PortBindings: ["8080/tcp": [
+                                [
+                                        HostIp  : "0.0.0.0",
+                                        HostPort: "80"
+                                ]
+                        ]]
+                ]
+        ]
+        def imageConfig = [
+                Id             : "image1",
+                ContainerConfig: [
+                        ExposedPorts: [],
+                        Volumes     : ["/spec": []],
+                        Env         : ["MYVAR=myval"]
+                ],
+                Config         : [
+                        Entrypoint: "java"
+                ]
+        ]
+        dockerEngineHttpHandler.expectedRequests = [
+                new ExpectedRequestWithResponse(
+                        request: "GET /containers/json?filters=%7B%22name%22%3A%5B%22example%22%5D%7D&all=true&size=false",
+                        response: JsonOutput.toJson([[Names: ["/example"], Id: "123"]])
+                ),
+                new ExpectedRequestWithResponse(
+                        request: "GET /containers/123/json",
+                        response: JsonOutput.toJson(containerConfig)
+                ),
+                new ExpectedRequestWithResponse(
+                        request: "GET /images/testImage:latest/json",
+                        response: JsonOutput.toJson(imageConfig)
+                ),
+                new ExpectedRequestWithResponse(
+                        request: "GET /containers/json?filters=%7B%22name%22%3A%5B%22example%22%5D%7D&all=true&size=false",
+                        response: JsonOutput.toJson([[Names: ["/example"], Id: "123"]])
+                ),
+                new ExpectedRequestWithResponse(
+                        request: "GET /containers/123/json",
+                        response: JsonOutput.toJson(containerConfig)
+                ),
+                new ExpectedRequestWithResponse(
+                        request: "GET /images/testImage:latest/json",
+                        response: JsonOutput.toJson(imageConfig)
+                ),
+        ]
+
+        when:
+        def result = GradleRunner.create()
+                .withProjectDir(testProjectDir.root)
+                .withArguments('dockerContainer')
+                .withPluginClasspath()
+                .build()
+
+        then:
+        result.task(':dockerContainer').outcome == TaskOutcome.SUCCESS
+//        result.task(':dockerContainer').outcome == TaskOutcome.UP_TO_DATE
+        result.output.contains("Done.")
+        dockerEngineHttpHandler.expectedRequests.empty
     }
 
     def project
@@ -209,314 +790,6 @@ class DockerContainerTaskFunctionalTest extends Specification {
     def "dockerHost from tcp://127.0.0.1:999"() {
         expect:
         new URI("tcp://127.0.0.1:999").getHost() == "127.0.0.1"
-    }
-
-    def "stop running container"() {
-        when:
-        task.targetState = "stopped"
-        task.image = "testImage:latest"
-        task.containerName = "example"
-        def upToDate = task.checkIfUpToDate()
-        task.execute()
-
-        then:
-        3 * dockerClient.ps([filters: [name: ["example"]]]) >> [
-                content: [[Names: ["/example"], Id: "123"]]
-        ]
-        4 * dockerClient.inspectContainer("123") >>> [
-                [content: [Image: task.image, State: [Running: true]]],
-                [content: [Image: task.image, State: [Running: true]]],
-                [content: [Image: task.image, State: [Running: true]]],
-                [content: [Image: task.image, State: [Running: false]]],
-        ]
-        1 * dockerClient.stop("123") >> [
-                status: [success: true]
-        ]
-
-        and:
-        upToDate == false
-        task.changed == true
-    }
-
-    def "stop already stopped container"() {
-        when:
-        task.targetState = "stopped"
-        task.image = "testImage:latest"
-        task.containerName = "example"
-        def upToDate = task.checkIfUpToDate()
-        task.execute()
-
-        then:
-        3 * dockerClient.ps([filters: [name: ["example"]]]) >>> [
-                [content: [[Names: ["/example"], Id: "123"]]]
-        ]
-        3 * dockerClient.inspectContainer("123") >> [
-                content: [Image: task.image, State: [Running: false]]
-        ]
-
-        and:
-        upToDate == true
-        task.changed == false
-    }
-
-    def "remove running container"() {
-        when:
-        task.targetState = "absent"
-        task.image = "testImage:latest"
-        task.containerName = "example"
-        def upToDate = task.checkIfUpToDate()
-        task.execute()
-
-        then:
-        3 * dockerClient.ps([filters: [name: ["example"]]]) >> [
-                content: [[Names: ["/example"], Id: "123"]]
-        ]
-        4 * dockerClient.inspectContainer("123") >>> [
-                [content: [Image: task.image, State: [Running: true]]],
-                [content: [Image: task.image, State: [Running: true]]],
-                [content: [Image: task.image, State: [Running: true]]],
-                [content: [Image: task.image, State: [Running: false]]],
-        ]
-        1 * dockerClient.stop("123") >> [
-                status: [success: true]
-        ]
-        1 * dockerClient.rm("123") >> [
-                status: [success: true]
-        ]
-
-        and:
-        upToDate == false
-        task.changed == true
-    }
-
-    def "remove stopped container"() {
-        when:
-        task.targetState = "absent"
-        task.image = "testImage:latest"
-        task.containerName = "example"
-        def upToDate = task.checkIfUpToDate()
-        task.execute()
-
-        then:
-        3 * dockerClient.ps([filters: [name: ["example"]]]) >> [
-                content: [[Names: ["/example"], Id: "123"]]
-        ]
-        3 * dockerClient.inspectContainer("123") >> [
-                content: [Image: task.image, State: [Running: false]]
-        ]
-        1 * dockerClient.rm("123") >> [
-                status: [success: true]
-        ]
-
-        and:
-        upToDate == false
-        task.changed == true
-    }
-
-    def "remove non-existing container"() {
-        when:
-        task.targetState = "absent"
-        task.image = "testImage:latest"
-        task.containerName = "example"
-        def upToDate = task.checkIfUpToDate()
-        task.execute()
-
-        then:
-        3 * dockerClient.ps([filters: [name: ["example"]]]) >> [
-                content: []
-        ]
-
-        and:
-        upToDate == true
-        task.changed == false
-    }
-
-    def "reload new non-existing container"() {
-        when:
-        task.targetState = "reloaded"
-        task.image = "testImage:latest"
-        task.containerName = "example"
-        def upToDate = task.checkIfUpToDate()
-        task.execute()
-
-        then:
-        5 * dockerClient.ps([filters: [name: ["example"]]]) >>> [
-                [content: []],
-                [content: []],
-                [content: []],
-                [content: []],
-                [content: [[Names: ["/example"], Id: "123"]]]
-        ]
-        1 * dockerClient.createContainer(_, [name: "example"]) >> [
-                status : [success: true],
-                content: [id: "123"]
-        ]
-        1 * dockerClient.startContainer(_) >> [
-                status : [success: true],
-                content: [Image: task.image, State: [Running: true]]
-        ]
-        2 * dockerClient.inspectContainer("123") >> [
-                content: [Image: task.image, State: [Running: true]]
-        ]
-
-        and:
-        upToDate == false
-        task.changed == true
-    }
-
-    def "reload non-running container"() {
-        when:
-        task.targetState = "reloaded"
-        task.image = "testImage:latest"
-        task.containerName = "example"
-        def upToDate = task.checkIfUpToDate()
-        task.execute()
-
-        then:
-        4 * dockerClient.ps([filters: [name: ["example"]]]) >>> [
-                [content: [[Names: ["/example"], Id: "123"]]],
-                [content: [[Names: ["/example"], Id: "123"]]],
-                [content: [[Names: ["/example"], Id: "123"]]],
-                [content: [[Names: ["/example"], Id: "234"]]]
-        ]
-        1 * dockerClient.rm("123") >> [
-                status: [success: true]
-        ]
-        1 * dockerClient.createContainer(_, [name: "example"]) >> [
-                status : [success: true],
-                content: [id: "234"]
-        ]
-        1 * dockerClient.startContainer(_) >> [
-                status : [success: true],
-                content: [Image: task.image, State: [Running: true]]
-        ]
-        4 * dockerClient.inspectContainer("123") >> [
-                content: [Image: task.image, State: [Running: false]]
-        ]
-        2 * dockerClient.inspectContainer("234") >>> [
-                [content: [Image: task.image, State: [Running: false]]],
-                [content: [Image: task.image, State: [Running: true]]]
-        ]
-
-        and:
-        upToDate == false
-        task.changed == true
-    }
-
-    def "reload running container with different image"() {
-        when:
-        task.targetState = "reloaded"
-        task.image = "testImage:latest"
-        task.containerName = "example"
-        def upToDate = task.checkIfUpToDate()
-        task.execute()
-
-        then:
-        4 * dockerClient.ps([filters: [name: ["example"]]]) >>> [
-                [content: [[Names: ["/example"], Id: "123"]]],
-                [content: [[Names: ["/example"], Id: "123"]]],
-                [content: [[Names: ["/example"], Id: "123"]]],
-                [content: [[Names: ["/example"], Id: "234"]]]
-        ]
-        1 * dockerClient.rm("123") >> [
-                status: [success: true]
-        ]
-        1 * dockerClient.createContainer(_, [name: "example"]) >> [
-                status : [success: true],
-                content: [id: "234"]
-        ]
-        1 * dockerClient.startContainer(_) >> [
-                status : [success: true],
-                content: [Image: task.image, State: [Running: true]]
-        ]
-        4 * dockerClient.inspectContainer("123") >> [
-                content: [Image: "image1", State: [Running: true]],
-        ]
-        2 * dockerClient.inspectContainer("234") >>> [
-                [content: [Image: task.image, State: [Running: false]]],
-                [content: [Image: task.image, State: [Running: true]]]
-        ]
-        3 * dockerClient.inspectImage("testImage:latest") >> [
-                status : [success: true],
-                content: [Id: "image0"]
-        ]
-
-        and:
-        upToDate == false
-        task.changed == true
-    }
-
-    def "reload running container with everything same"() {
-        when:
-        task.targetState = "reloaded"
-        task.image = "testImage:latest"
-        task.containerName = "example"
-        task.ports = ["80:8080"]
-        task.env = ["TMP=1"]
-        task.cmd = ["jar", "myjarfile.jar"]
-        task.links = ["mycontainer:myalias"]
-        task.volumes = [
-                "/mnt/data:/data",
-                "/mnt/readonly:/input:ro"
-        ]
-        task.extraHosts = ["dockerhost:127.0.0.1"]
-        def upToDate = task.checkIfUpToDate()
-        task.execute()
-
-        then:
-        3 * dockerClient.ps([filters: [name: ["example"]]]) >> [
-                content: [[Names: ["/example"], Id: "123"]]
-        ]
-        3 * dockerClient.inspectContainer("123") >> [
-                content: [
-                        Image     : "image1",
-                        State     : [
-                                Running: true
-                        ],
-                        Config    : [
-                                ExposedPorts: ["8080/tcp": []],
-                                Volumes     : [
-                                        "/data" : [],
-                                        "/spec" : [],
-                                        "/input": []
-                                ],
-                                Env         : ["TMP=1", "MYVAR=myval"],
-                                Cmd         : ["java", "jar", "myjarfile.jar"]
-                        ],
-                        HostConfig: [
-                                Binds       : [
-                                        "/mnt/data:/data",
-                                        "/mnt/readonly:/input:ro"
-                                ],
-                                Links       : ["mycontainer:myalias"],
-                                ExtraHosts  : ["dockerhost:127.0.0.1"],
-                                Privileged  : false,
-                                PortBindings: ["8080/tcp": [
-                                        [
-                                                HostIp  : "0.0.0.0",
-                                                HostPort: "80"
-                                        ]
-                                ]]
-                        ]]
-        ]
-        3 * dockerClient.inspectImage("testImage:latest") >> [
-                status : [success: true],
-                content: [
-                        Id             : "image1",
-                        ContainerConfig: [
-                                ExposedPorts: [],
-                                Volumes     : ["/spec": []],
-                                Env         : ["MYVAR=myval"]
-                        ],
-                        Config         : [
-                                Entrypoint: "java"
-                        ]
-                ]
-        ]
-
-        and:
-        upToDate == true
-        task.changed == false
     }
 
     // Health check tests
