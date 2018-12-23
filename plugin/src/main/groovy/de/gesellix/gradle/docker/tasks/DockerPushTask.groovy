@@ -1,6 +1,7 @@
 package de.gesellix.gradle.docker.tasks
 
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.TaskAction
 
@@ -12,6 +13,7 @@ class DockerPushTask extends GenericDockerTask {
     @Optional
     def registry
 
+    @Internal
     def result
 
     DockerPushTask() {

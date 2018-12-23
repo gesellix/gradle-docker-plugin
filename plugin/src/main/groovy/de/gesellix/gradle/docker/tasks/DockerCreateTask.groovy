@@ -2,6 +2,7 @@ package de.gesellix.gradle.docker.tasks
 
 import de.gesellix.docker.client.EnvFileParser
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.TaskAction
 
@@ -32,8 +33,10 @@ class DockerCreateTask extends GenericDockerTask {
     @Optional
     def environmentFiles = []
 
+    @Internal
     def envFileParser = new EnvFileParser()
 
+    @Internal
     def result
 
     DockerCreateTask() {
@@ -49,6 +52,7 @@ class DockerCreateTask extends GenericDockerTask {
         return result
     }
 
+    @Internal
     def getActualContainerConfig() {
 
         def containerConfig = getContainerConfiguration() ?: [:]

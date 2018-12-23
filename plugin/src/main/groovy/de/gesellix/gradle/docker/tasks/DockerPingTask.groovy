@@ -1,9 +1,11 @@
 package de.gesellix.gradle.docker.tasks
 
+import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.TaskAction
 
 class DockerPingTask extends GenericDockerTask {
 
+    @Internal
     def result
 
     DockerPingTask() {

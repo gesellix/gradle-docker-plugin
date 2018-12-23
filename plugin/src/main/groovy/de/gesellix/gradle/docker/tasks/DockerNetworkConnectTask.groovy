@@ -1,6 +1,7 @@
 package de.gesellix.gradle.docker.tasks
 
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.TaskAction
 
 class DockerNetworkConnectTask extends GenericDockerTask {
@@ -11,6 +12,7 @@ class DockerNetworkConnectTask extends GenericDockerTask {
     @Input
     String containerName
 
+    @Internal
     def response
 
     DockerNetworkConnectTask() {

@@ -1,9 +1,11 @@
 package de.gesellix.gradle.docker.tasks
 
+import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.TaskAction
 
 class DockerNetworksTask extends GenericDockerTask {
 
+    @Internal
     def networks
 
     DockerNetworksTask() {

@@ -1,6 +1,7 @@
 package de.gesellix.gradle.docker.tasks
 
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.TaskAction
 
@@ -13,6 +14,7 @@ class DockerRmTask extends GenericDockerTask {
     @Optional
     boolean removeVolumes = false
 
+    @Internal
     def result
 
     DockerRmTask() {
