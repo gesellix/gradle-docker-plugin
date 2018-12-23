@@ -6,7 +6,6 @@ import de.gesellix.gradle.docker.engine.DockerEngineHttpHandler
 import de.gesellix.gradle.docker.engine.ExpectedRequestWithResponse
 import de.gesellix.gradle.docker.engine.HttpTestServer
 import groovy.json.JsonOutput
-import org.gradle.api.GradleException
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
 import org.junit.Rule
@@ -779,113 +778,152 @@ class DockerContainerTaskFunctionalTest extends Specification {
         dockerEngineHttpHandler.expectedRequests.empty
     }
 
-    def project
-    def task
-
-    def "dockerHost from tcp://127.0.0.1"() {
-        expect:
-        new URI("tcp://127.0.0.1").getHost() == "127.0.0.1"
-    }
-
-    def "dockerHost from tcp://127.0.0.1:999"() {
-        expect:
-        new URI("tcp://127.0.0.1:999").getHost() == "127.0.0.1"
-    }
-
-    // Health check tests
-
     def "healthcheck on already running container - port which is not exposed"() {
-        when:
-        task.dockerHost = "tcp://127.0.0.1:999"
-        task.targetState = "started"
-        task.image = "testImage:latest"
-        task.containerName = "example"
-        task.healthChecks = [[
-                                     containerPort: 8080
-                             ]]
-        task.execute()
-
-        then:
-        1 * dockerClient.ps([filters: [name: ["example"]]]) >> [
-                content: [[Names: ["/example"], Id: "123"]]
-        ]
-        2 * dockerClient.inspectContainer("123") >> [
-                content: [
-                        Image          : task.image,
-                        State          : [Running: true],
-                        HostConfig     : [
-                                PortBindings: []
-                        ],
-                        NetworkSettings: [
-                                Ports: []
-                        ]
+        given:
+        buildFile << """
+          task dockerContainer(type: de.gesellix.gradle.docker.tasks.DockerContainerTask) {
+              targetState = "started"
+              image = "testImage:latest"
+              containerName = "example"
+              healthChecks = [
+                  [containerPort: 8080]
+              ]
+              doLast {
+                  logger.lifecycle("Done.")
+              }
+          }
+        """
+        def containerConfig = [
+                Image          : "testImage",
+                State          : [Running: true],
+                HostConfig     : [
+                        PortBindings: []
+                ],
+                NetworkSettings: [
+                        Ports: []
                 ]
         ]
+        dockerEngineHttpHandler.expectedRequests = [
+                new ExpectedRequestWithResponse(
+                        request: "GET /containers/json?filters=%7B%22name%22%3A%5B%22example%22%5D%7D&all=true&size=false",
+                        response: JsonOutput.toJson([[Names: ["/example"], Id: "123"]])
+                ),
+                new ExpectedRequestWithResponse(
+                        request: "GET /containers/123/json",
+                        response: JsonOutput.toJson(containerConfig)
+                ),
+                new ExpectedRequestWithResponse(
+                        request: "GET /containers/123/json",
+                        response: JsonOutput.toJson(containerConfig)
+                ),
+        ]
 
-        and:
-        task.changed == false
+        when:
+        def result = GradleRunner.create()
+                .withProjectDir(testProjectDir.root)
+                .withArguments('dockerContainer')
+                .withPluginClasspath()
+                .buildAndFail()
 
-        and:
-        def e = thrown(GradleException)
-        e.cause.class == IllegalArgumentException
-        e.cause.message.endsWith("is not bound to host.")
+        then:
+        result.task(':dockerContainer').outcome == TaskOutcome.FAILED
+        !result.output.contains("Done.")
+        dockerEngineHttpHandler.expectedRequests.empty
+//        def e = thrown(GradleException)
+//        e.cause.class == IllegalArgumentException
+//        e.cause.message.endsWith("is not bound to host.")
     }
 
     def "healthcheck on already running container - timeout"() {
         given:
+        buildFile << """
+          task dockerContainer(type: de.gesellix.gradle.docker.tasks.DockerContainerTask) {
+              targetState = "started"
+              image = "testImage:latest"
+              containerName = "example"
+              healthChecks = [
+                  [
+                      containerPort: 8080,
+                      timeout      : 1,
+                      retries      : 1
+                  ]
+              ]
+              doLast {
+                  logger.lifecycle("Done.")
+              }
+          }
+        """
         int port = PortFinder.findFreePort()
-
-        when:
-        task.dockerHost = "tcp://127.0.0.1:999"
-        task.targetState = "started"
-        task.image = "testImage:latest"
-        task.containerName = "example"
-        task.healthChecks = [
-                [
-                        containerPort: 8080,
-                        timeout      : 1,
-                        retries      : 1
-                ]]
-        task.execute()
-
-        then:
-        1 * dockerClient.ps([filters: [name: ["example"]]]) >>> [
-                [content: [[Names: ["/example"], Id: "123"]]]
-        ]
-        2 * dockerClient.inspectContainer("123") >> [
-                content: [
-                        Image          : task.image,
-                        State          : [Running: true],
-                        HostConfig     : [
-                                PortBindings: ["8080/tcp": [
-                                        [
-                                                HostIp  : "0.0.0.0",
-                                                HostPort: port.toString()
-                                        ]
-                                ]]
-                        ],
-                        NetworkSettings: [
-                                Ports: ["8080/tcp": [
-                                        [
-                                                HostIp  : "0.0.0.0",
-                                                HostPort: port.toString()
-                                        ]
-                                ]]
-                        ]
+        def containerConfig = [
+                Image          : "testImage",
+                State          : [Running: true],
+                HostConfig     : [
+                        PortBindings: ["8080/tcp": [
+                                [
+                                        HostIp  : "0.0.0.0",
+                                        HostPort: port.toString()
+                                ]
+                        ]]
+                ],
+                NetworkSettings: [
+                        Ports: ["8080/tcp": [
+                                [
+                                        HostIp  : "0.0.0.0",
+                                        HostPort: port.toString()
+                                ]
+                        ]]
                 ]
         ]
+        dockerEngineHttpHandler.expectedRequests = [
+                new ExpectedRequestWithResponse(
+                        request: "GET /containers/json?filters=%7B%22name%22%3A%5B%22example%22%5D%7D&all=true&size=false",
+                        response: JsonOutput.toJson([[Names: ["/example"], Id: "123"]])
+                ),
+                new ExpectedRequestWithResponse(
+                        request: "GET /containers/123/json",
+                        response: JsonOutput.toJson(containerConfig)
+                ),
+                new ExpectedRequestWithResponse(
+                        request: "GET /containers/123/json",
+                        response: JsonOutput.toJson(containerConfig)
+                ),
+        ]
 
-        and:
-        task.changed == false
+        when:
+        def result = GradleRunner.create()
+                .withProjectDir(testProjectDir.root)
+                .withArguments('dockerContainer')
+                .withPluginClasspath()
+                .buildAndFail()
 
-        and:
-        def e = thrown(GradleException)
-        e.cause.class == IllegalStateException
-        e.cause.message == "HealthCheck: Container not healthy."
+        then:
+        result.task(':dockerContainer').outcome == TaskOutcome.FAILED
+        !result.output.contains("Done.")
+        dockerEngineHttpHandler.expectedRequests.empty
+//        def e = thrown(GradleException)
+//        e.cause.class == IllegalStateException
+//        e.cause.message == "HealthCheck: Container not healthy."
     }
 
     def "healthcheck on already running container"() {
         given:
+        buildFile << """
+          task dockerContainer(type: de.gesellix.gradle.docker.tasks.DockerContainerTask) {
+              targetState = "started"
+              image = "testImage:latest"
+              containerName = "example"
+              healthChecks = [
+                  [
+                      containerPort: 8080,
+                      timeout      : 100,
+                      retries      : 1
+                  ]
+              ]
+              doLast {
+                  logger.lifecycle("Done.")
+              }
+          }
+        """
         Thread server = new Thread() {
 
             boolean initialized = false
@@ -894,15 +932,15 @@ class DockerContainerTaskFunctionalTest extends Specification {
 
             @Override
             void run() {
-                ServerSocket ss
+                ServerSocket serverSocket
                 synchronized (this) {
-                    serverPort = PortFinder.findFreePort()
-                    ss = new ServerSocket(serverPort)
+                    serverSocket = new ServerSocket(0)
+                    serverPort = serverSocket.localPort
                     initialized = true
                     notify()
                 }
                 while (!stopped) {
-                    ss.accept()
+                    serverSocket.accept()
                 }
             }
         }
@@ -915,49 +953,65 @@ class DockerContainerTaskFunctionalTest extends Specification {
             }
             port = server.serverPort
         }
-
-        when:
-        task.dockerHost = "tcp://127.0.0.1:999"
-        task.targetState = "started"
-        task.image = "testImage:latest"
-        task.containerName = "example"
-        task.healthChecks = [
-                [
-                        containerPort: 8080,
-                        timeout      : 100,
-                        retries      : 1
-                ]]
-        task.execute()
-
-        then:
-        2 * dockerClient.ps([filters: [name: ["example"]]]) >> [
-                content: [[Names: ["/example"], Id: "123"]]
-        ]
-        4 * dockerClient.inspectContainer("123") >> [
-                content: [
-                        Image          : task.image,
-                        State          : [Running: true],
-                        HostConfig     : [
-                                PortBindings: ["8080/tcp": [
-                                        [
-                                                HostIp  : "0.0.0.0",
-                                                HostPort: port.toString()
-                                        ]
-                                ]]
-                        ],
-                        NetworkSettings: [
-                                Ports: ["8080/tcp": [
-                                        [
-                                                HostIp  : "0.0.0.0",
-                                                HostPort: port.toString()
-                                        ]
-                                ]]
-                        ]
+        def containerConfig = [
+                Image          : "testImage",
+                State          : [Running: true],
+                HostConfig     : [
+                        PortBindings: ["8080/tcp": [
+                                [
+                                        HostIp  : "0.0.0.0",
+                                        HostPort: port.toString()
+                                ]
+                        ]]
+                ],
+                NetworkSettings: [
+                        Ports: ["8080/tcp": [
+                                [
+                                        HostIp  : "0.0.0.0",
+                                        HostPort: port.toString()
+                                ]
+                        ]]
                 ]
         ]
+        dockerEngineHttpHandler.expectedRequests = [
+                new ExpectedRequestWithResponse(
+                        request: "GET /containers/json?filters=%7B%22name%22%3A%5B%22example%22%5D%7D&all=true&size=false",
+                        response: JsonOutput.toJson([[Names: ["/example"], Id: "123"]])
+                ),
+                new ExpectedRequestWithResponse(
+                        request: "GET /containers/123/json",
+                        response: JsonOutput.toJson(containerConfig)
+                ),
+                new ExpectedRequestWithResponse(
+                        request: "GET /containers/123/json",
+                        response: JsonOutput.toJson(containerConfig)
+                ),
+                new ExpectedRequestWithResponse(
+                        request: "GET /containers/json?filters=%7B%22name%22%3A%5B%22example%22%5D%7D&all=true&size=false",
+                        response: JsonOutput.toJson([[Names: ["/example"], Id: "123"]])
+                ),
+                new ExpectedRequestWithResponse(
+                        request: "GET /containers/123/json",
+                        response: JsonOutput.toJson(containerConfig)
+                ),
+                new ExpectedRequestWithResponse(
+                        request: "GET /containers/123/json",
+                        response: JsonOutput.toJson(containerConfig)
+                ),
+        ]
 
-        and:
-        task.changed == false
+        when:
+        def result = GradleRunner.create()
+                .withProjectDir(testProjectDir.root)
+                .withArguments('dockerContainer')
+                .withPluginClasspath()
+                .build()
+
+        then:
+        result.task(':dockerContainer').outcome == TaskOutcome.SUCCESS
+//        result.task(':dockerContainer').outcome == TaskOutcome.UP_TO_DATE
+        result.output.contains("Done.")
+        dockerEngineHttpHandler.expectedRequests.empty
 
         cleanup:
         server.stopped = true
