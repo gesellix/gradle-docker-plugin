@@ -3,6 +3,7 @@ package de.gesellix.gradle.docker.tasks
 import org.gradle.api.Task
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputDirectory
+import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.TaskAction
 
@@ -27,6 +28,7 @@ class DockerPublishTask extends GenericDockerTask {
     @Optional
     def imageTag
 
+    @Internal
     String imageNameWithTag
 
     @Input
@@ -99,7 +101,8 @@ class DockerPublishTask extends GenericDockerTask {
 
         if (existingTasks) {
             return existingTasks.first()
-        } else {
+        }
+        else {
             return project.task([type: taskType, group: getGroup()], name)
         }
     }

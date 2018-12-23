@@ -1,6 +1,7 @@
 package de.gesellix.gradle.docker.tasks
 
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.TaskAction
 
 class DockerExecTask extends GenericDockerTask {
@@ -10,6 +11,7 @@ class DockerExecTask extends GenericDockerTask {
     @Input
     def commandLine
 
+    @Internal
     def result
 
     DockerExecTask() {

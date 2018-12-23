@@ -1,6 +1,7 @@
 package de.gesellix.gradle.docker.tasks
 
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.TaskAction
 
 class DockerRenameTask extends GenericDockerTask {
@@ -10,6 +11,7 @@ class DockerRenameTask extends GenericDockerTask {
     @Input
     def newName
 
+    @Internal
     def result
 
     DockerRenameTask() {

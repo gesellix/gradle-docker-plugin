@@ -1,9 +1,11 @@
 package de.gesellix.gradle.docker.tasks
 
+import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.TaskAction
 
 class DockerInfoTask extends GenericDockerTask {
 
+    @Internal
     def info
 
     DockerInfoTask() {

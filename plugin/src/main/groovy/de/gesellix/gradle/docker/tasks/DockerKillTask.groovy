@@ -1,6 +1,7 @@
 package de.gesellix.gradle.docker.tasks
 
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.TaskAction
 
 class DockerKillTask extends GenericDockerTask {
@@ -8,6 +9,7 @@ class DockerKillTask extends GenericDockerTask {
     @Input
     def containerId
 
+    @Internal
     def result
 
     DockerKillTask() {

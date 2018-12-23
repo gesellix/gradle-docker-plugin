@@ -2,6 +2,7 @@ package de.gesellix.gradle.docker.tasks
 
 import de.gesellix.docker.client.EnvFileParser
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.TaskAction
 
@@ -39,8 +40,10 @@ class DockerRunTask extends GenericDockerTask {
     @Optional
     def environmentFiles = []
 
+    @Internal
     def envFileParser = new EnvFileParser()
 
+    @Internal
     def result
 
     DockerRunTask() {
@@ -64,14 +67,16 @@ class DockerRunTask extends GenericDockerTask {
         return result
     }
 
-    def getAsString(def closureOrString) {
+    static String getAsString(def closureOrString) {
         if (closureOrString instanceof Closure) {
             return (closureOrString as Closure)()
-        } else {
+        }
+        else {
             return closureOrString?.toString()
         }
     }
 
+    @Internal
     def getActualContainerConfig() {
         def containerConfig = getContainerConfiguration() ?: [:]
         containerConfig.HostConfig = containerConfig.HostConfig ?: [:]

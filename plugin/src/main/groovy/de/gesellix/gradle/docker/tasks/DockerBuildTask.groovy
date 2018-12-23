@@ -5,6 +5,7 @@ import de.gesellix.docker.client.image.BuildConfig
 import org.gradle.api.Task
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputDirectory
+import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.TaskAction
 
@@ -38,9 +39,12 @@ class DockerBuildTask extends GenericDockerTask {
     @Optional
     def enableBuildLog = false
 
+    @Internal
     def tarOfBuildcontextTask
+    @Internal
     File targetFile
 
+    @Internal
     def imageId
 
     DockerBuildTask() {
@@ -121,13 +125,15 @@ class DockerBuildTask extends GenericDockerTask {
         // TODO this one needs some beautification
         if (getEnableBuildLog()) {
             imageId = getDockerClient().buildWithLogs(getBuildContext(), new BuildConfig(query: buildParams, options: buildOptions)).imageId
-        } else {
+        }
+        else {
             imageId = getDockerClient().build(getBuildContext(), new BuildConfig(query: buildParams, options: buildOptions)).imageId
         }
 
         return imageId
     }
 
+    @Internal
     def getNormalizedImageName() {
         if (!getImageName()) {
             return UUID.randomUUID().toString()

@@ -31,7 +31,8 @@ class DockerDisposeContainerTask extends GenericDockerTask {
             if (e.detail?.status?.code == 404) {
                 logger.info("couldn't dispose container because it doesn't exists")
                 return
-            } else {
+            }
+            else {
                 throw e
             }
         }

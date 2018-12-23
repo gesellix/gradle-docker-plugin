@@ -1,6 +1,7 @@
 package de.gesellix.gradle.docker.tasks
 
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.TaskAction
 
@@ -12,6 +13,7 @@ class DockerNetworkRmTask extends GenericDockerTask {
     @Optional
     boolean ignoreError = false
 
+    @Internal
     def response
 
     DockerNetworkRmTask() {
@@ -24,13 +26,16 @@ class DockerNetworkRmTask extends GenericDockerTask {
         logger.info "docker network rm"
         try {
             response = getDockerClient().rmNetwork(getNetworkName())
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             if (!ignoreError) {
                 throw new RuntimeException(e)
-            } else {
+            }
+            else {
                 if (logger.isInfoEnabled()) {
                     logger.warn("docker network rm ${networkName} failed", e)
-                } else {
+                }
+                else {
                     logger.warn("docker network rm ${networkName} failed")
                 }
                 response = null

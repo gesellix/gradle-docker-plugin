@@ -3,6 +3,7 @@ package de.gesellix.gradle.docker.tasks
 import de.gesellix.gradle.docker.models.DockerContainer
 import org.gradle.api.GradleException
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.TaskAction
 
@@ -49,6 +50,8 @@ class DockerContainerTask extends GenericDockerTask {
     /**
      * A list of environment variable keys to be ignored when searching changes.
      */
+    @Input
+    @Optional
     List<String> ignoredEnvKeys = []
 
     /**
@@ -111,8 +114,10 @@ class DockerContainerTask extends GenericDockerTask {
     @Optional
     def extraHosts = []
 
+    @Internal
     boolean changed = false
 
+    @Internal
     DockerContainer container
 
     DockerContainerTask() {
