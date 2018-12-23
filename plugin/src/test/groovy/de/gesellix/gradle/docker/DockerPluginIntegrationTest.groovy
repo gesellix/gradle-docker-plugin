@@ -375,15 +375,15 @@ class DockerPluginIntegrationTest extends Specification {
         tag(dockerClient, "gesellix/testimage:os-linux", "gesellix/run-with-data-volumes")
 
         dockerClient.createContainer([
-                "Cmd"       : ["-"],
-                "Image"     : "gesellix/run-with-data-volumes",
-                "HostConfig": [
-                        "Binds"     : ["$hostDir:/data"],
-                        "AutoRemove": true
-                ],
-        ], [
-                name: "the-data-example"
-        ])
+                                             "Cmd"       : ["-"],
+                                             "Image"     : "gesellix/run-with-data-volumes",
+                                             "HostConfig": [
+                                                     "Binds"     : ["$hostDir:/data"],
+                                                     "AutoRemove": true
+                                             ],
+                                     ], [
+                                             name: "the-data-example"
+                                     ])
 
         buildFile << """
           task dockerRun(type: de.gesellix.gradle.docker.tasks.DockerRunTask) {
@@ -430,15 +430,15 @@ class DockerPluginIntegrationTest extends Specification {
         tag(dockerClient, "gesellix/testimage:os-linux", "gesellix/run-with-data-volumes")
 
         dockerClient.createContainer([
-                "Cmd"       : ["-"],
-                "Image"     : "gesellix/run-with-data-volumes",
-                "HostConfig": [
-                        "Binds"     : ["$hostDir:/data"],
-                        "AutoRemove": true
-                ],
-        ], [
-                name: "the-data-example"
-        ])
+                                             "Cmd"       : ["-"],
+                                             "Image"     : "gesellix/run-with-data-volumes",
+                                             "HostConfig": [
+                                                     "Binds"     : ["$hostDir:/data"],
+                                                     "AutoRemove": true
+                                             ],
+                                     ], [
+                                             name: "the-data-example"
+                                     ])
 
         buildFile << """
           task dockerVolumeCreate(type: de.gesellix.gradle.docker.tasks.DockerVolumeCreateTask) {
@@ -536,19 +536,11 @@ class DockerPluginIntegrationTest extends Specification {
         if (dockerInfo.Swarm.LocalNodeState != "active") {
             buildFile << """
                 def swarmConfig = [
-                    "ListenAddr"     : "0.0.0.0:80",
-                    "ForceNewCluster": false,
-                    "Spec"           : [
-                        "AcceptancePolicy": [
-                            "Policies": [
-                                ["Role": "MANAGER", "Autoaccept": false],
-                                ["Role": "WORKER", "Autoaccept": true]
-                            ]
-                        ]
-                    ]
+                    "ListenAddr"     : "0.0.0.0",
+                    "ForceNewCluster": false
                 ]
                 task initSwarm(type: de.gesellix.gradle.docker.tasks.DockerSwarmInitTask) {
-                    config = swarmConfig
+                    swarmconfig = swarmConfig
                 }
                 createNetwork.dependsOn initSwarm
             """

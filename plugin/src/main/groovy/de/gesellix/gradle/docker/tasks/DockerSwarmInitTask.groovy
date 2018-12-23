@@ -5,8 +5,18 @@ import org.gradle.api.tasks.TaskAction
 
 class DockerSwarmInitTask extends GenericDockerTask {
 
+    /**
+     * @see #swarmconfig
+     * @param config
+     * @deprecated use #swarmconfig
+     */
+    @Deprecated
+    void setConfig(def config) {
+        this.swarmconfig = config
+    }
+
     @Input
-    def config = [:]
+    def swarmconfig = [:]
 
     def response
 
@@ -14,7 +24,7 @@ class DockerSwarmInitTask extends GenericDockerTask {
     def initSwarm() {
         logger.info "docker swarm init"
 
-        response = getDockerClient().initSwarm(getConfig())
+        response = getDockerClient().initSwarm(getSwarmconfig())
         return response
     }
 }
