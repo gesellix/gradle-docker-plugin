@@ -924,35 +924,10 @@ class DockerContainerTaskFunctionalTest extends Specification {
               }
           }
         """
-        Thread server = new Thread() {
-
-            boolean initialized = false
-            int serverPort = 0
-            boolean stopped = false
-
-            @Override
-            void run() {
-                ServerSocket serverSocket
-                synchronized (this) {
-                    serverSocket = new ServerSocket(0)
-                    serverPort = serverSocket.localPort
-                    initialized = true
-                    notify()
-                }
-                while (!stopped) {
-                    serverSocket.accept()
-                }
-            }
-        }
-
-        def port
+        DummyServer server = new DummyServer()
         server.start()
-        synchronized (server) {
-            if (!server.initialized) {
-                server.wait()
-            }
-            port = server.serverPort
-        }
+        int port = server.getPort()
+
         def containerConfig = [
                 Image          : "testImage",
                 State          : [Running: true],
@@ -1014,7 +989,53 @@ class DockerContainerTaskFunctionalTest extends Specification {
         dockerEngineHttpHandler.expectedRequests.empty
 
         cleanup:
-        server.stopped = true
-        server.stop()
+        server.shutdown()
+    }
+
+    static class DummyServer extends Thread {
+
+        ServerSocket serverSocket
+        boolean initialized = false
+        int serverPort = 0
+        boolean stopped = false
+
+        @Override
+        void run() {
+            synchronized (this) {
+                serverSocket = new ServerSocket(0)
+                serverPort = serverSocket.localPort
+                initialized = true
+                notify()
+            }
+            while (!stopped) {
+                try {
+                    serverSocket.accept()
+                }
+                catch (Exception e) {
+                    if (!stopped) {
+                        throw e
+                    }
+                }
+            }
+        }
+
+        @Override
+        synchronized void start() {
+            super.start()
+            synchronized (this) {
+                if (!this.initialized) {
+                    this.wait()
+                }
+            }
+        }
+
+        void shutdown() {
+            stopped = true
+            serverSocket.close()
+        }
+
+        int getPort() {
+            return serverPort
+        }
     }
 }
