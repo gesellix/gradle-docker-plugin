@@ -46,7 +46,7 @@ class DockerBuildTaskFunctionalTest extends Specification {
         when:
         def result = GradleRunner.create()
                 .withProjectDir(testProjectDir.root)
-                .withArguments('dockerBuild', '--info')
+                .withArguments('dockerBuild', '--info', '--debug', '--stacktrace')
                 .withPluginClasspath()
                 .build()
 
