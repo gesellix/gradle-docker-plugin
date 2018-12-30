@@ -51,3 +51,5 @@ tasks {
         distributionType = Wrapper.DistributionType.ALL
     }
 }
+
+project.apply("debug.gradle.kts")
