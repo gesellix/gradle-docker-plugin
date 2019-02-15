@@ -48,7 +48,7 @@ subprojects {
 
 tasks {
     register<Wrapper>("updateWrapper") {
-        gradleVersion = "5.0"
+        gradleVersion = "5.2.1"
         distributionType = Wrapper.DistributionType.ALL
     }
 }
