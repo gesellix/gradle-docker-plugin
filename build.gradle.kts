@@ -16,7 +16,7 @@ plugins {
     id("com.github.ben-manes.versions") version "0.20.0"
     id("net.ossindex.audit") version "0.3.21"
     id("com.jfrog.bintray") version "1.8.4" apply false
-    id("com.gradle.plugin-publish") version "0.10.0" apply false
+    id("com.gradle.plugin-publish") version "0.10.1" apply false
 }
 
 val dependencyVersions = listOf(
