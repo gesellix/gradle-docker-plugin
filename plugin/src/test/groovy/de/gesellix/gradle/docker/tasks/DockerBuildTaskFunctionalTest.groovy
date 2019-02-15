@@ -27,7 +27,7 @@ class DockerBuildTaskFunctionalTest extends Specification {
         """
     }
 
-    def "can perform a build"() {
+    def "can perform a build configured via config closure"() {
         given:
         URL dockerfile = getClass().getResource('/docker/Dockerfile')
         String baseDir = new File(dockerfile.toURI()).parentFile.absolutePath.replaceAll("\\${File.separator}", "/")
@@ -48,6 +48,41 @@ class DockerBuildTaskFunctionalTest extends Specification {
                 .withProjectDir(testProjectDir.root)
                 .withArguments('dockerBuild', '--info')
                 .withPluginClasspath()
+                .build()
+
+        then:
+        result.output.contains("Resulting image id: sha256:")
+        result.task(":dockerBuild").outcome == TaskOutcome.SUCCESS
+
+        cleanup:
+        new DockerClientImpl().rmi(imageName)
+    }
+
+    def "can perform a build configured via task property setter"() {
+        given:
+        URL dockerfile = getClass().getResource('/docker/Dockerfile')
+        String baseDir = new File(dockerfile.toURI()).parentFile.absolutePath.replaceAll("\\${File.separator}", "/")
+        String imageName = "gesellix/test-build:${UUID.randomUUID()}"
+
+        buildFile << """
+          task dockerBuild(type: de.gesellix.gradle.docker.tasks.DockerBuildTask) {
+              imageName = '$imageName'
+              doFirst {
+                  logger.lifecycle("buildContextDirectory: \${buildContextDirectory}")
+              }
+              doLast {
+                  logger.lifecycle("Resulting image id: \${imageId}")
+              }
+          }
+          dockerBuild.setBuildContextDirectory('$baseDir')
+        """
+
+        when:
+        def result = GradleRunner.create()
+                .withProjectDir(testProjectDir.root)
+                .withArguments('dockerBuild', '--info', '--debug', '--stacktrace')
+                .withPluginClasspath()
+                .withDebug(true)
                 .build()
 
         then:
