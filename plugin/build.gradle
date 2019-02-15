@@ -10,7 +10,7 @@ buildscript {
 //        classpath 'net.saliman:gradle-cobertura-plugin:2.4.0'
 //        classpath 'org.kt3k.gradle.plugin:coveralls-gradle-plugin:2.8.1'
 
-        classpath 'com.gradle.publish:plugin-publish-plugin:0.10.0'
+        classpath 'com.gradle.publish:plugin-publish-plugin:0.10.1'
         classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4'
     }
 }
@@ -50,7 +50,7 @@ dependencies {
     compile 'de.gesellix:docker-client:2018-12-17T14-42-14'
 
     testCompile 'org.spockframework:spock-core:1.2-groovy-2.5'
-    testCompile 'cglib:cglib-nodep:3.2.9'
+    testCompile 'cglib:cglib-nodep:3.2.10'
 
     // see https://docs.gradle.org/current/userguide/test_kit.html
     testCompile gradleTestKit()
