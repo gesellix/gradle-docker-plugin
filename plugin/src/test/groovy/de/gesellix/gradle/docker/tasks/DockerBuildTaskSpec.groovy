@@ -3,9 +3,10 @@ package de.gesellix.gradle.docker.tasks
 import de.gesellix.docker.client.DockerClient
 import de.gesellix.docker.client.image.BuildConfig
 import de.gesellix.docker.client.image.BuildResult
+import de.gesellix.gradle.docker.worker.BuildcontextArchiver
 import org.gradle.testfixtures.ProjectBuilder
+import org.gradle.workers.WorkerExecutor
 import spock.lang.Specification
-import spock.lang.Unroll
 
 class DockerBuildTaskSpec extends Specification {
 
@@ -19,28 +20,7 @@ class DockerBuildTaskSpec extends Specification {
         task.dockerClient = dockerClient
     }
 
-    @Unroll
-    def "depends on tar task to archive buildContextDirectory (as #type)"() {
-        given:
-        task.buildContextDirectory = baseDir
-        task.imageName = "user/imageName"
-
-        when:
-        task.configure()
-
-        then:
-        project.getTasksByName("tarBuildcontextForDockerBuild", false).size() == 1
-        and:
-        task.dependsOn.any { it == project.getTasksByName("tarBuildcontextForDockerBuild", false).first() }
-
-        where:
-        baseDir                                                                             | type
-        parentDir(getClass().getResource('/docker/Dockerfile'))                             | File
-        parentDir(getClass().getResource('/docker/Dockerfile')).absolutePath                | String
-        wrapInClosure(parentDir(getClass().getResource('/docker/Dockerfile')).absolutePath) | 'lazily resolved String'
-    }
-
-    def "tar task must run after dockerBuild dependencies"() {
+    def "should archive the buildcontext in a worker thread"() {
         URL dockerfile = getClass().getResource('/docker/Dockerfile')
         def baseDir = new File(dockerfile.toURI()).parentFile
 
@@ -49,37 +29,19 @@ class DockerBuildTaskSpec extends Specification {
         task.dependsOn buildTaskDependency
         task.buildContextDirectory = baseDir
         task.imageName = "busybox"
+        def workerExecutor = Mock(WorkerExecutor)
+        task.workerExecutor = workerExecutor
 
         when:
-        task.configure()
+        task.build()
 
         then:
         project.tasks.findByName("dockerBuild").getDependsOn().contains project.tasks.findByName("buildTaskDependency")
         and:
-        def tarBuildcontextForDockerBuild = project.tasks.findByName("tarBuildcontextForDockerBuild")
-        tarBuildcontextForDockerBuild.getMustRunAfter().mutableValues.contains project.tasks.findByName("buildTaskDependency")
-    }
-
-    def "tar of buildContextDirectory contains buildContextDirectory"() {
-        URL dockerfile = getClass().getResource('/docker/Dockerfile')
-        def baseDir = new File(dockerfile.toURI()).parentFile
-
-        given:
-        task.buildContextDirectory = baseDir
-        task.imageName = "user/imageName"
-
-        when:
-        task.configure()
-
-        then:
-        def tarOfBuildcontextTask = project.getTasksByName("tarBuildcontextForDockerBuild", false).first()
-//    tarOfBuildcontextTask.destinationDir == new File("${tarOfBuildcontextTask.getTemporaryDir()}")
-
-//    and:
-//    tarOfBuildcontextTask.inputs.files.asPath == project.fileTree(baseDir).asPath
-
+        1 * workerExecutor.submit(BuildcontextArchiver, _) >> { task.targetFile = new File(dockerfile.toURI()) }
+        1 * workerExecutor.await()
         and:
-        tarOfBuildcontextTask.outputs.files.asPath == task.targetFile.absolutePath
+        1 * dockerClient.build(*_) >> new BuildResult(imageId: "4711")
     }
 
     def "delegates to dockerClient with buildContext"() {
@@ -93,8 +55,7 @@ class DockerBuildTaskSpec extends Specification {
         task.build()
 
         then:
-        1 * dockerClient.build(inputStream, new BuildConfig(query: [rm: true, t: "imageName"])) >>
-        new BuildResult(imageId: "4711")
+        1 * dockerClient.build(inputStream, new BuildConfig(query: [rm: true, t: "imageName"])) >> new BuildResult(imageId: "4711")
 
         and:
         task.outputs.files.isEmpty()
@@ -113,7 +74,7 @@ class DockerBuildTaskSpec extends Specification {
 
         then:
         1 * dockerClient.build(inputStream, new BuildConfig(query: [rm: true, t: "imageName", dockerfile: './custom.Dockerfile'])) >>
-        new BuildResult(imageId: "4711")
+                new BuildResult(imageId: "4711")
 
         and:
         task.outputs.files.isEmpty()
@@ -132,7 +93,7 @@ class DockerBuildTaskSpec extends Specification {
 
         then:
         1 * dockerClient.build(inputStream, new BuildConfig(query: [rm: true, t: "imageName"], options: [EncodedRegistryConfig: [foo: [:]]])) >>
-        new BuildResult(imageId: "4711")
+                new BuildResult(imageId: "4711")
 
         and:
         task.outputs.files.isEmpty()
@@ -151,7 +112,7 @@ class DockerBuildTaskSpec extends Specification {
 
         then:
         1 * dockerClient.build(inputStream, new BuildConfig(query: [rm: false, t: "imageName", dockerfile: './custom.Dockerfile'])) >>
-        new BuildResult(imageId: "4711")
+                new BuildResult(imageId: "4711")
 
         and:
         task.outputs.files.isEmpty()
@@ -170,7 +131,7 @@ class DockerBuildTaskSpec extends Specification {
 
         then:
         1 * dockerClient.buildWithLogs(inputStream, new BuildConfig(query: [rm: true, t: "imageName"])) >>
-        new BuildResult(imageId: "4711", log: [])
+                new BuildResult(imageId: "4711", log: [])
 
         and:
         task.outputs.files.isEmpty()
@@ -189,8 +150,7 @@ class DockerBuildTaskSpec extends Specification {
         task.build()
 
         then:
-        1 * dockerClient.buildWithLogs(inputStream, new BuildConfig(query: [rm: true, t: "imageName", dockerfile: './custom.Dockerfile'])) >>
-        new BuildResult(imageId: "4711", log: [])
+        1 * dockerClient.buildWithLogs(inputStream, new BuildConfig(query: [rm: true, t: "imageName", dockerfile: './custom.Dockerfile'])) >> new BuildResult(imageId: "4711", log: [])
 
         and:
         task.outputs.files.isEmpty()
