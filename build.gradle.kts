@@ -27,6 +27,7 @@ val dependencyVersions = listOf(
 )
 
 val dependencyVersionsByGroup = mapOf(
+        "com.kohlschutter.junixsocket" to "2.0.4",
         "org.codehaus.groovy" to "2.5.4"
 )
 
