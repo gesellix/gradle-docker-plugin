@@ -20,8 +20,6 @@ plugins {
 }
 
 val dependencyVersions = listOf(
-        // work around https://github.com/kohlschutter/junixsocket/issues/59
-        "com.kohlschutter.junixsocket:junixsocket-native-common:2.1.1",
         "com.squareup.okio:okio:2.1.0",
         "org.jetbrains.kotlin:kotlin-reflect:1.3.11",
         "org.jetbrains.kotlin:kotlin-stdlib:1.3.11",
