@@ -43,7 +43,7 @@ class DockerPluginIntegrationTest extends Specification {
         when:
         def result = GradleRunner.create()
                 .withProjectDir(testProjectDir.root)
-                .withArguments('dockerInfo')
+                .withArguments('dockerInfo', '--debug', '--info', '--stacktrace')
                 .withPluginClasspath()
                 .build()
 
@@ -375,15 +375,15 @@ class DockerPluginIntegrationTest extends Specification {
         tag(dockerClient, "gesellix/testimage:os-linux", "gesellix/run-with-data-volumes")
 
         dockerClient.createContainer([
-                                             "Cmd"       : ["-"],
-                                             "Image"     : "gesellix/run-with-data-volumes",
-                                             "HostConfig": [
-                                                     "Binds"     : ["$hostDir:/data"],
-                                                     "AutoRemove": true
-                                             ],
-                                     ], [
-                                             name: "the-data-example"
-                                     ])
+                "Cmd"       : ["-"],
+                "Image"     : "gesellix/run-with-data-volumes",
+                "HostConfig": [
+                        "Binds"     : ["$hostDir:/data"],
+                        "AutoRemove": true
+                ],
+        ], [
+                name: "the-data-example"
+        ])
 
         buildFile << """
           task dockerRun(type: de.gesellix.gradle.docker.tasks.DockerRunTask) {
@@ -430,15 +430,15 @@ class DockerPluginIntegrationTest extends Specification {
         tag(dockerClient, "gesellix/testimage:os-linux", "gesellix/run-with-data-volumes")
 
         dockerClient.createContainer([
-                                             "Cmd"       : ["-"],
-                                             "Image"     : "gesellix/run-with-data-volumes",
-                                             "HostConfig": [
-                                                     "Binds"     : ["$hostDir:/data"],
-                                                     "AutoRemove": true
-                                             ],
-                                     ], [
-                                             name: "the-data-example"
-                                     ])
+                "Cmd"       : ["-"],
+                "Image"     : "gesellix/run-with-data-volumes",
+                "HostConfig": [
+                        "Binds"     : ["$hostDir:/data"],
+                        "AutoRemove": true
+                ],
+        ], [
+                name: "the-data-example"
+        ])
 
         buildFile << """
           task dockerVolumeCreate(type: de.gesellix.gradle.docker.tasks.DockerVolumeCreateTask) {

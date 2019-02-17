@@ -20,6 +20,8 @@ plugins {
 }
 
 val dependencyVersions = listOf(
+        // work around https://github.com/kohlschutter/junixsocket/issues/59
+        "com.kohlschutter.junixsocket:junixsocket-native-common:2.1.1",
         "com.squareup.okio:okio:2.1.0",
         "org.jetbrains.kotlin:kotlin-reflect:1.3.11",
         "org.jetbrains.kotlin:kotlin-stdlib:1.3.11",
@@ -27,7 +29,6 @@ val dependencyVersions = listOf(
 )
 
 val dependencyVersionsByGroup = mapOf(
-        "com.kohlschutter.junixsocket" to "2.0.4",
         "org.codehaus.groovy" to "2.5.4"
 )
 
