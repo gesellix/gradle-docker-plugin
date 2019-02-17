@@ -42,20 +42,20 @@ class DockerPublishTask extends GenericDockerTask {
 
     @Override
     Task configure(Closure closure) {
-        def configureResult = super.configure(closure)
+        def configuredTask = super.configure(closure)
 
-        imageNameWithTag = "${configureResult.getImageName()}"
-        if (configureResult.getImageTag()) {
-            imageNameWithTag += ":${configureResult.getImageTag()}"
+        imageNameWithTag = "${configuredTask.getImageName()}"
+        if (configuredTask.getImageTag()) {
+            imageNameWithTag += ":${configuredTask.getImageTag()}"
         }
 
         def buildImageTask = configureBuildImageTask()
-        configureResult.getDependsOn().each { parentTaskDependency ->
+        configuredTask.getDependsOn().each { parentTaskDependency ->
             if (buildImageTask != parentTaskDependency) {
                 buildImageTask.mustRunAfter parentTaskDependency
             }
         }
-        configureResult.dependsOn buildImageTask
+        configuredTask.dependsOn buildImageTask
 
         if ((getTargetRegistries() ?: [:]).isEmpty()) {
             logger.warn("No targetRegistries configured, image won't be pushed to any registry.")
@@ -63,10 +63,10 @@ class DockerPublishTask extends GenericDockerTask {
         getTargetRegistries().each { name, targetRegistry ->
             def pushTask = createUniquePushTask(name, targetRegistry, imageNameWithTag, getAuthConfig())
             pushTask.dependsOn buildImageTask
-            configureResult.dependsOn pushTask
+            configuredTask.dependsOn pushTask
         }
 
-        return configureResult
+        return configuredTask
     }
 
     def createUniquePushTask(name, targetRegistry, imageNameWithTag, authConfig) {
