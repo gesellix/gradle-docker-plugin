@@ -141,7 +141,7 @@ class GenericDockerTask extends DefaultTask {
     DockerClient dockerClient
 
     @Internal
-    def getDockerClient() {
+    DockerClient getDockerClient() {
         if (!dockerClient) {
             if (getDockerHost() || getCertPath()) {
                 def dockerEnv = new DockerEnv()
