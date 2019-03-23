@@ -1,5 +1,4 @@
 import de.gesellix.docker.client.DockerClientImpl
-import java.io.ByteArrayOutputStream
 
 buildscript {
     repositories {
@@ -10,7 +9,7 @@ buildscript {
     }
 
     dependencies {
-        classpath("de.gesellix:docker-client:2018-12-30T15-32-58")
+        classpath("de.gesellix:docker-client:2019-03-17T22-12-42")
     }
 }
 
