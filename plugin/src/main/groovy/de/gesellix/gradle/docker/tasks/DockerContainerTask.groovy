@@ -277,25 +277,10 @@ class DockerContainerTask extends GenericDockerTask {
         if (volumes) {
             config.Volumes = [:]
             config.HostConfig.Binds = []
-            volumes.each { v ->
-                def parts = v.tokenize(":")
-
-                if (parts.size() == 2) {
-                    config.Volumes[(String) parts.get(1)] = {}
+            volumes.each { String v ->
+                config.Volumes[getMountTarget(v)] = {}
+                if (isHostMount(v)) {
                     config.HostConfig.Binds << v
-                }
-                else if (parts.size() == 3) {
-                    if (!(parts.get(2) in ['ro'])) {
-                        throw new IllegalArgumentException('any third argument in bind must be "ro"')
-                    }
-                    config.Volumes[(String) parts.get(1)] = {}
-                    config.HostConfig.Binds << v
-                }
-                else if (parts.size() == 1) {
-                    config.Volumes[(String) parts.get(0)] = {}
-                }
-                else {
-                    throw new IllegalArgumentException("Malformed volume string: ${v}")
                 }
             }
         }
@@ -305,6 +290,36 @@ class DockerContainerTask extends GenericDockerTask {
         }
 
         return config
+    }
+
+    String getMountTarget(String volume) {
+        List<String> parts = tokenizeVolume(volume)
+        return parts.size() == 1 ? parts.get(0) : parts.get(1)
+    }
+
+    String isHostMount(String volume) {
+        return tokenizeVolume(volume).size() != 1
+    }
+
+    List<String> tokenizeVolume(String volume) {
+        def normalized = isWindowsDrive(volume) ? volume.substring(2, volume.length()) : volume
+        def parts = normalized.tokenize(":")
+        if (parts.size() > 3) {
+            throw new IllegalArgumentException("Malformed volume string: ${volume}")
+        }
+        if (parts.size() == 3) {
+            if (!(parts.get(2) in ['ro'])) {
+                throw new IllegalArgumentException('any third argument in bind must be "ro"')
+            }
+        }
+        return parts
+    }
+
+    boolean isWindowsDrive(String source) {
+        if (!source || source.length() < 2) {
+            return false
+        }
+        return source.charAt(0).isLetter() && source.charAt(1) == (char) ':'
     }
 
     def doHealthChecks() {
