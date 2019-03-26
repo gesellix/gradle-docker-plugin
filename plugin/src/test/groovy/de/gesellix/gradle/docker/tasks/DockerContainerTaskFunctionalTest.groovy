@@ -674,6 +674,67 @@ class DockerContainerTaskFunctionalTest extends Specification {
         dockerEngineHttpHandler.expectedRequests.empty
     }
 
+    def "handles Windows paths"() {
+        given:
+        buildFile << """
+          task dockerContainer(type: de.gesellix.gradle.docker.tasks.DockerContainerTask) {
+              targetState = "started"
+              image = "testImage:latest"
+              containerName = "windows-example"
+              volumes = [
+                  'C:\\\\mnt\\\\data:/data',
+                  'C:\\\\mnt\\\\data2:/data2:ro'
+              ]
+              doLast {
+                  logger.lifecycle("Done.")
+              }
+          }
+        """
+        dockerEngineHttpHandler.expectedRequests = [
+                new ExpectedRequestWithResponse(
+                        request: "GET /containers/json?filters=%7B%22name%22%3A%5B%22windows-example%22%5D%7D&all=true&size=false",
+                        response: JsonOutput.toJson([])
+                ),
+                new ExpectedRequestWithResponse(
+                        request: "GET /containers/json?filters=%7B%22name%22%3A%5B%22windows-example%22%5D%7D&all=true&size=false",
+                        response: JsonOutput.toJson([])
+                ),
+                new ExpectedRequestWithResponse(
+                        request: "POST /containers/create?name=windows-example",
+                        response: JsonOutput.toJson([status: [success: true], content: [id: "123"]])
+                ),
+                new ExpectedRequestWithResponse(
+                        request: "GET /containers/json?filters=%7B%22name%22%3A%5B%22windows-example%22%5D%7D&all=true&size=false",
+                        response: JsonOutput.toJson([[Names: ["/windows-example"], Id: "123"]])
+                ),
+                new ExpectedRequestWithResponse(
+                        request: "GET /containers/123/json",
+                        response: JsonOutput.toJson([Image: "testImage", State: [Running: false]])
+                ),
+                new ExpectedRequestWithResponse(
+                        request: "POST /containers/123/start",
+                        response: JsonOutput.toJson([Image: "testImage", State: [Running: true]])
+                ),
+                new ExpectedRequestWithResponse(
+                        request: "GET /containers/123/json",
+                        response: JsonOutput.toJson([Image: "testImage", State: [Running: true]])
+                ),
+        ]
+
+        when:
+        def result = GradleRunner.create()
+                .withProjectDir(testProjectDir.root)
+                .withArguments('dockerContainer')
+                .withPluginClasspath()
+                .build()
+
+        then:
+        result.task(':dockerContainer').outcome == TaskOutcome.SUCCESS
+//        result.task(':dockerContainer').outcome == TaskOutcome.UP_TO_DATE
+        result.output.contains("Done.")
+        dockerEngineHttpHandler.expectedRequests.empty
+    }
+
     def "reload running container with everything same"() {
         given:
         buildFile << """

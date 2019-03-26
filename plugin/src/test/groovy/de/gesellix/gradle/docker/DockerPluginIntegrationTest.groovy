@@ -374,16 +374,17 @@ class DockerPluginIntegrationTest extends Specification {
         pull(dockerClient, "gesellix/testimage", "os-linux")
         tag(dockerClient, "gesellix/testimage:os-linux", "gesellix/run-with-data-volumes")
 
-        dockerClient.createContainer([
-                "Cmd"       : ["-"],
-                "Image"     : "gesellix/run-with-data-volumes",
-                "HostConfig": [
-                        "Binds"     : ["$hostDir:/data"],
-                        "AutoRemove": true
-                ],
-        ], [
-                name: "the-data-example"
-        ])
+        dockerClient.createContainer(
+                [
+                        "Cmd"       : ["-"],
+                        "Image"     : "gesellix/run-with-data-volumes",
+                        "HostConfig": [
+                                "Binds"     : ["$hostDir:/data"],
+                                "AutoRemove": true
+                        ],
+                ], [
+                        name: "the-data-example"
+                ])
 
         buildFile << """
           task dockerRun(type: de.gesellix.gradle.docker.tasks.DockerRunTask) {
@@ -429,16 +430,17 @@ class DockerPluginIntegrationTest extends Specification {
         pull(dockerClient, "gesellix/testimage", "os-linux")
         tag(dockerClient, "gesellix/testimage:os-linux", "gesellix/run-with-data-volumes")
 
-        dockerClient.createContainer([
-                "Cmd"       : ["-"],
-                "Image"     : "gesellix/run-with-data-volumes",
-                "HostConfig": [
-                        "Binds"     : ["$hostDir:/data"],
-                        "AutoRemove": true
-                ],
-        ], [
-                name: "the-data-example"
-        ])
+        dockerClient.createContainer(
+                [
+                        "Cmd"       : ["-"],
+                        "Image"     : "gesellix/run-with-data-volumes",
+                        "HostConfig": [
+                                "Binds"     : ["$hostDir:/data"],
+                                "AutoRemove": true
+                        ],
+                ], [
+                        name: "the-data-example"
+                ])
 
         buildFile << """
           task dockerVolumeCreate(type: de.gesellix.gradle.docker.tasks.DockerVolumeCreateTask) {
@@ -591,6 +593,47 @@ class DockerPluginIntegrationTest extends Specification {
         then:
         result.output.contains("same version: true")
         result.task(':testTask').outcome == TaskOutcome.SUCCESS
+    }
+
+    @Requires({ LocalDocker.isLinuxContainersOnWindows() })
+    def "test high level DockerContainerTask windows volume source (LCOW)"() {
+        given:
+        buildFile << """
+          task testTask(type: de.gesellix.gradle.docker.tasks.DockerContainerTask) {
+              targetState = "started"
+              image = 'gesellix/testimage:os-linux'
+              containerName = "windows-volumes-lcow"
+              volumes = [
+                  'C:\\\\Users:/data1',
+                  'C:\\\\Users:/data2:ro'
+              ]
+              doLast {
+                  de.gesellix.docker.engine.EngineResponse containers = getDockerClient().ps([name: ["windows-volumes-lcow"]])
+                  logger.lifecycle("request successful: " + (containers.status.code == 200))
+                  def c = containers.content.findAll { it.Names.first() == '/windows-volumes-lcow' }.first()
+                  def mounts = c.Mounts.collect { "\${it.Source}:\${it.Destination}:\${it.Mode ?: 'rw'}" }
+                  logger.lifecycle("test result: " + mounts)
+              }
+          }
+        """
+
+        when:
+        def result = GradleRunner.create()
+                .withProjectDir(testProjectDir.root)
+                .withArguments('testTask')
+                .withPluginClasspath()
+                .build()
+
+        then:
+        result.output.contains("/host_mnt/c/Users:/data1:rw")
+        result.output.contains("/host_mnt/c/Users:/data2:ro")
+        result.task(':testTask').outcome == TaskOutcome.SUCCESS
+
+        cleanup:
+        def dockerClient = new DockerClientImpl()
+        dockerClient.stop('windows-volumes-lcow')
+        dockerClient.wait('windows-volumes-lcow')
+        dockerClient.rm('windows-volumes-lcow')
     }
 
     void pull(DockerClient dockerClient, String image, String tag) {
