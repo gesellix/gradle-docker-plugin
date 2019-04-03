@@ -1,5 +1,6 @@
 package de.gesellix.gradle.docker.tasks
 
+import de.gesellix.docker.engine.EngineResponse
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.TaskAction
@@ -7,12 +8,12 @@ import org.gradle.api.tasks.TaskAction
 class DockerCopyFromContainerTask extends GenericDockerTask {
 
     @Input
-    def container
+    String container
     @Input
-    def sourcePath
+    String sourcePath
 
     @Internal
-    def content
+    EngineResponse content
 
     DockerCopyFromContainerTask() {
         description = "Copy files/folders from a container to your host."
