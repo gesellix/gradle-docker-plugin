@@ -54,10 +54,10 @@ dependencies {
     compile(localGroovy())
 
 //    compile("de.gesellix:docker-client:local")
-    compile("de.gesellix:docker-client:2019-04-07T18-59-35")
+    compile("de.gesellix:docker-client:2019-06-28T07-24-38")
 
     testCompile("org.spockframework:spock-core:1.3-groovy-2.5")
-    testCompile("cglib:cglib-nodep:3.2.10")
+    testCompile("cglib:cglib-nodep:3.2.12")
 
     // see https://docs.gradle.org/current/userguide/test_kit.html
     testCompile(gradleTestKit())
