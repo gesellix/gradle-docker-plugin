@@ -139,13 +139,13 @@ pluginBundle {
     description = "A Docker plugin for Gradle"
     tags = listOf("docker", "gradle", "remote api", "plugin")
 
-    plugins({
-        register(publicationName, {
+    plugins {
+        register(publicationName) {
             id = "de.gesellix.docker"
             displayName = "Gradle Docker plugin"
             version = rootProject.extra["artifactVersion"] as String
-        })
-    })
+        }
+    }
 
     mavenCoordinates {
         groupId = "de.gesellix"
