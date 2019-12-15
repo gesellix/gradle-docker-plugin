@@ -13,7 +13,7 @@ buildscript {
 }
 
 plugins {
-    id("com.github.ben-manes.versions") version "0.21.0"
+    id("com.github.ben-manes.versions") version "0.27.0"
     id("net.ossindex.audit") version "0.4.11"
     id("com.jfrog.bintray") version "1.8.4" apply false
     id("com.gradle.plugin-publish") version "0.10.1" apply false
@@ -35,19 +35,19 @@ subprojects {
         resolutionStrategy {
             failOnVersionConflict()
             force(dependencyVersions)
-            eachDependency({
+            eachDependency {
                 val forcedVersion = dependencyVersionsByGroup[requested.group]
                 if (forcedVersion != null) {
                     useVersion(forcedVersion)
                 }
-            })
+            }
         }
     }
 }
 
 tasks {
     wrapper {
-        gradleVersion = "5.4.1"
+        gradleVersion = "5.6.3"
         distributionType = Wrapper.DistributionType.ALL
     }
 }
