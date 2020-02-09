@@ -29,7 +29,7 @@ class DockerDisposeContainerTaskSpec extends Specification {
         then:
         1 * dockerClient.wait("4712")
         then:
-        1 * dockerClient.rm("4712")
+        1 * dockerClient.rm("4712", [v: 0])
         and:
         0 * dockerClient.rmi(_)
     }
@@ -48,7 +48,7 @@ class DockerDisposeContainerTaskSpec extends Specification {
         then:
         1 * dockerClient.wait("4712")
         then:
-        1 * dockerClient.rm("4712")
+        1 * dockerClient.rm("4712", [v: 0])
         then:
         1 * dockerClient.rmi("an-image-id")
     }
