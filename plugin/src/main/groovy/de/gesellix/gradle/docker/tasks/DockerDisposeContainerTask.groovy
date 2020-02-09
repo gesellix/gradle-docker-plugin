@@ -12,6 +12,9 @@ class DockerDisposeContainerTask extends GenericDockerTask {
     @Input
     @Optional
     def rmiParentImage = false
+    @Input
+    @Optional
+    boolean removeVolumes = false
 
     DockerDisposeContainerTask() {
         description = "Stops and removes a container and optionally its parent image"
@@ -38,7 +41,7 @@ class DockerDisposeContainerTask extends GenericDockerTask {
         }
         getDockerClient().stop(containerId)
         getDockerClient().wait(containerId)
-        getDockerClient().rm(containerId)
+        getDockerClient().rm(containerId, ["v": getRemoveVolumes() ? 1 : 0])
         if (getRmiParentImage()) {
             getDockerClient().rmi(containerDetails.content.Image)
         }
