@@ -67,4 +67,16 @@ class DockerDisposeContainerTaskSpec extends Specification {
         then:
         0 * dockerClient._
     }
+
+    def "allows to removeVolumes"() {
+        given:
+        task.containerId = "4712"
+        task.removeVolumes = true
+
+        when:
+        task.dispose()
+
+        then:
+        1 * dockerClient.rm("4712", [v: 1])
+    }
 }
