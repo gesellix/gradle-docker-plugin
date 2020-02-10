@@ -79,4 +79,16 @@ class DockerDisposeContainerTaskSpec extends Specification {
         then:
         1 * dockerClient.rm("4712", [v: 1])
     }
+
+    def "does not remove Volumes by default"() {
+        given:
+        task.containerId = "4712"
+
+        when:
+        task.dispose()
+
+        then:
+        task.removeVolumes == false
+        1 * dockerClient.rm("4712", [v: 0])
+    }
 }
