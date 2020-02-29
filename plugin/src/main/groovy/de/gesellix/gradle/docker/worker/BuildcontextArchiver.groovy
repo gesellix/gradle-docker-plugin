@@ -2,23 +2,15 @@ package de.gesellix.gradle.docker.worker
 
 import de.gesellix.docker.client.builder.BuildContextBuilder
 import groovy.util.logging.Slf4j
-
-import javax.inject.Inject
+import org.gradle.workers.WorkAction
 
 @Slf4j
-class BuildcontextArchiver implements Runnable {
-
-    File sourceDirectory
-    File targetFile
-
-    @Inject
-    BuildcontextArchiver(File sourceDirectory, File targetFile) {
-        this.sourceDirectory = sourceDirectory
-        this.targetFile = targetFile
-    }
+abstract class BuildcontextArchiver implements WorkAction<BuildcontextArchiverWorkParameters> {
 
     @Override
-    void run() {
+    void execute() {
+        File sourceDirectory = getParameters().sourceDirectory.getAsFile().get()
+        File targetFile = getParameters().archivedTargetFile.getAsFile().get()
         log.info("archiving ${sourceDirectory} into ${targetFile}...")
         targetFile.parentFile.mkdirs()
         BuildContextBuilder.archiveTarFilesRecursively(sourceDirectory, targetFile)

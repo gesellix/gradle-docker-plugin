@@ -7,7 +7,6 @@ import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.TaskAction
-import org.gradle.workers.IsolationMode
 import org.gradle.workers.WorkerExecutor
 
 import javax.inject.Inject
@@ -99,7 +98,8 @@ class DockerBuildTask extends GenericDockerTask {
         // TODO this one needs some beautification
         if (getEnableBuildLog()) {
             imageId = getDockerClient().buildWithLogs(getBuildContext(), new BuildConfig(query: buildParams, options: buildOptions)).imageId
-        } else {
+        }
+        else {
             imageId = getDockerClient().build(getBuildContext(), new BuildConfig(query: buildParams, options: buildOptions)).imageId
         }
 
@@ -118,9 +118,9 @@ class DockerBuildTask extends GenericDockerTask {
         targetFile = new File(getTemporaryDir(), "buildContext_${getNormalizedImageName()}.tar.gz")
 //            outputs.file(targetFile.absolutePath)
 //            outputs.upToDateWhen { false }
-        workerExecutor.submit(BuildcontextArchiver) { config ->
-            config.isolationMode = IsolationMode.NONE
-            config.params(getBuildContextDirectory(), targetFile)
+        workerExecutor.noIsolation().submit(BuildcontextArchiver) { parameters ->
+            parameters.sourceDirectory.set(getBuildContextDirectory())
+            parameters.archivedTargetFile.set(targetFile)
         }
         workerExecutor.await()
 

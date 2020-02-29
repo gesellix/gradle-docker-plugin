@@ -5,6 +5,7 @@ import de.gesellix.docker.client.image.BuildConfig
 import de.gesellix.docker.client.image.BuildResult
 import de.gesellix.gradle.docker.worker.BuildcontextArchiver
 import org.gradle.testfixtures.ProjectBuilder
+import org.gradle.workers.WorkQueue
 import org.gradle.workers.WorkerExecutor
 import spock.lang.Specification
 
@@ -30,6 +31,7 @@ class DockerBuildTaskSpec extends Specification {
         task.buildContextDirectory = baseDir
         task.imageName = "busybox"
         def workerExecutor = Mock(WorkerExecutor)
+        def workQueue = Mock(WorkQueue)
         task.workerExecutor = workerExecutor
 
         when:
@@ -38,7 +40,8 @@ class DockerBuildTaskSpec extends Specification {
         then:
         project.tasks.findByName("dockerBuild").getDependsOn().contains project.tasks.findByName("buildTaskDependency")
         and:
-        1 * workerExecutor.submit(BuildcontextArchiver, _) >> { task.targetFile = new File(dockerfile.toURI()) }
+        1 * workerExecutor.noIsolation() >> workQueue
+        1 * workQueue.submit(BuildcontextArchiver, _) >> { task.targetFile = new File(dockerfile.toURI()) }
         1 * workerExecutor.await()
         and:
         1 * dockerClient.build(*_) >> new BuildResult(imageId: "4711")
@@ -46,6 +49,7 @@ class DockerBuildTaskSpec extends Specification {
 
     def "delegates to dockerClient with buildContext"() {
         def inputStream = new FileInputStream(File.createTempFile("docker", "test"))
+        def query = [rm: true, t: "imageName"]
 
         given:
         task.buildContext = inputStream
@@ -55,7 +59,7 @@ class DockerBuildTaskSpec extends Specification {
         task.build()
 
         then:
-        1 * dockerClient.build(inputStream, new BuildConfig(query: [rm: true, t: "imageName"])) >> new BuildResult(imageId: "4711")
+        1 * dockerClient.build(inputStream, new BuildConfig(query: query)) >> new BuildResult(imageId: "4711")
 
         and:
         task.outputs.files.isEmpty()
@@ -63,6 +67,7 @@ class DockerBuildTaskSpec extends Specification {
 
     def "delegates to dockerClient with buildContext and buildParams"() {
         def inputStream = new FileInputStream(File.createTempFile("docker", "test"))
+        def query = [rm: true, t: "imageName", dockerfile: './custom.Dockerfile']
 
         given:
         task.buildContext = inputStream
@@ -73,8 +78,7 @@ class DockerBuildTaskSpec extends Specification {
         task.build()
 
         then:
-        1 * dockerClient.build(inputStream, new BuildConfig(query: [rm: true, t: "imageName", dockerfile: './custom.Dockerfile'])) >>
-                new BuildResult(imageId: "4711")
+        1 * dockerClient.build(inputStream, new BuildConfig(query: query)) >> new BuildResult(imageId: "4711")
 
         and:
         task.outputs.files.isEmpty()
@@ -82,6 +86,8 @@ class DockerBuildTaskSpec extends Specification {
 
     def "delegates to dockerClient with buildContext and buildOptions"() {
         def inputStream = new FileInputStream(File.createTempFile("docker", "test"))
+        def query = [rm: true, t: "imageName"]
+        def options = [EncodedRegistryConfig: [foo: [:]]]
 
         given:
         task.buildContext = inputStream
@@ -92,8 +98,7 @@ class DockerBuildTaskSpec extends Specification {
         task.build()
 
         then:
-        1 * dockerClient.build(inputStream, new BuildConfig(query: [rm: true, t: "imageName"], options: [EncodedRegistryConfig: [foo: [:]]])) >>
-                new BuildResult(imageId: "4711")
+        1 * dockerClient.build(inputStream, new BuildConfig(query: query, options: options)) >> new BuildResult(imageId: "4711")
 
         and:
         task.outputs.files.isEmpty()
@@ -101,6 +106,7 @@ class DockerBuildTaskSpec extends Specification {
 
     def "does not override rm build param if given"() {
         def inputStream = new FileInputStream(File.createTempFile("docker", "test"))
+        def query = [rm: false, t: "imageName", dockerfile: './custom.Dockerfile']
 
         given:
         task.buildContext = inputStream
@@ -111,8 +117,7 @@ class DockerBuildTaskSpec extends Specification {
         task.build()
 
         then:
-        1 * dockerClient.build(inputStream, new BuildConfig(query: [rm: false, t: "imageName", dockerfile: './custom.Dockerfile'])) >>
-                new BuildResult(imageId: "4711")
+        1 * dockerClient.build(inputStream, new BuildConfig(query: query)) >> new BuildResult(imageId: "4711")
 
         and:
         task.outputs.files.isEmpty()
@@ -120,6 +125,7 @@ class DockerBuildTaskSpec extends Specification {
 
     def "delegates to dockerClient with buildContext (with logs)"() {
         def inputStream = new FileInputStream(File.createTempFile("docker", "test"))
+        def query = [rm: true, t: "imageName"]
 
         given:
         task.buildContext = inputStream
@@ -130,8 +136,7 @@ class DockerBuildTaskSpec extends Specification {
         task.build()
 
         then:
-        1 * dockerClient.buildWithLogs(inputStream, new BuildConfig(query: [rm: true, t: "imageName"])) >>
-                new BuildResult(imageId: "4711", log: [])
+        1 * dockerClient.buildWithLogs(inputStream, new BuildConfig(query: query)) >> new BuildResult(imageId: "4711", log: [])
 
         and:
         task.outputs.files.isEmpty()
@@ -139,6 +144,7 @@ class DockerBuildTaskSpec extends Specification {
 
     def "delegates to dockerClient with buildContext and buildParams (with logs)"() {
         def inputStream = new FileInputStream(File.createTempFile("docker", "test"))
+        def query = [rm: true, t: "imageName", dockerfile: './custom.Dockerfile']
 
         given:
         task.buildContext = inputStream
@@ -150,7 +156,7 @@ class DockerBuildTaskSpec extends Specification {
         task.build()
 
         then:
-        1 * dockerClient.buildWithLogs(inputStream, new BuildConfig(query: [rm: true, t: "imageName", dockerfile: './custom.Dockerfile'])) >> new BuildResult(imageId: "4711", log: [])
+        1 * dockerClient.buildWithLogs(inputStream, new BuildConfig(query: query)) >> new BuildResult(imageId: "4711", log: [])
 
         and:
         task.outputs.files.isEmpty()
