@@ -10,11 +10,6 @@ buildscript {
         gradlePluginPortal()
         mavenCentral()
     }
-
-//    dependencies {
-//        classpath "net.saliman:gradle-cobertura-plugin:2.4.0"
-//        classpath "org.kt3k.gradle.plugin:coveralls-gradle-plugin:2.8.1"
-//    }
 }
 
 plugins {
@@ -39,21 +34,11 @@ repositories {
     mavenCentral()
 }
 
-//apply plugin: "net.saliman.cobertura"
-//apply plugin: "com.github.kt3k.coveralls"
-
-//cobertura {
-//    coverageSourceDirs = sourceSets.main.groovy.srcDirs
-//    // TODO should be removed when this issue has been resolved:
-//    // https://github.com/stevesaliman/gradle-cobertura-plugin/issues/81
-//    coberturaVersion = "2.0.3"
-//}
-
 dependencies {
     compile(gradleApi())
     compile(localGroovy())
 
-    compile("de.gesellix:docker-client:2019-12-15T21-43-13")
+    compile("de.gesellix:docker-client:2020-02-29T22-21-54")
 
     testCompile("org.spockframework:spock-core:1.3-groovy-2.5")
     testCompile("cglib:cglib-nodep:3.3.0")
@@ -61,8 +46,6 @@ dependencies {
     // see https://docs.gradle.org/current/userguide/test_kit.html
     testCompile(gradleTestKit())
 }
-
-//cobertura.coverageFormats = ["html", "xml"]
 
 tasks {
     withType(Test::class.java) {
