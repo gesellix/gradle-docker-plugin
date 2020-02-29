@@ -227,7 +227,7 @@ class DockerPluginIntegrationTest extends Specification {
                 ["Cmd": ["true"]],
                 'os-linux',
                 "test-rm")
-        def runningContainerId = runResult.container.content.Id
+        String runningContainerId = runResult.container.content.Id
         dockerClient.stop(runningContainerId)
         dockerClient.wait(runningContainerId)
 
@@ -394,7 +394,7 @@ class DockerPluginIntegrationTest extends Specification {
               imageName = 'gesellix/run-with-data-volumes'
               tag = 'latest'
               containerName = 'the-service-example'
-       
+
               doLast {
                   logger.lifecycle("request successful: " + (result.status.status.success))
               }
