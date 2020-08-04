@@ -13,22 +13,22 @@ buildscript {
 }
 
 plugins {
-    id("com.github.ben-manes.versions") version "0.28.0"
+    id("com.github.ben-manes.versions") version "0.29.0"
     id("net.ossindex.audit") version "0.4.11"
-    id("com.jfrog.bintray") version "1.8.4" apply false
-    id("com.gradle.plugin-publish") version "0.10.1" apply false
+    id("com.jfrog.bintray") version "1.8.5" apply false
+    id("com.gradle.plugin-publish") version "0.12.0" apply false
 }
 
 val dependencyVersions = listOf(
         "com.squareup.okio:okio:2.4.3",
-        "org.jetbrains.kotlin:kotlin-reflect:1.3.61",
-        "org.jetbrains.kotlin:kotlin-stdlib:1.3.61",
-        "org.jetbrains.kotlin:kotlin-stdlib-common:1.3.61",
+        "org.jetbrains.kotlin:kotlin-reflect:1.3.71",
+        "org.jetbrains.kotlin:kotlin-stdlib:1.3.71",
+        "org.jetbrains.kotlin:kotlin-stdlib-common:1.3.71",
         "org.slf4j:slf4j-api:1.7.30"
 )
 
 val dependencyVersionsByGroup = mapOf(
-        "org.codehaus.groovy" to "2.5.9"
+        "org.codehaus.groovy" to "2.5.13"
 )
 
 subprojects {
