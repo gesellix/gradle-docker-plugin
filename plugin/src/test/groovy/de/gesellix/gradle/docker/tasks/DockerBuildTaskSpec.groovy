@@ -50,6 +50,7 @@ class DockerBuildTaskSpec extends Specification {
     def "delegates to dockerClient with buildContext"() {
         def inputStream = new FileInputStream(File.createTempFile("docker", "test"))
         def query = [rm: true, t: "imageName"]
+        def options = [EncodedRegistryConfig: '']
 
         given:
         task.buildContext = inputStream
@@ -59,7 +60,7 @@ class DockerBuildTaskSpec extends Specification {
         task.build()
 
         then:
-        1 * dockerClient.build(inputStream, new BuildConfig(query: query)) >> new BuildResult(imageId: "4711")
+        1 * dockerClient.build(inputStream, new BuildConfig(query: query, options: options)) >> new BuildResult(imageId: "4711")
 
         and:
         task.outputs.files.isEmpty()
@@ -68,6 +69,7 @@ class DockerBuildTaskSpec extends Specification {
     def "delegates to dockerClient with buildContext and buildParams"() {
         def inputStream = new FileInputStream(File.createTempFile("docker", "test"))
         def query = [rm: true, t: "imageName", dockerfile: './custom.Dockerfile']
+        def options = [EncodedRegistryConfig: '']
 
         given:
         task.buildContext = inputStream
@@ -78,7 +80,7 @@ class DockerBuildTaskSpec extends Specification {
         task.build()
 
         then:
-        1 * dockerClient.build(inputStream, new BuildConfig(query: query)) >> new BuildResult(imageId: "4711")
+        1 * dockerClient.build(inputStream, new BuildConfig(query: query, options: options)) >> new BuildResult(imageId: "4711")
 
         and:
         task.outputs.files.isEmpty()
@@ -107,6 +109,7 @@ class DockerBuildTaskSpec extends Specification {
     def "does not override rm build param if given"() {
         def inputStream = new FileInputStream(File.createTempFile("docker", "test"))
         def query = [rm: false, t: "imageName", dockerfile: './custom.Dockerfile']
+        def options = [EncodedRegistryConfig: '']
 
         given:
         task.buildContext = inputStream
@@ -117,7 +120,29 @@ class DockerBuildTaskSpec extends Specification {
         task.build()
 
         then:
-        1 * dockerClient.build(inputStream, new BuildConfig(query: query)) >> new BuildResult(imageId: "4711")
+        1 * dockerClient.build(inputStream, new BuildConfig(query: query, options: options)) >> new BuildResult(imageId: "4711")
+
+        and:
+        task.outputs.files.isEmpty()
+    }
+
+    def "uses auth config if not overridden via build options"() {
+        def inputStream = new FileInputStream(File.createTempFile("docker", "test"))
+        def query = [rm: true, t: "imageName"]
+        def plainAuthConfig = ["registry-url": [username: "user-name", password: "a secret"]]
+        def options = [EncodedRegistryConfig: "encoded-auth"]
+
+        given:
+        task.authConfigPlain = plainAuthConfig
+        dockerClient.encodeAuthConfig(plainAuthConfig) >> "encoded-auth"
+        task.buildContext = inputStream
+        task.imageName = "imageName"
+
+        when:
+        task.build()
+
+        then:
+        1 * dockerClient.build(inputStream, new BuildConfig(query: query, options: options)) >> new BuildResult(imageId: "4711")
 
         and:
         task.outputs.files.isEmpty()
@@ -126,6 +151,7 @@ class DockerBuildTaskSpec extends Specification {
     def "delegates to dockerClient with buildContext (with logs)"() {
         def inputStream = new FileInputStream(File.createTempFile("docker", "test"))
         def query = [rm: true, t: "imageName"]
+        def options = [EncodedRegistryConfig: '']
 
         given:
         task.buildContext = inputStream
@@ -136,7 +162,7 @@ class DockerBuildTaskSpec extends Specification {
         task.build()
 
         then:
-        1 * dockerClient.buildWithLogs(inputStream, new BuildConfig(query: query)) >> new BuildResult(imageId: "4711", log: [])
+        1 * dockerClient.buildWithLogs(inputStream, new BuildConfig(query: query, options: options)) >> new BuildResult(imageId: "4711", log: [])
 
         and:
         task.outputs.files.isEmpty()
@@ -145,6 +171,7 @@ class DockerBuildTaskSpec extends Specification {
     def "delegates to dockerClient with buildContext and buildParams (with logs)"() {
         def inputStream = new FileInputStream(File.createTempFile("docker", "test"))
         def query = [rm: true, t: "imageName", dockerfile: './custom.Dockerfile']
+        def options = [EncodedRegistryConfig: '']
 
         given:
         task.buildContext = inputStream
@@ -156,7 +183,7 @@ class DockerBuildTaskSpec extends Specification {
         task.build()
 
         then:
-        1 * dockerClient.buildWithLogs(inputStream, new BuildConfig(query: query)) >> new BuildResult(imageId: "4711", log: [])
+        1 * dockerClient.buildWithLogs(inputStream, new BuildConfig(query: query, options: options)) >> new BuildResult(imageId: "4711", log: [])
 
         and:
         task.outputs.files.isEmpty()

@@ -93,7 +93,10 @@ class DockerBuildTask extends GenericDockerTask {
             buildParams.t = getImageName() as String
         }
 
-        def buildOptions = getBuildOptions() ?: [:]
+        Map<String, Object> buildOptions = getBuildOptions() ?: [:] as Map
+        if (!buildOptions['EncodedRegistryConfig']) {
+            buildOptions['EncodedRegistryConfig'] = getAuthConfig() as String
+        }
 
         // TODO this one needs some beautification
         if (getEnableBuildLog()) {
