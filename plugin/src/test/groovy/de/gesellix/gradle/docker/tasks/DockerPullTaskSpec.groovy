@@ -1,6 +1,7 @@
 package de.gesellix.gradle.docker.tasks
 
 import de.gesellix.docker.client.DockerClient
+import de.gesellix.docker.client.authentication.AuthConfig
 import de.gesellix.docker.engine.EngineResponse
 import de.gesellix.docker.engine.EngineResponseStatus
 import org.gradle.testfixtures.ProjectBuilder
@@ -20,7 +21,7 @@ class DockerPullTaskSpec extends Specification {
 
     def "delegates to dockerClient"() {
         given:
-        task.authConfigPlain = [username: "user", password: "pass"]
+        task.authConfigPlain = new AuthConfig(username: "user", password: "pass")
         task.imageName = "imageName"
         task.tag = "latest"
         task.registry = "registry.example.com:4711"
@@ -31,7 +32,7 @@ class DockerPullTaskSpec extends Specification {
         task.pull()
 
         then:
-        1 * dockerClient.encodeAuthConfig(['username': 'user', 'password': 'pass']) >> "-foo-"
+        1 * dockerClient.encodeAuthConfig(new AuthConfig(username: "user", password: "pass")) >> "-foo-"
         then:
         1 * dockerClient.create([fromImage: "registry.example.com:4711/imageName", tag: "latest"], [EncodedRegistryAuth: "-foo-"]) >> response
     }

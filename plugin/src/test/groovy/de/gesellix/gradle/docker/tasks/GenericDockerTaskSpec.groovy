@@ -1,6 +1,7 @@
 package de.gesellix.gradle.docker.tasks
 
 import de.gesellix.docker.client.DockerClient
+import de.gesellix.docker.client.authentication.AuthConfig
 import de.gesellix.gradle.docker.DockerPluginExtension
 import org.gradle.api.Project
 import org.gradle.testfixtures.ProjectBuilder
@@ -53,12 +54,20 @@ class GenericDockerTaskSpec extends Specification {
         dockerClient.env.certPath.endsWith "/path/to/certs".replaceAll('/', "\\${File.separator}")
     }
 
-    def "getAuthConfig with plain AuthConfig"() {
+    def "getAuthConfig with plain Map (deprecated)"() {
         when:
-        task.authConfigPlain = ["encode": "me"]
+        task.authConfigPlain = [identitytoken: "foo"]
 
         then:
-        task.getAuthConfig() == "eyJlbmNvZGUiOiJtZSJ9"
+        task.getAuthConfig() == "eyJpZGVudGl0eXRva2VuIjoiZm9vIn0="
+    }
+
+    def "getAuthConfig with plain AuthConfig"() {
+        when:
+        task.authConfigPlain = new AuthConfig(identitytoken: "foo")
+
+        then:
+        task.getAuthConfig() == "eyJpZGVudGl0eXRva2VuIjoiZm9vIn0="
     }
 
     def "getAuthConfig with encoded AuthConfig"() {

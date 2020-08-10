@@ -1,6 +1,7 @@
 package de.gesellix.gradle.docker.tasks
 
 import de.gesellix.docker.client.DockerClient
+import de.gesellix.docker.client.authentication.AuthConfig
 import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.Specification
 import spock.lang.Unroll
@@ -20,10 +21,10 @@ class DockerPushTaskSpec extends Specification {
     @Unroll
     def "delegates to dockerClient with registry=#registry"() {
         given:
-        def authDetails = ["username"     : "gesellix",
-                           "password"     : "-yet-another-password-",
-                           "email"        : "tobias@gesellix.de",
-                           "serveraddress": "https://index.docker.io/v1/"]
+        def authDetails = new AuthConfig("username": "gesellix",
+                                         "password": "-yet-another-password-",
+                                         "email": "tobias@gesellix.de",
+                                         "serveraddress": "https://index.docker.io/v1/")
         task.repositoryName = "repositoryName"
         task.registry = registry
         task.authConfigPlain = authDetails

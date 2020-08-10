@@ -2,6 +2,7 @@ package de.gesellix.gradle.docker.tasks
 
 import de.gesellix.docker.client.DockerClient
 import de.gesellix.docker.client.DockerClientImpl
+import de.gesellix.docker.client.authentication.AuthConfig
 import de.gesellix.docker.engine.DockerEnv
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.Input
@@ -11,6 +12,7 @@ import org.gradle.util.CollectionUtils
 
 import static de.gesellix.gradle.docker.DockerPlugin.EXTENSION_NAME
 import static java.net.Proxy.NO_PROXY
+import static org.gradle.util.ConfigureUtil.configureByMap
 
 /**
  * The base class for all Docker-related tasks.
@@ -174,13 +176,27 @@ class GenericDockerTask extends DefaultTask {
         //       from the extension we need to call the getters, which will return the extension values
         if (this.authConfigPlain) {
             assert !this.authConfigEncoded
-            return getDockerClient().encodeAuthConfig(this.authConfigPlain)
+            if (authConfigPlain instanceof Map) {
+                logger.warn("Deprecation: 'authConfigPlain' in class ${this.class.getName()} is a Map. Please change it to be a de.gesellix.docker.client.authentication.AuthConfig.")
+                authConfigPlain = configureByMap(authConfigPlain, new AuthConfig())
+            }
+            if (!authConfigPlain instanceof AuthConfig) {
+                throw new IllegalArgumentException("expected authConfigPlain to be of type ${AuthConfig.class.name}")
+            }
+            return getDockerClient().encodeAuthConfig(this.authConfigPlain as AuthConfig)
         }
         if (this.authConfigEncoded) {
             return authConfigEncoded
         }
         if (getAuthConfigPlain()) {
-            return getDockerClient().encodeAuthConfig(getAuthConfigPlain())
+            if (getAuthConfigPlain() instanceof Map) {
+                logger.warn("Deprecation: 'getAuthConfigPlain()' in class ${this.class.getName()} is a Map. Please change it to be a de.gesellix.docker.client.authentication.AuthConfig.")
+                setAuthConfigPlain(configureByMap(getAuthConfigPlain() as Map, new AuthConfig()))
+            }
+            if (!getAuthConfigPlain() instanceof AuthConfig) {
+                throw new IllegalArgumentException("expected authConfigPlain to be of type ${AuthConfig.class.name}")
+            }
+            return getDockerClient().encodeAuthConfig(getAuthConfigPlain() as AuthConfig)
         }
         return getAuthConfigEncoded() ?: ''
     }

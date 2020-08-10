@@ -1,5 +1,6 @@
 package de.gesellix.gradle.docker.tasks
 
+import de.gesellix.docker.client.authentication.AuthConfig
 import de.gesellix.docker.client.image.BuildConfig
 import de.gesellix.gradle.docker.worker.BuildcontextArchiver
 import org.gradle.api.tasks.Input
@@ -36,6 +37,17 @@ class DockerBuildTask extends GenericDockerTask {
     @Input
     @Optional
     def buildOptions
+
+    /**
+     * A map of registry URL name to AuthConfig.
+     *
+     * Only the registry domain name (and port if not the default 443) are required. However, for legacy reasons, the Docker Hub registry must be specified with both a https:// prefix and a /v1/ suffix even though Docker will prefer to use the v2 registry API.
+     *
+     * See https://docs.docker.com/engine/api/v1.40/#operation/ImageBuild for reference.
+     */
+    @Input
+    @Optional
+    Map<String, AuthConfig> authConfigs = [:]
 
     @Input
     @Optional
@@ -93,9 +105,13 @@ class DockerBuildTask extends GenericDockerTask {
             buildParams.t = getImageName() as String
         }
 
+        if (getAuthConfig() != '') {
+            logger.info("Docker Build requires a Map of AuthConfig by registry name. The configured 'authConfig' will be ignored." +
+                        " Please use the 'authConfigs' (plural form) task parameter if you need to override the DockerClient's default behaviour.")
+        }
         Map<String, Object> buildOptions = getBuildOptions() ?: [:] as Map
-        if (!buildOptions['EncodedRegistryConfig']) {
-            buildOptions['EncodedRegistryConfig'] = getAuthConfig() as String
+        if (!buildOptions['EncodedRegistryConfig'] && getAuthConfigs() != [:]) {
+            buildOptions['EncodedRegistryConfig'] = getDockerClient().encodeAuthConfigs(getAuthConfigs())
         }
 
         // TODO this one needs some beautification
