@@ -1,6 +1,7 @@
 package de.gesellix.gradle.docker.tasks
 
 import de.gesellix.docker.client.DockerClient
+import de.gesellix.docker.client.authentication.AuthConfig
 import de.gesellix.docker.client.image.BuildConfig
 import de.gesellix.docker.client.image.BuildResult
 import de.gesellix.gradle.docker.worker.BuildcontextArchiver
@@ -50,7 +51,7 @@ class DockerBuildTaskSpec extends Specification {
     def "delegates to dockerClient with buildContext"() {
         def inputStream = new FileInputStream(File.createTempFile("docker", "test"))
         def query = [rm: true, t: "imageName"]
-        def options = [EncodedRegistryConfig: '']
+        def options = [:]
 
         given:
         task.buildContext = inputStream
@@ -69,7 +70,7 @@ class DockerBuildTaskSpec extends Specification {
     def "delegates to dockerClient with buildContext and buildParams"() {
         def inputStream = new FileInputStream(File.createTempFile("docker", "test"))
         def query = [rm: true, t: "imageName", dockerfile: './custom.Dockerfile']
-        def options = [EncodedRegistryConfig: '']
+        def options = [:]
 
         given:
         task.buildContext = inputStream
@@ -89,11 +90,11 @@ class DockerBuildTaskSpec extends Specification {
     def "delegates to dockerClient with buildContext and buildOptions"() {
         def inputStream = new FileInputStream(File.createTempFile("docker", "test"))
         def query = [rm: true, t: "imageName"]
-        def options = [EncodedRegistryConfig: [foo: [:]]]
+        def options = [EncodedRegistryConfig: "base-64"]
 
         given:
         task.buildContext = inputStream
-        task.buildOptions = [EncodedRegistryConfig: [foo: [:]]]
+        task.buildOptions = [EncodedRegistryConfig: "base-64"]
         task.imageName = "imageName"
 
         when:
@@ -109,7 +110,7 @@ class DockerBuildTaskSpec extends Specification {
     def "does not override rm build param if given"() {
         def inputStream = new FileInputStream(File.createTempFile("docker", "test"))
         def query = [rm: false, t: "imageName", dockerfile: './custom.Dockerfile']
-        def options = [EncodedRegistryConfig: '']
+        def options = [:]
 
         given:
         task.buildContext = inputStream
@@ -126,15 +127,15 @@ class DockerBuildTaskSpec extends Specification {
         task.outputs.files.isEmpty()
     }
 
-    def "uses auth config if not overridden via build options"() {
+    def "uses auth configs if not overridden via build options"() {
         def inputStream = new FileInputStream(File.createTempFile("docker", "test"))
         def query = [rm: true, t: "imageName"]
-        def plainAuthConfig = ["registry-url": [username: "user-name", password: "a secret"]]
+        def authConfigs = ["host.name": new AuthConfig(username: "user-name", password: "a secret")]
         def options = [EncodedRegistryConfig: "encoded-auth"]
 
         given:
-        task.authConfigPlain = plainAuthConfig
-        dockerClient.encodeAuthConfig(plainAuthConfig) >> "encoded-auth"
+        task.authConfigs = authConfigs
+        dockerClient.encodeAuthConfigs(authConfigs) >> "encoded-auth"
         task.buildContext = inputStream
         task.imageName = "imageName"
 
@@ -151,7 +152,7 @@ class DockerBuildTaskSpec extends Specification {
     def "delegates to dockerClient with buildContext (with logs)"() {
         def inputStream = new FileInputStream(File.createTempFile("docker", "test"))
         def query = [rm: true, t: "imageName"]
-        def options = [EncodedRegistryConfig: '']
+        def options = [:]
 
         given:
         task.buildContext = inputStream
@@ -171,7 +172,7 @@ class DockerBuildTaskSpec extends Specification {
     def "delegates to dockerClient with buildContext and buildParams (with logs)"() {
         def inputStream = new FileInputStream(File.createTempFile("docker", "test"))
         def query = [rm: true, t: "imageName", dockerfile: './custom.Dockerfile']
-        def options = [EncodedRegistryConfig: '']
+        def options = [:]
 
         given:
         task.buildContext = inputStream

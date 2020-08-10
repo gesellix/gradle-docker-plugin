@@ -3,6 +3,7 @@ package de.gesellix.gradle.docker
 import de.gesellix.docker.client.DockerClient
 import de.gesellix.docker.client.DockerClientImpl
 import de.gesellix.docker.client.LocalDocker
+import de.gesellix.docker.client.authentication.AuthConfig
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
 import org.junit.Rule
@@ -104,10 +105,10 @@ class DockerPluginIntegrationTest extends Specification {
 
     def "test push"() {
         given:
-        def authDetails = ["username"     : "gesellix",
-                           "password"     : "-yet-another-password-",
-                           "email"        : "tobias@gesellix.de",
-                           "serveraddress": "https://index.docker.io/v1/"]
+        def authDetails = new AuthConfig("username": "gesellix",
+                                         "password": "-yet-another-password-",
+                                         "email": "tobias@gesellix.de",
+                                         "serveraddress": "https://index.docker.io/v1/")
         def dockerClient = new DockerClientImpl()
         def authConfig = dockerClient.encodeAuthConfig(authDetails)
         pull(dockerClient, "gesellix/testimage", "os-linux")

@@ -1,6 +1,7 @@
 package de.gesellix.gradle.docker.tasks
 
 import de.gesellix.docker.client.DockerClient
+import de.gesellix.docker.client.authentication.AuthConfig
 import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.Specification
 
@@ -114,13 +115,13 @@ class DockerRunTaskSpec extends Specification {
         task.imageName = "anImage"
         task.tag = "theTag"
         task.containerName = "anotherContainerName"
-        task.authConfigPlain = [foo: "bar"]
+        task.authConfigPlain = new AuthConfig(identitytoken: "token")
 
         when:
         task.run()
 
         then:
-        1 * dockerClient.encodeAuthConfig([foo: "bar"]) >> "encoded-auth"
+        1 * dockerClient.encodeAuthConfig(new AuthConfig(identitytoken: "token")) >> "encoded-auth"
         1 * dockerClient.run(
                 "anImage",
                 [HostConfig: [:]],
