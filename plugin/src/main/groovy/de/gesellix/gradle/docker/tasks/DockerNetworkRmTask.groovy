@@ -11,7 +11,7 @@ class DockerNetworkRmTask extends GenericDockerTask {
     String networkName
     @Input
     @Optional
-    boolean ignoreError = false
+    Boolean ignoreError = false
 
     @Internal
     def response
@@ -24,6 +24,9 @@ class DockerNetworkRmTask extends GenericDockerTask {
     @TaskAction
     def rmNetwork() {
         logger.info "docker network rm"
+        if (getIgnoreError() == null) {
+            setIgnoreError(false)
+        }
         try {
             response = getDockerClient().rmNetwork(getNetworkName())
         }

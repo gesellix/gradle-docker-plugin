@@ -12,7 +12,7 @@ class DockerRmTask extends GenericDockerTask {
 
     @Input
     @Optional
-    boolean removeVolumes = false
+    Boolean removeVolumes = false
 
     @Internal
     def result
@@ -25,6 +25,9 @@ class DockerRmTask extends GenericDockerTask {
     @TaskAction
     def rm() {
         logger.info "docker rm"
+        if (getRemoveVolumes() == null) {
+            setRemoveVolumes(false)
+        }
         result = getDockerClient().rm(getContainerId(), ["v": getRemoveVolumes() ? 1 : 0])
         return result
     }

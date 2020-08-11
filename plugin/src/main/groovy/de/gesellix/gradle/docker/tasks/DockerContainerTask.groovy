@@ -89,7 +89,7 @@ class DockerContainerTask extends GenericDockerTask {
      */
     @Input
     @Optional
-    boolean privileged = false
+    Boolean privileged = false
 
     /**
      * A list of blocking health checks to run against the container.
@@ -236,7 +236,10 @@ class DockerContainerTask extends GenericDockerTask {
             config.HostConfig.Links = links
         }
 
-        config.HostConfig.Privileged = privileged
+        if (getPrivileged() == null) {
+            setPrivileged(false)
+        }
+        config.HostConfig.Privileged = getPrivileged()
 
         if (ports) {
             config.ExposedPorts = [:]
