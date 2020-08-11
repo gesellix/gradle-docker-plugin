@@ -14,10 +14,10 @@ class DockerPluginExtension {
      * otherwise it will try to use the environment variable {@code DOCKER_HOST}. Failing that it will be
      * null
      */
-    String dockerHost = System.getProperty("docker.host") ?: System.env["DOCKER_HOST"]
+    String dockerHost = System.getProperty("docker.host") ?: System.getenv("DOCKER_HOST")
 
     // Use an object that can be evaluated with project.file()
-    private Object certPath = System.getProperty("docker.cert.path") ?: System.env["DOCKER_CERT_PATH"]
+    private Object certPath = System.getProperty("docker.cert.path") ?: System.getenv("DOCKER_CERT_PATH")
 
     def proxy
     def authConfigPlain

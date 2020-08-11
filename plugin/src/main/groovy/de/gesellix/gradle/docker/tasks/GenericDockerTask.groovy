@@ -43,7 +43,7 @@ class GenericDockerTask extends DefaultTask {
     @Optional
     String getDockerHost() {
         def host = dockerHost ?: project.extensions.findByName(EXTENSION_NAME)?.dockerHost
-        host ? CollectionUtils.stringize([host])[0] : new DockerEnv().dockerHost
+        return host ? CollectionUtils.stringize([host])[0] : new DockerEnv().dockerHost
     }
 
     /**
