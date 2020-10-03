@@ -2,14 +2,13 @@ import de.gesellix.docker.client.DockerClientImpl
 
 buildscript {
     repositories {
-        mavenLocal()
         jcenter()
         gradlePluginPortal()
         mavenCentral()
     }
 
     dependencies {
-        classpath("de.gesellix:docker-client:2020-08-17T17-27-12")
+        classpath("de.gesellix:docker-client:2020-10-03T12-59-57")
     }
 }
 
