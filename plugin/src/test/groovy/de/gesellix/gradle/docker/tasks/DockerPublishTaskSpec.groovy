@@ -67,15 +67,15 @@ class DockerPublishTaskSpec extends Specification {
         and:
         project.tasks.findByName("buildImageForDockerPublish") instanceof DockerBuildTask
         and:
-        project.tasks.findByName("pushImageToPrivateInternal") instanceof DockerPushTask
+        project.tasks.findByName("pushImageToPrivateForDockerPublish") instanceof DockerPushTask
         and:
-        project.tasks.findByName("rmiPrivateImage") instanceof DockerRmiTask
+        project.tasks.findByName("rmiPrivateImageForDockerPublish") instanceof DockerRmiTask
         and:
-        project.tasks.findByName("pushImageToPrivateInternal").getDependsOn().contains project.tasks.findByName("buildImageForDockerPublish")
+        project.tasks.findByName("pushImageToPrivateForDockerPublish").getDependsOn().contains project.tasks.findByName("buildImageForDockerPublish")
         and:
-        project.tasks.findByName("pushImageToPrivateInternal").getFinalizedBy().mutableValues.contains project.tasks.findByName("rmiPrivateImage")
+        project.tasks.findByName("pushImageToPrivateForDockerPublish").getFinalizedBy().mutableValues.contains project.tasks.findByName("rmiPrivateImageForDockerPublish")
         and:
         project.tasks.findByName("dockerPublish").getDependsOn().contains project.tasks.findByName("buildImageForDockerPublish")
-        project.tasks.findByName("dockerPublish").getDependsOn().contains project.tasks.findByName("pushImageToPrivateInternal")
+        project.tasks.findByName("dockerPublish").getDependsOn().contains project.tasks.findByName("pushImageToPrivateForDockerPublish")
     }
 }
