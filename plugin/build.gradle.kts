@@ -35,16 +35,16 @@ repositories {
 }
 
 dependencies {
-    compile(gradleApi())
-    compile(localGroovy())
+    api(gradleApi())
+    api(localGroovy())
 
-    compile("de.gesellix:docker-client:2020-08-17T17-27-12")
+    api("de.gesellix:docker-client:2020-08-17T17-27-12")
 
-    testCompile("org.spockframework:spock-core:1.3-groovy-2.5")
-    testCompile("cglib:cglib-nodep:3.3.0")
+    testImplementation("org.spockframework:spock-core:1.3-groovy-2.5")
+    testImplementation("cglib:cglib-nodep:3.3.0")
 
     // see https://docs.gradle.org/current/userguide/test_kit.html
-    testCompile(gradleTestKit())
+    testImplementation(gradleTestKit())
 }
 
 tasks {
