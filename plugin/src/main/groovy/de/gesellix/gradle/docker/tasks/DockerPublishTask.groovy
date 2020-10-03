@@ -60,8 +60,8 @@ class DockerPublishTask extends GenericDockerTask {
         if ((getTargetRegistries() ?: [:]).isEmpty()) {
             logger.warn("No targetRegistries configured, image won't be pushed to any registry.")
         }
-        getTargetRegistries().each { name, targetRegistry ->
-            def pushTask = createUniquePushTask(name, targetRegistry, imageNameWithTag, getAuthConfig())
+        getTargetRegistries().each { registryName, targetRegistry ->
+            def pushTask = createUniquePushTask(registryName, targetRegistry, imageNameWithTag, getAuthConfig())
             pushTask.dependsOn buildImageTask
             configuredTask.dependsOn pushTask
         }
@@ -69,13 +69,13 @@ class DockerPublishTask extends GenericDockerTask {
         return configuredTask
     }
 
-    def createUniquePushTask(name, targetRegistry, imageNameWithTag, authConfig) {
-        def pushTask = createUniqueTask(DockerPushTask, "pushImageTo${name.capitalize()}Internal").configure {
+    def createUniquePushTask(registryName, targetRegistry, imageNameWithTag, authConfig) {
+        def pushTask = createUniqueTask(DockerPushTask, "pushImageTo${registryName.capitalize()}For${this.name.capitalize()}").configure {
             repositoryName = imageNameWithTag
             registry = targetRegistry
             authConfigEncoded = authConfig
         }
-        def rmiTask = createUniqueTask(DockerRmiTask, "rmi${name.capitalize()}Image").configure {
+        def rmiTask = createUniqueTask(DockerRmiTask, "rmi${registryName.capitalize()}ImageFor${this.name.capitalize()}").configure {
             imageId = "${targetRegistry}/${imageNameWithTag}"
         }
         pushTask.finalizedBy rmiTask
