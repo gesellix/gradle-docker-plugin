@@ -5,7 +5,6 @@ project.extra.set("bintrayDryRun", false)
 
 buildscript {
     repositories {
-        mavenLocal()
         jcenter()
         gradlePluginPortal()
         mavenCentral()
@@ -29,7 +28,6 @@ java {
 }
 
 repositories {
-    mavenLocal()
     jcenter()
     mavenCentral()
 }
@@ -38,7 +36,7 @@ dependencies {
     api(gradleApi())
     api(localGroovy())
 
-    api("de.gesellix:docker-client:2020-08-17T17-27-12")
+    api("de.gesellix:docker-client:2020-10-03T12-59-57")
 
     testImplementation("org.spockframework:spock-core:1.3-groovy-2.5")
     testImplementation("cglib:cglib-nodep:3.3.0")

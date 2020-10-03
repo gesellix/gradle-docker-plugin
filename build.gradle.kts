@@ -20,11 +20,10 @@ plugins {
 }
 
 val dependencyVersions = listOf(
-        "com.squareup.okio:okio:2.7.0",
+        "com.squareup.okio:okio:2.8.0",
         "org.jetbrains.kotlin:kotlin-reflect:1.3.72",
         "org.jetbrains.kotlin:kotlin-stdlib:1.3.72",
-        "org.jetbrains.kotlin:kotlin-stdlib-common:1.3.72",
-        "org.slf4j:slf4j-api:1.7.30"
+        "org.jetbrains.kotlin:kotlin-stdlib-common:1.3.72"
 )
 
 val dependencyVersionsByGroup = mapOf(
