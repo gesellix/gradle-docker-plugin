@@ -1,135 +1,138 @@
-import com.jfrog.bintray.gradle.BintrayExtension
-import org.gradle.api.internal.plugins.DslObject
-
-project.extra.set("bintrayDryRun", false)
-
-buildscript {
-    repositories {
-        jcenter()
-        gradlePluginPortal()
-        mavenCentral()
-    }
-}
+import java.text.SimpleDateFormat
+import java.util.*
 
 plugins {
-    groovy
-    `java-gradle-plugin`
-    maven
-    `maven-publish`
-    id("com.github.ben-manes.versions")
-    id("net.ossindex.audit")
-    id("com.jfrog.bintray")
-    id("com.gradle.plugin-publish")
-}
-
-java {
-    sourceCompatibility = JavaVersion.VERSION_1_8
-    targetCompatibility = JavaVersion.VERSION_1_8
+  id("groovy")
+  id("java-gradle-plugin")
+  id("maven-publish")
+  id("signing")
+  id("com.github.ben-manes.versions")
+  id("net.ossindex.audit")
+  id("com.gradle.plugin-publish")
+  // TODO Validation fails for the java-gradle-plugin "PluginMaven" publication
+  // Validation is disabled in the ci/cd workflows (`-x validatePomFileForPluginMavenPublication`)
+  id("io.freefair.maven-central.validate-poms")
 }
 
 repositories {
-    jcenter()
-    mavenCentral()
+  mavenCentral()
 }
 
 dependencies {
-    api(gradleApi())
-    api(localGroovy())
+  api(gradleApi())
+  api(localGroovy())
 
-    api("de.gesellix:docker-client:2020-10-03T12-59-57")
+  api("de.gesellix:docker-client:2021-02-20T21-57-11")
 
-    testImplementation("org.spockframework:spock-core:1.3-groovy-2.5")
-    testImplementation("cglib:cglib-nodep:3.3.0")
+  testImplementation("org.spockframework:spock-core:1.3-groovy-2.5")
+  testImplementation("cglib:cglib-nodep:3.3.0")
 
-    // see https://docs.gradle.org/current/userguide/test_kit.html
-    testImplementation(gradleTestKit())
+  // see https://docs.gradle.org/current/userguide/test_kit.html
+  testImplementation(gradleTestKit())
+}
+
+java {
+  sourceCompatibility = JavaVersion.VERSION_1_8
+  targetCompatibility = JavaVersion.VERSION_1_8
 }
 
 tasks {
-    withType(Test::class.java) {
-        useJUnit()
-    }
+  withType(Test::class.java) {
+    useJUnit()
+  }
+}
 
-    bintrayUpload {
-        dependsOn("build")
-    }
+val javadocJar by tasks.registering(Jar::class) {
+  dependsOn("classes")
+  archiveClassifier.set("javadoc")
+  from(tasks.javadoc)
 }
 
 val sourcesJar by tasks.registering(Jar::class) {
-    dependsOn("classes")
-    archiveClassifier.set("sources")
-    from(sourceSets.main.get().allSource)
+  dependsOn("classes")
+  archiveClassifier.set("sources")
+  from(sourceSets.main.get().allSource)
 }
 
 artifacts {
-    add("archives", sourcesJar.get())
-}
-
-tasks.install {
-    DslObject(repositories)
-            .convention
-            .getPlugin<MavenRepositoryHandlerConvention>()
-            .mavenInstaller {
-                pom {
-                    groupId = "de.gesellix"
-                    artifactId = "gradle-docker-plugin"
-                    version = "local"
-                }
-            }
-}
-
-val publicationName = "gradleDockerPlugin"
-publishing {
-    publications {
-        register(publicationName, MavenPublication::class) {
-            groupId = "de.gesellix"
-            artifactId = "gradle-docker-plugin"
-            version = rootProject.extra["artifactVersion"] as String
-            from(components["java"])
-            artifact(sourcesJar.get())
-        }
-    }
+  add("archives", sourcesJar.get())
+  add("archives", javadocJar.get())
 }
 
 fun findProperty(s: String) = project.findProperty(s) as String?
 
-bintray {
-    user = System.getenv()["BINTRAY_USER"] ?: findProperty("bintray.user")
-    key = System.getenv()["BINTRAY_API_KEY"] ?: findProperty("bintray.key")
-    setPublications(publicationName)
-    pkg(delegateClosureOf<BintrayExtension.PackageConfig> {
-        repo = "docker-utils"
-        name = "gradle-docker-plugin"
-        desc = "A Docker plugin for Gradle"
-        setLicenses("Apache-2.0")
-        setLabels("docker", "gradle", "remote api", "plugin")
-        websiteUrl = "https://github.com/gesellix/gradle-docker-plugin"
-        issueTrackerUrl = "https://github.com/gesellix/gradle-docker-plugin/issues"
-        vcsUrl = "https://github.com/gesellix/gradle-docker-plugin.git"
-        attributes = mapOf("gradle-plugin" to "de.gesellix.docker:de.gesellix:gradle-docker-plugin")
-        version.name = rootProject.extra["artifactVersion"] as String
-        version.attributes = mapOf("gradle-plugin" to "de.gesellix.docker:de.gesellix:gradle-docker-plugin")
-    })
-    dryRun = project.extra["bintrayDryRun"] as Boolean
+val isSnapshot = project.version == "unspecified"
+val artifactVersion = if (!isSnapshot) project.version as String else SimpleDateFormat("yyyy-MM-dd\'T\'HH-mm-ss").format(Date())!!
+val publicationName = "gradleDockerPlugin"
+publishing {
+  repositories {
+    maven {
+      name = "GitHubPackages"
+      url = uri("https://maven.pkg.github.com/${property("github.package-registry.owner")}/${property("github.package-registry.repository")}")
+      credentials {
+        username = System.getenv("GITHUB_ACTOR") ?: findProperty("github.package-registry.username")
+        password = System.getenv("GITHUB_TOKEN") ?: findProperty("github.package-registry.password")
+      }
+    }
+  }
+  publications {
+    register(publicationName, MavenPublication::class) {
+      pom {
+        name.set("gradle-docker-plugin")
+        description.set("A Docker plugin for Gradle")
+        url.set("https://github.com/gesellix/gradle-docker-plugin")
+        licenses {
+          license {
+            name.set("MIT")
+            url.set("https://opensource.org/licenses/MIT")
+          }
+        }
+        developers {
+          developer {
+            id.set("gesellix")
+            name.set("Tobias Gesellchen")
+            email.set("tobias@gesellix.de")
+          }
+        }
+        scm {
+          connection.set("scm:git:github.com/gesellix/gradle-docker-plugin.git")
+          developerConnection.set("scm:git:ssh://github.com/gesellix/gradle-docker-plugin.git")
+          url.set("https://github.com/gesellix/gradle-docker-plugin")
+        }
+      }
+      artifactId = "gradle-docker-plugin"
+      version = artifactVersion
+      from(components["java"])
+      artifact(sourcesJar.get())
+      artifact(javadocJar.get())
+    }
+  }
+}
+
+signing {
+  val signingKey: String? by project
+  val signingPassword: String? by project
+  useInMemoryPgpKeys(signingKey, signingPassword)
+  sign(publishing.publications[publicationName])
 }
 
 pluginBundle {
-    website = "https://github.com/gesellix/gradle-docker-plugin"
-    vcsUrl = "https://github.com/gesellix/gradle-docker-plugin.git"
-    description = "A Docker plugin for Gradle"
-    tags = listOf("docker", "gradle", "remote api", "plugin")
+  website = "https://github.com/gesellix/gradle-docker-plugin"
+  vcsUrl = "https://github.com/gesellix/gradle-docker-plugin.git"
+  description = "A Docker plugin for Gradle"
+  tags = listOf("docker", "gradle", "remote api", "plugin")
 
-    plugins {
-        register(publicationName) {
-            id = "de.gesellix.docker"
-            displayName = "Gradle Docker plugin"
-            version = rootProject.extra["artifactVersion"] as String
-        }
+  plugins {
+    register(publicationName) {
+      id = "de.gesellix.docker"
+      displayName = "Gradle Docker plugin"
+      version = artifactVersion
     }
+  }
 
-    mavenCoordinates {
-        groupId = "de.gesellix"
-        artifactId = "gradle-docker-plugin"
-        version = rootProject.extra["artifactVersion"] as String
-    }
+  mavenCoordinates {
+    groupId = "de.gesellix"
+    artifactId = "gradle-docker-plugin"
+    version = artifactVersion
+  }
 }
