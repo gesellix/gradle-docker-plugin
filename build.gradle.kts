@@ -1,55 +1,59 @@
-import java.text.SimpleDateFormat
-import java.util.*
-
-rootProject.extra.set("artifactVersion", SimpleDateFormat("yyyy-MM-dd\'T\'HH-mm-ss").format(Date()))
-
-buildscript {
-    repositories {
-        mavenLocal()
-        jcenter()
-        gradlePluginPortal()
-        mavenCentral()
-    }
-}
-
 plugins {
-    id("com.github.ben-manes.versions") version "0.33.0"
-    id("net.ossindex.audit") version "0.4.11"
-    id("com.jfrog.bintray") version "1.8.5" apply false
-    id("com.gradle.plugin-publish") version "0.12.0" apply false
+  id("maven-publish")
+  id("com.github.ben-manes.versions") version "0.36.0"
+  id("net.ossindex.audit") version "0.4.11"
+  id("com.gradle.plugin-publish") version "0.13.0" apply false
+  id("io.freefair.maven-central.validate-poms") version "5.3.0"
+  id("io.github.gradle-nexus.publish-plugin") version "1.0.0"
 }
 
 val dependencyVersions = listOf(
-        "com.squareup.okio:okio:2.8.0",
-        "org.jetbrains.kotlin:kotlin-reflect:1.3.72",
-        "org.jetbrains.kotlin:kotlin-stdlib:1.3.72",
-        "org.jetbrains.kotlin:kotlin-stdlib-common:1.3.72"
+  "com.squareup.okio:okio:2.8.0",
+  "org.jetbrains.kotlin:kotlin-reflect:1.3.72",
+  "org.jetbrains.kotlin:kotlin-stdlib:1.3.72",
+  "org.jetbrains.kotlin:kotlin-stdlib-common:1.3.72"
 )
 
 val dependencyVersionsByGroup = mapOf(
-        "org.codehaus.groovy" to "2.5.13"
+  "org.codehaus.groovy" to "2.5.13"
 )
 
 subprojects {
-    configurations.all {
-        resolutionStrategy {
-            failOnVersionConflict()
-            force(dependencyVersions)
-            eachDependency {
-                val forcedVersion = dependencyVersionsByGroup[requested.group]
-                if (forcedVersion != null) {
-                    useVersion(forcedVersion)
-                }
-            }
+  configurations.all {
+    resolutionStrategy {
+      failOnVersionConflict()
+      force(dependencyVersions)
+      eachDependency {
+        val forcedVersion = dependencyVersionsByGroup[requested.group]
+        if (forcedVersion != null) {
+          useVersion(forcedVersion)
         }
+      }
     }
+  }
 }
 
 tasks {
-    wrapper {
-        gradleVersion = "6.8.2"
-        distributionType = Wrapper.DistributionType.ALL
+  wrapper {
+    gradleVersion = "6.8.2"
+    distributionType = Wrapper.DistributionType.ALL
+  }
+}
+
+fun findProperty(s: String) = project.findProperty(s) as String?
+
+val isSnapshot = project.version == "unspecified"
+nexusPublishing {
+  repositories {
+    if (!isSnapshot) {
+      sonatype {
+        // 'sonatype' is pre-configured for Sonatype Nexus (OSSRH) which is used for The Central Repository
+        stagingProfileId.set(System.getenv("SONATYPE_STAGING_PROFILE_ID") ?: findProperty("sonatype.staging.profile.id")) //can reduce execution time by even 10 seconds
+        username.set(System.getenv("SONATYPE_USERNAME") ?: findProperty("sonatype.username"))
+        password.set(System.getenv("SONATYPE_PASSWORD") ?: findProperty("sonatype.password"))
+      }
     }
+  }
 }
 
 project.apply("debug.gradle.kts")

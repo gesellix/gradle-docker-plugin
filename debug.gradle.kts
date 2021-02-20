@@ -1,32 +1,30 @@
 import de.gesellix.docker.client.DockerClientImpl
 
 buildscript {
-    repositories {
-        jcenter()
-        gradlePluginPortal()
-        mavenCentral()
-    }
+  repositories {
+    mavenCentral()
+  }
 
-    dependencies {
-        classpath("de.gesellix:docker-client:2020-10-03T12-59-57")
-    }
+  dependencies {
+    classpath("de.gesellix:docker-client:2021-02-20T21-57-11")
+  }
 }
 
 tasks.register("checkDockerAvailability") {
-    val client = DockerClientImpl()
+  val client = DockerClientImpl()
 
-    doFirst {
-        logger.lifecycle("Docker Host:\n|> ${client.env.dockerHost} <|")
-    }
-    doLast {
-        val pingResponse = client.ping()
-        logger.lifecycle("Docker Ping:\n|> $pingResponse <|")
+  doFirst {
+    logger.lifecycle("Docker Host:\n|> ${client.env.dockerHost} <|")
+  }
+  doLast {
+    val pingResponse = client.ping()
+    logger.lifecycle("Docker Ping:\n|> $pingResponse <|")
 
-        if (pingResponse.status.success) {
-            logger.lifecycle("Docker Version:\n|> ${client.version().content} <|")
-            logger.lifecycle("Docker Info:\n|> ${client.info().content} <|")
-        } else {
-            logger.warn("Docker Engine not available (ping failed).")
-        }
+    if (pingResponse.status.success) {
+      logger.lifecycle("Docker Version:\n|> ${client.version().content} <|")
+      logger.lifecycle("Docker Info:\n|> ${client.info().content} <|")
+    } else {
+      logger.warn("Docker Engine not available (ping failed).")
     }
+  }
 }
