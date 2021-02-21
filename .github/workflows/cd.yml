@@ -17,7 +17,7 @@ jobs:
         with:
           java-version: 8
       - name: build publish
-        run: ./gradlew clean build publish -x validatePomFileForPluginMavenPublication --no-daemon --info --stacktrace
+        run: ./gradlew clean build publish -x validatePomFileForPluginMavenPublication -x publishPluginMavenPublicationToGitHubPackagesRepository --no-daemon --info --stacktrace
         timeout-minutes: 10
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
