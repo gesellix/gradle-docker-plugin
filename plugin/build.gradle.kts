@@ -22,7 +22,7 @@ dependencies {
   api(gradleApi())
   api(localGroovy())
 
-  api("de.gesellix:docker-client:2021-02-20T21-57-11")
+  api("de.gesellix:docker-client:2021-03-01T18-45-03")
 
   testImplementation("org.spockframework:spock-core:1.3-groovy-2.5")
   testImplementation("cglib:cglib-nodep:3.3.0")
