@@ -4,8 +4,8 @@
 
 # Gradle-Docker-Plugin
 
-[![Gradle logo](https://github.com/gesellix/gradle-docker-plugin/raw/master/img/gradle-logo.png)](http://www.gradle.org/)
-[![Docker logo](https://github.com/gesellix/gradle-docker-plugin/raw/master/img/docker-logo.png)](http://www.docker.com/)
+[![Gradle logo](https://github.com/gesellix/gradle-docker-plugin/raw/main/img/gradle-logo.png)](https://gradle.org/)
+[![Docker logo](https://github.com/gesellix/gradle-docker-plugin/raw/main/img/docker-logo.png)](https://www.docker.com/)
 
 Yet another Gradle plugin making it easy for your build scripts to talk to a Docker daemon.
 Each task delegates to the [Docker-Client](https://github.com/gesellix/docker-client), which connects
