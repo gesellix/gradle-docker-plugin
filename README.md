@@ -1,7 +1,8 @@
-# Gradle-Docker-Plugin
+[![Build Status](https://img.shields.io/github/workflow/status/gesellix/gradle-docker-plugin/Publish?style=for-the-badge)](https://github.com/gesellix/gradle-docker-plugin/actions)
+[![Maven Central](https://img.shields.io/maven-central/v/de.gesellix/gradle-docker-plugin.svg?style=for-the-badge&maxAge=86400)](https://search.maven.org/search?q=g:de.gesellix%20AND%20a:gradle-docker-plugin)
+[![API Coverage](https://img.shields.io/static/v1?label=Gradle%20Plugin%20Portal&message=latest%20version&color=blue&style=for-the-badge)](https://plugins.gradle.org/plugin/de.gesellix.docker)
 
-[![Publish](https://github.com/gesellix/gradle-docker-plugin/actions/workflows/cd.yml/badge.svg)](https://github.com/gesellix/gradle-docker-plugin/actions/workflows/cd.yml)
-[Latest version](https://plugins.gradle.org/plugin/de.gesellix.docker)
+# Gradle-Docker-Plugin
 
 [![Gradle logo](https://github.com/gesellix/gradle-docker-plugin/raw/master/img/gradle-logo.png)](http://www.gradle.org/)
 [![Docker logo](https://github.com/gesellix/gradle-docker-plugin/raw/master/img/docker-logo.png)](http://www.docker.com/)
@@ -12,16 +13,9 @@ to the Docker remote API via HTTP.
 
 For basic usage please have a look at the tests or the [example project](https://github.com/gesellix/gradle-docker-plugin-example).
 
-## Release Workflow
+## Publishing/Release Workflow
 
-There are multiple GitHub Action Workflows for the different steps in the package's lifecycle:
-
-- CI: Builds and checks incoming changes on a pull request
-  - triggered on every push to a non-default branch
-- CD: Publishes the Gradle artifacts to GitHub Package Registry
-  - triggered only on pushes to the default branch
-- Release: Publishes Gradle artifacts to Sonatype and releases them to Maven Central
-  - triggered on a published GitHub release using the underlying tag as artifact version, e.g. via `git tag -m "$MESSAGE" v$(date +"%Y-%m-%dT%H-%M-%S")`
+See RELEASE.md
 
 ## License
 

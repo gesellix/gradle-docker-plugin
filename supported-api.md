@@ -5,7 +5,7 @@
 Since the Docker engine api tends to be backwards compatible,
 the underlying Docker Client currently supports most other api versions, too.
 
-Current api coverage (40/114): ![Remote API Coverage Status](http://progressed.io/bar/35)
+Current api coverage: 40/114 endpoints.
 
 This project tends to support most api endpoints, but only if there's an actual use case. If you're missing a feature, please file
 a [new issue](https://github.com/gesellix/gradle-docker-plugin/issues) or a [pull request](https://github.com/gesellix/gradle-docker-plugin/pulls)
