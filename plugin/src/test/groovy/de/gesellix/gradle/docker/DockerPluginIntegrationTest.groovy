@@ -537,8 +537,9 @@ class DockerPluginIntegrationTest extends Specification {
         def swarmCreated = false
         def dockerInfo = dockerClient.info().content
         if (dockerInfo.Swarm.LocalNodeState != "active") {
-            buildFile << """
+          buildFile << """
                 def swarmConfig = [
+                    "AdvertiseAddr"  : "127.0.0.1",
                     "ListenAddr"     : "0.0.0.0",
                     "ForceNewCluster": false
                 ]
