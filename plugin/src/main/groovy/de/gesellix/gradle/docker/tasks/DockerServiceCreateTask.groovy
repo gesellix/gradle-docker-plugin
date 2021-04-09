@@ -6,20 +6,20 @@ import org.gradle.api.tasks.TaskAction
 
 class DockerServiceCreateTask extends GenericDockerTask {
 
-    @Input
-    def serviceConfig = [:]
+  @Input
+  def serviceConfig = [:]
 
-    @Internal
-    def response
+  @Internal
+  def response
 
-    DockerServiceCreateTask() {
-        description = "Create a service"
-        group = "Docker"
-    }
+  DockerServiceCreateTask() {
+    description = "Create a service"
+    group = "Docker"
+  }
 
-    @TaskAction
-    def createService() {
-        logger.info "docker service create"
-        response = getDockerClient().createService(getServiceConfig() ?: [:])
-    }
+  @TaskAction
+  def createService() {
+    logger.info "docker service create"
+    response = getDockerClient().createService(getServiceConfig() ?: [:])
+  }
 }

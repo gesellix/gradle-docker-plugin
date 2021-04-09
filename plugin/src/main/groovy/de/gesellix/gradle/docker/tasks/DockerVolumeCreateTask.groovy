@@ -7,23 +7,23 @@ import org.gradle.api.tasks.TaskAction
 
 class DockerVolumeCreateTask extends GenericDockerTask {
 
-    @Input
-    @Optional
-    def volumeConfig = [:]
+  @Input
+  @Optional
+  def volumeConfig = [:]
 
-    @Internal
-    def response
+  @Internal
+  def response
 
-    DockerVolumeCreateTask() {
-        description = "Create a volume"
-        group = "Docker"
-    }
+  DockerVolumeCreateTask() {
+    description = "Create a volume"
+    group = "Docker"
+  }
 
-    @TaskAction
-    def createVolume() {
-        logger.info "docker volume create"
+  @TaskAction
+  def createVolume() {
+    logger.info "docker volume create"
 
-        response = getDockerClient().createVolume(getVolumeConfig() ?: [:])
-        return response
-    }
+    response = getDockerClient().createVolume(getVolumeConfig() ?: [:])
+    return response
+  }
 }

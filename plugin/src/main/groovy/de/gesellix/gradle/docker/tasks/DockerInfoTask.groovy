@@ -5,17 +5,17 @@ import org.gradle.api.tasks.TaskAction
 
 class DockerInfoTask extends GenericDockerTask {
 
-    @Internal
-    def info
+  @Internal
+  def info
 
-    DockerInfoTask() {
-        description = "Display system-wide information"
-        group = "Docker"
-    }
+  DockerInfoTask() {
+    description = "Display system-wide information"
+    group = "Docker"
+  }
 
-    @TaskAction
-    def info() {
-        logger.info "docker info"
-        info = getDockerClient().info()
-    }
+  @TaskAction
+  def info() {
+    logger.info "docker info"
+    info = getDockerClient().info()
+  }
 }

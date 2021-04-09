@@ -8,38 +8,38 @@ import spock.lang.Unroll
 
 class DockerPushTaskSpec extends Specification {
 
-    def project
-    def task
-    def dockerClient = Mock(DockerClient)
+  def project
+  def task
+  def dockerClient = Mock(DockerClient)
 
-    def setup() {
-        project = ProjectBuilder.builder().build()
-        task = project.task('dockerPush', type: DockerPushTask)
-        task.dockerClient = dockerClient
-    }
+  def setup() {
+    project = ProjectBuilder.builder().build()
+    task = project.task('dockerPush', type: DockerPushTask)
+    task.dockerClient = dockerClient
+  }
 
-    @Unroll
-    def "delegates to dockerClient with registry=#registry"() {
-        given:
-        def authDetails = new AuthConfig("username": "gesellix",
-                                         "password": "-yet-another-password-",
-                                         "email": "tobias@gesellix.de",
-                                         "serveraddress": "https://index.docker.io/v1/")
-        task.repositoryName = "repositoryName"
-        task.registry = registry
-        task.authConfigPlain = authDetails
+  @Unroll
+  def "delegates to dockerClient with registry=#registry"() {
+    given:
+    def authDetails = new AuthConfig("username": "gesellix",
+                                     "password": "-yet-another-password-",
+                                     "email": "tobias@gesellix.de",
+                                     "serveraddress": "https://index.docker.io/v1/")
+    task.repositoryName = "repositoryName"
+    task.registry = registry
+    task.authConfigPlain = authDetails
 //    task.authConfigEncoded = "--auth.base64--"
 
-        when:
-        task.push()
+    when:
+    task.push()
 
-        then:
-        1 * dockerClient.encodeAuthConfig(authDetails) >> "--auth.base64--"
+    then:
+    1 * dockerClient.encodeAuthConfig(authDetails) >> "--auth.base64--"
 
-        then:
-        1 * dockerClient.push("repositoryName", "--auth.base64--", registry)
+    then:
+    1 * dockerClient.push("repositoryName", "--auth.base64--", registry)
 
-        where:
-        registry << [null, "registry.docker.io"]
-    }
+    where:
+    registry << [null, "registry.docker.io"]
+  }
 }

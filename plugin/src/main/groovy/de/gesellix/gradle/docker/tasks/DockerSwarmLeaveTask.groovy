@@ -7,18 +7,18 @@ import org.gradle.api.tasks.TaskAction
 
 class DockerSwarmLeaveTask extends GenericDockerTask {
 
-    @Input
-    @Optional
-    def query = [:]
+  @Input
+  @Optional
+  def query = [:]
 
-    @Internal
-    def response
+  @Internal
+  def response
 
-    @TaskAction
-    def leaveSwarm() {
-        logger.info "docker swarm leave"
+  @TaskAction
+  def leaveSwarm() {
+    logger.info "docker swarm leave"
 
-        response = getDockerClient().leaveSwarm(getQuery())
-        return response
-    }
+    response = getDockerClient().leaveSwarm(getQuery())
+    return response
+  }
 }

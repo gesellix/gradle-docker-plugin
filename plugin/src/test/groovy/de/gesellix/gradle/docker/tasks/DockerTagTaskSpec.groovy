@@ -6,25 +6,25 @@ import spock.lang.Specification
 
 class DockerTagTaskSpec extends Specification {
 
-    def project
-    def task
-    def dockerClient = Mock(DockerClient)
+  def project
+  def task
+  def dockerClient = Mock(DockerClient)
 
-    def setup() {
-        project = ProjectBuilder.builder().build()
-        task = project.task('dockerTag', type: DockerTagTask)
-        task.dockerClient = dockerClient
-    }
+  def setup() {
+    project = ProjectBuilder.builder().build()
+    task = project.task('dockerTag', type: DockerTagTask)
+    task.dockerClient = dockerClient
+  }
 
-    def "delegates to dockerClient"() {
-        given:
-        task.imageId = "4711"
-        task.tag = "aTag"
+  def "delegates to dockerClient"() {
+    given:
+    task.imageId = "4711"
+    task.tag = "aTag"
 
-        when:
-        task.tag()
+    when:
+    task.tag()
 
-        then:
-        1 * dockerClient.tag("4711", "aTag")
-    }
+    then:
+    1 * dockerClient.tag("4711", "aTag")
+  }
 }

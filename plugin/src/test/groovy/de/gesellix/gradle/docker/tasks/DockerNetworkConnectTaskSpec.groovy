@@ -7,29 +7,29 @@ import spock.lang.Specification
 
 class DockerNetworkConnectTaskSpec extends Specification {
 
-    def project
-    def task
-    def dockerClient = Mock(DockerClient)
+  def project
+  def task
+  def dockerClient = Mock(DockerClient)
 
-    def setup() {
-        project = ProjectBuilder.builder().build()
-        task = project.task('connectNetwork', type: DockerNetworkConnectTask)
-        task.dockerClient = dockerClient
-    }
+  def setup() {
+    project = ProjectBuilder.builder().build()
+    task = project.task('connectNetwork', type: DockerNetworkConnectTask)
+    task.dockerClient = dockerClient
+  }
 
-    def "delegates to dockerClient and saves result"() {
-        given:
-        task.networkName = "a-network"
-        task.containerName = "a-container"
-        def expectedResult = new EngineResponse(content: "result")
+  def "delegates to dockerClient and saves result"() {
+    given:
+    task.networkName = "a-network"
+    task.containerName = "a-container"
+    def expectedResult = new EngineResponse(content: "result")
 
-        when:
-        task.connectNetwork()
+    when:
+    task.connectNetwork()
 
-        then:
-        1 * dockerClient.connectNetwork("a-network", "a-container") >> expectedResult
+    then:
+    1 * dockerClient.connectNetwork("a-network", "a-container") >> expectedResult
 
-        and:
-        task.response == expectedResult
-    }
+    and:
+    task.response == expectedResult
+  }
 }

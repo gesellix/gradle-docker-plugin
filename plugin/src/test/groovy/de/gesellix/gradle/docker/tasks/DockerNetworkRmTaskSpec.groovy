@@ -8,58 +8,58 @@ import spock.lang.Specification
 
 class DockerNetworkRmTaskSpec extends Specification {
 
-    def project
-    def task
-    def dockerClient = Mock(DockerClient)
+  def project
+  def task
+  def dockerClient = Mock(DockerClient)
 
-    def setup() {
-        project = ProjectBuilder.builder().build()
-        task = project.task('rmNetwork', type: DockerNetworkRmTask)
-        task.dockerClient = dockerClient
-    }
+  def setup() {
+    project = ProjectBuilder.builder().build()
+    task = project.task('rmNetwork', type: DockerNetworkRmTask)
+    task.dockerClient = dockerClient
+  }
 
-    def "delegates to dockerClient and saves result"() {
-        given:
-        task.networkName = "a-network"
-        def expectedResult = new EngineResponse(content: "result")
+  def "delegates to dockerClient and saves result"() {
+    given:
+    task.networkName = "a-network"
+    def expectedResult = new EngineResponse(content: "result")
 
-        when:
-        task.rmNetwork()
+    when:
+    task.rmNetwork()
 
-        then:
-        1 * dockerClient.rmNetwork("a-network") >> expectedResult
+    then:
+    1 * dockerClient.rmNetwork("a-network") >> expectedResult
 
-        and:
-        task.response == expectedResult
-    }
+    and:
+    task.response == expectedResult
+  }
 
-    @FailsWith(RuntimeException)
-    def "fails on error"() {
-        given:
-        task.networkName = "a-network"
+  @FailsWith(RuntimeException)
+  def "fails on error"() {
+    given:
+    task.networkName = "a-network"
 
-        when:
-        task.rmNetwork()
+    when:
+    task.rmNetwork()
 
-        then:
-        1 * dockerClient.rmNetwork("a-network") >> { throw new RuntimeException("expected error") }
+    then:
+    1 * dockerClient.rmNetwork("a-network") >> { throw new RuntimeException("expected error") }
 
-        and:
-        task.response == null
-    }
+    and:
+    task.response == null
+  }
 
-    def "can ignore errors"() {
-        given:
-        task.networkName = "a-network"
-        task.ignoreError = true
+  def "can ignore errors"() {
+    given:
+    task.networkName = "a-network"
+    task.ignoreError = true
 
-        when:
-        task.rmNetwork()
+    when:
+    task.rmNetwork()
 
-        then:
-        1 * dockerClient.rmNetwork("a-network") >> { throw new RuntimeException("expected error") }
+    then:
+    1 * dockerClient.rmNetwork("a-network") >> { throw new RuntimeException("expected error") }
 
-        and:
-        task.response == null
-    }
+    and:
+    task.response == null
+  }
 }

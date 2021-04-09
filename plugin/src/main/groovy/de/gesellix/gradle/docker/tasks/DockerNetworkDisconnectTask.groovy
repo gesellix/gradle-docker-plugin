@@ -6,23 +6,23 @@ import org.gradle.api.tasks.TaskAction
 
 class DockerNetworkDisconnectTask extends GenericDockerTask {
 
-    @Input
-    String networkName
+  @Input
+  String networkName
 
-    @Input
-    String containerName
+  @Input
+  String containerName
 
-    @Internal
-    def response
+  @Internal
+  def response
 
-    DockerNetworkDisconnectTask() {
-        description = "Disconnects container from a network"
-        group = "Docker"
-    }
+  DockerNetworkDisconnectTask() {
+    description = "Disconnects container from a network"
+    group = "Docker"
+  }
 
-    @TaskAction
-    def disconnectNetwork() {
-        logger.info "docker network disconnect"
-        response = getDockerClient().disconnectNetwork(getNetworkName(), getContainerName())
-    }
+  @TaskAction
+  def disconnectNetwork() {
+    logger.info "docker network disconnect"
+    response = getDockerClient().disconnectNetwork(getNetworkName(), getContainerName())
+  }
 }

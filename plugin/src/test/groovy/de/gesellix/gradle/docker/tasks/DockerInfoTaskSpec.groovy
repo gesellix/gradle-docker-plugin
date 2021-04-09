@@ -7,27 +7,27 @@ import spock.lang.Specification
 
 class DockerInfoTaskSpec extends Specification {
 
-    def project
-    def task
-    def dockerClient = Mock(DockerClient)
+  def project
+  def task
+  def dockerClient = Mock(DockerClient)
 
-    def setup() {
-        project = ProjectBuilder.builder().build()
-        task = project.task('dockerInfo', type: DockerInfoTask)
-        task.dockerClient = dockerClient
-    }
+  def setup() {
+    project = ProjectBuilder.builder().build()
+    task = project.task('dockerInfo', type: DockerInfoTask)
+    task.dockerClient = dockerClient
+  }
 
-    def "delegates to dockerClient and saves result"() {
-        given:
-        def response = new EngineResponse()
+  def "delegates to dockerClient and saves result"() {
+    given:
+    def response = new EngineResponse()
 
-        when:
-        task.info()
+    when:
+    task.info()
 
-        then:
-        1 * dockerClient.info() >> response
+    then:
+    1 * dockerClient.info() >> response
 
-        and:
-        task.info == response
-    }
+    and:
+    task.info == response
+  }
 }

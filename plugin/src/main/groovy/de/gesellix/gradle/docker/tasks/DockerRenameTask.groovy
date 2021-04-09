@@ -6,23 +6,23 @@ import org.gradle.api.tasks.TaskAction
 
 class DockerRenameTask extends GenericDockerTask {
 
-    @Input
-    def containerId
-    @Input
-    def newName
+  @Input
+  def containerId
+  @Input
+  def newName
 
-    @Internal
-    def result
+  @Internal
+  def result
 
-    DockerRenameTask() {
-        description = "Rename an existing container"
-        group = "Docker"
-    }
+  DockerRenameTask() {
+    description = "Rename an existing container"
+    group = "Docker"
+  }
 
-    @TaskAction
-    def rename() {
-        logger.info "docker rename"
-        result = dockerClient.rename(getContainerId() as String, getNewName() as String)
-        return result
-    }
+  @TaskAction
+  def rename() {
+    logger.info "docker rename"
+    result = dockerClient.rename(getContainerId() as String, getNewName() as String)
+    return result
+  }
 }

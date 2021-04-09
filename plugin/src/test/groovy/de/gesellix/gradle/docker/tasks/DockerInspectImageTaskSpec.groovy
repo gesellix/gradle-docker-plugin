@@ -6,27 +6,28 @@ import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.Specification
 
 class DockerInspectImageTaskSpec extends Specification {
-    def project
-    def task
-    def dockerClient = Mock(DockerClient)
 
-    def setup() {
-        project = ProjectBuilder.builder().build()
-        task = project.task('dockerInspect', type: DockerInspectImageTask)
-        task.dockerClient = dockerClient
-    }
+  def project
+  def task
+  def dockerClient = Mock(DockerClient)
 
-    def "delegates to dockerClient and returns result"() {
-        given:
-        task.imageId = "my.image:dev"
-        def expectedResponse = new EngineResponse(content: ["id": "sha256:1234"])
+  def setup() {
+    project = ProjectBuilder.builder().build()
+    task = project.task('dockerInspect', type: DockerInspectImageTask)
+    task.dockerClient = dockerClient
+  }
 
-        when:
-        task.inspect()
+  def "delegates to dockerClient and returns result"() {
+    given:
+    task.imageId = "my.image:dev"
+    def expectedResponse = new EngineResponse(content: ["id": "sha256:1234"])
 
-        then:
-        1 * dockerClient.inspectImage("my.image:dev") >> expectedResponse
-        and:
-        task.imageInfo == expectedResponse
-    }
+    when:
+    task.inspect()
+
+    then:
+    1 * dockerClient.inspectImage("my.image:dev") >> expectedResponse
+    and:
+    task.imageInfo == expectedResponse
+  }
 }

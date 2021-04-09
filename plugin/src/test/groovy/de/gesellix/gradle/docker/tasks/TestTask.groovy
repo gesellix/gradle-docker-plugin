@@ -4,7 +4,7 @@ import org.gradle.api.tasks.TaskAction
 
 class TestTask extends GenericDockerTask {
 
-    @TaskAction
-    def run() {
-    }
+  @TaskAction
+  def run() {
+  }
 }

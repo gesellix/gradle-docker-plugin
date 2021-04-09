@@ -6,23 +6,23 @@ import org.gradle.api.tasks.TaskAction
 
 class DockerNetworkCreateTask extends GenericDockerTask {
 
-    @Input
-    String networkName
+  @Input
+  String networkName
 
-    @Input
-    def networkConfig = [:]
+  @Input
+  def networkConfig = [:]
 
-    @Internal
-    def response
+  @Internal
+  def response
 
-    DockerNetworkCreateTask() {
-        description = "Create a new network"
-        group = "Docker"
-    }
+  DockerNetworkCreateTask() {
+    description = "Create a new network"
+    group = "Docker"
+  }
 
-    @TaskAction
-    def createNetwork() {
-        logger.info "docker network create"
-        response = getDockerClient().createNetwork(getNetworkName(), getNetworkConfig() ?: [:])
-    }
+  @TaskAction
+  def createNetwork() {
+    logger.info "docker network create"
+    response = getDockerClient().createNetwork(getNetworkName(), getNetworkConfig() ?: [:])
+  }
 }

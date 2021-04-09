@@ -5,19 +5,19 @@ import org.gradle.api.tasks.TaskAction
 
 class DockerTagTask extends GenericDockerTask {
 
-    @Input
-    def imageId
-    @Input
-    def tag
+  @Input
+  def imageId
+  @Input
+  def tag
 
-    DockerTagTask() {
-        description = "Tag an image into a repository"
-        group = "Docker"
-    }
+  DockerTagTask() {
+    description = "Tag an image into a repository"
+    group = "Docker"
+  }
 
-    @TaskAction
-    def tag() {
-        logger.info "docker tag"
-        return getDockerClient().tag(getImageId(), getTag())
-    }
+  @TaskAction
+  def tag() {
+    logger.info "docker tag"
+    return getDockerClient().tag(getImageId(), getTag())
+  }
 }

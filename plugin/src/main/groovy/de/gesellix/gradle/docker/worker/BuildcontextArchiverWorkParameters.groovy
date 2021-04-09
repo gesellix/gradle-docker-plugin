@@ -5,7 +5,7 @@ import org.gradle.workers.WorkParameters
 
 interface BuildcontextArchiverWorkParameters extends WorkParameters {
 
-    RegularFileProperty getSourceDirectory()
+  RegularFileProperty getSourceDirectory()
 
-    RegularFileProperty getArchivedTargetFile()
+  RegularFileProperty getArchivedTargetFile()
 }

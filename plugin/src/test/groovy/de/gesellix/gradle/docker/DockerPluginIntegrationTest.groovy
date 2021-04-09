@@ -16,24 +16,24 @@ import spock.lang.Specification
 @Requires({ LocalDocker.available() })
 class DockerPluginIntegrationTest extends Specification {
 
-    @Rule
-    TemporaryFolder testProjectDir = new TemporaryFolder()
+  @Rule
+  TemporaryFolder testProjectDir = new TemporaryFolder()
 
-    File buildFile
+  File buildFile
 
-    // Also requires './gradlew :plugin:pluginUnderTestMetadata' to be run before performing the tests.
-    def setup() {
-        buildFile = testProjectDir.newFile('build.gradle')
-        buildFile << """
+  // Also requires './gradlew :plugin:pluginUnderTestMetadata' to be run before performing the tests.
+  def setup() {
+    buildFile = testProjectDir.newFile('build.gradle')
+    buildFile << """
             plugins {
                 id 'de.gesellix.docker'
             }
         """
-    }
+  }
 
-    def "test info"() {
-        given:
-        buildFile << """
+  def "test info"() {
+    given:
+    buildFile << """
           task dockerInfo(type: de.gesellix.gradle.docker.tasks.DockerInfoTask) {
               doLast {
                   logger.lifecycle("request succeeded: " + (info.status.code == 200))
@@ -41,21 +41,21 @@ class DockerPluginIntegrationTest extends Specification {
           }
         """
 
-        when:
-        def result = GradleRunner.create()
-                .withProjectDir(testProjectDir.root)
-                .withArguments('dockerInfo', '--debug', '--info', '--stacktrace')
-                .withPluginClasspath()
-                .build()
+    when:
+    def result = GradleRunner.create()
+        .withProjectDir(testProjectDir.root)
+        .withArguments('dockerInfo', '--debug', '--info', '--stacktrace')
+        .withPluginClasspath()
+        .build()
 
-        then:
-        result.output.contains("request succeeded: true")
-        result.task(':dockerInfo').outcome == TaskOutcome.SUCCESS
-    }
+    then:
+    result.output.contains("request succeeded: true")
+    result.task(':dockerInfo').outcome == TaskOutcome.SUCCESS
+  }
 
-    def "test pull"() {
-        given:
-        buildFile << """
+  def "test pull"() {
+    given:
+    buildFile << """
           task dockerPull(type: de.gesellix.gradle.docker.tasks.DockerPullTask) {
               imageName = 'gesellix/testimage'
               tag = 'os-linux'
@@ -65,22 +65,22 @@ class DockerPluginIntegrationTest extends Specification {
           }
         """
 
-        when:
-        def result = GradleRunner.create()
-                .withProjectDir(testProjectDir.root)
-                .withArguments('dockerPull')
-                .withPluginClasspath()
-                .build()
+    when:
+    def result = GradleRunner.create()
+        .withProjectDir(testProjectDir.root)
+        .withArguments('dockerPull')
+        .withPluginClasspath()
+        .build()
 
-        then:
-        result.output.contains("id: sha256:0ce18ad10d281bef97fe2333a9bdcc2dbf84b5302f66d796fed73aac675320db")
-        result.task(':dockerPull').outcome == TaskOutcome.SUCCESS
-    }
+    then:
+    result.output.contains("id: sha256:0ce18ad10d281bef97fe2333a9bdcc2dbf84b5302f66d796fed73aac675320db")
+    result.task(':dockerPull').outcome == TaskOutcome.SUCCESS
+  }
 
-    @Ignore
-    def "test pull with auth"() {
-        given:
-        buildFile << """
+  @Ignore
+  def "test pull with auth"() {
+    given:
+    buildFile << """
           task dockerPullPrivate(type: de.gesellix.gradle.docker.tasks.DockerPullTask) {
               authConfigPlain = dockerClient.readDefaultAuthConfig()
               imageName = 'gesellix/private-repo'
@@ -91,30 +91,30 @@ class DockerPluginIntegrationTest extends Specification {
           }
         """
 
-        when:
-        def result = GradleRunner.create()
-                .withProjectDir(testProjectDir.root)
-                .withArguments('dockerPullPrivate')
-                .withPluginClasspath()
-                .build()
+    when:
+    def result = GradleRunner.create()
+        .withProjectDir(testProjectDir.root)
+        .withArguments('dockerPullPrivate')
+        .withPluginClasspath()
+        .build()
 
-        then:
-        result.output.contains("id: sha256:33ce5a2c7ad9915f26cc2263b8aee3be33832611795f2e3906104438b611b208")
-        result.task(':dockerPullPrivate').outcome == TaskOutcome.SUCCESS
-    }
+    then:
+    result.output.contains("id: sha256:33ce5a2c7ad9915f26cc2263b8aee3be33832611795f2e3906104438b611b208")
+    result.task(':dockerPullPrivate').outcome == TaskOutcome.SUCCESS
+  }
 
-    def "test push"() {
-        given:
-        def authDetails = new AuthConfig("username": "gesellix",
-                                         "password": "-yet-another-password-",
-                                         "email": "tobias@gesellix.de",
-                                         "serveraddress": "https://index.docker.io/v1/")
-        def dockerClient = new DockerClientImpl()
-        def authConfig = dockerClient.encodeAuthConfig(authDetails)
-        pull(dockerClient, "gesellix/testimage", "os-linux")
-        tag(dockerClient, "gesellix/testimage:os-linux", "gesellix/example")
+  def "test push"() {
+    given:
+    def authDetails = new AuthConfig("username": "gesellix",
+                                     "password": "-yet-another-password-",
+                                     "email": "tobias@gesellix.de",
+                                     "serveraddress": "https://index.docker.io/v1/")
+    def dockerClient = new DockerClientImpl()
+    def authConfig = dockerClient.encodeAuthConfig(authDetails)
+    pull(dockerClient, "gesellix/testimage", "os-linux")
+    tag(dockerClient, "gesellix/testimage:os-linux", "gesellix/example")
 
-        buildFile << """
+    buildFile << """
           task dockerPush(type: de.gesellix.gradle.docker.tasks.DockerPushTask) {
               repositoryName = 'gesellix/example'
 
@@ -132,27 +132,27 @@ class DockerPluginIntegrationTest extends Specification {
           }
         """
 
-        when:
-        GradleRunner.create()
-                .withProjectDir(testProjectDir.root)
-                .withArguments('dockerPush')
-                .withPluginClasspath()
-                .build()
+    when:
+    GradleRunner.create()
+        .withProjectDir(testProjectDir.root)
+        .withArguments('dockerPush')
+        .withPluginClasspath()
+        .build()
 
-        then:
-        //pushResult.status ==~ "Pushing tag for rev \\[[a-z0-9]+\\] on \\{https://registry-1.docker.io/v1/repositories/gesellix/example/tags/latest\\}"
-        //pushResult.error ==~ "Error: Status 401 trying to push repository gesellix/example: \"\""
-        def exc = thrown(Exception)
-        exc.message.contains("error:Get https://example.com:5000/v2/")
+    then:
+    //pushResult.status ==~ "Pushing tag for rev \\[[a-z0-9]+\\] on \\{https://registry-1.docker.io/v1/repositories/gesellix/example/tags/latest\\}"
+    //pushResult.error ==~ "Error: Status 401 trying to push repository gesellix/example: \"\""
+    def exc = thrown(Exception)
+    exc.message.contains("error:Get https://example.com:5000/v2/")
 
-        cleanup:
-        dockerClient.rmi("gesellix/example")
-        dockerClient.rmi("example.com:5000/gesellix/example")
-    }
+    cleanup:
+    dockerClient.rmi("gesellix/example")
+    dockerClient.rmi("example.com:5000/gesellix/example")
+  }
 
-    def "test run"() {
-        given:
-        buildFile << """
+  def "test run"() {
+    given:
+    buildFile << """
           task dockerRun(type: de.gesellix.gradle.docker.tasks.DockerRunTask) {
               containerConfiguration = ["Cmd"       : ["true"],
                                         "HostConfig": ["AutoRemove": true]]
@@ -166,35 +166,35 @@ class DockerPluginIntegrationTest extends Specification {
           }
         """
 
-        when:
-        def result = GradleRunner.create()
-                .withProjectDir(testProjectDir.root)
-                .withArguments('dockerRun')
-                .withPluginClasspath()
-                .build()
+    when:
+    def result = GradleRunner.create()
+        .withProjectDir(testProjectDir.root)
+        .withArguments('dockerRun')
+        .withPluginClasspath()
+        .build()
 
-        then:
-        result.output.contains("request successful: true")
-        result.task(':dockerRun').outcome == TaskOutcome.SUCCESS
+    then:
+    result.output.contains("request successful: true")
+    result.task(':dockerRun').outcome == TaskOutcome.SUCCESS
 
-        cleanup:
-        def dockerClient = new DockerClientImpl()
-        dockerClient.stop('test-run')
-        dockerClient.wait('test-run')
-        dockerClient.rm('test-run')
-    }
+    cleanup:
+    def dockerClient = new DockerClientImpl()
+    dockerClient.stop('test-run')
+    dockerClient.wait('test-run')
+    dockerClient.rm('test-run')
+  }
 
-    def "test stop"() {
-        given:
-        def dockerClient = new DockerClientImpl()
-        def runResult = dockerClient.run(
-                'gesellix/testimage',
-                ["Cmd"       : ["ping", "127.0.0.1"],
-                 "HostConfig": ["AutoRemove": true]],
-                'os-linux',
-                "test-stop")
+  def "test stop"() {
+    given:
+    def dockerClient = new DockerClientImpl()
+    def runResult = dockerClient.run(
+        'gesellix/testimage',
+        ["Cmd"       : ["ping", "127.0.0.1"],
+         "HostConfig": ["AutoRemove": true]],
+        'os-linux',
+        "test-stop")
 
-        buildFile << """
+    buildFile << """
           task dockerStop(type: de.gesellix.gradle.docker.tasks.DockerStopTask) {
               containerId = '${runResult.container.content.Id}'
               doLast {
@@ -203,36 +203,36 @@ class DockerPluginIntegrationTest extends Specification {
           }
         """
 
-        when:
-        def result = GradleRunner.create()
-                .withProjectDir(testProjectDir.root)
-                .withArguments('dockerStop')
-                .withPluginClasspath()
-                .build()
+    when:
+    def result = GradleRunner.create()
+        .withProjectDir(testProjectDir.root)
+        .withArguments('dockerStop')
+        .withPluginClasspath()
+        .build()
 
-        then:
-        result.output.contains("request successful: true")
-        result.task(':dockerStop').outcome == TaskOutcome.SUCCESS
+    then:
+    result.output.contains("request successful: true")
+    result.task(':dockerStop').outcome == TaskOutcome.SUCCESS
 
-        cleanup:
-        dockerClient.stop('test-stop')
-        dockerClient.wait('test-stop')
-        dockerClient.rm('test-stop')
-    }
+    cleanup:
+    dockerClient.stop('test-stop')
+    dockerClient.wait('test-stop')
+    dockerClient.rm('test-stop')
+  }
 
-    def "test rm"() {
-        given:
-        def dockerClient = new DockerClientImpl()
-        def runResult = dockerClient.run(
-                'gesellix/testimage',
-                ["Cmd": ["true"]],
-                'os-linux',
-                "test-rm")
-        String runningContainerId = runResult.container.content.Id
-        dockerClient.stop(runningContainerId)
-        dockerClient.wait(runningContainerId)
+  def "test rm"() {
+    given:
+    def dockerClient = new DockerClientImpl()
+    def runResult = dockerClient.run(
+        'gesellix/testimage',
+        ["Cmd": ["true"]],
+        'os-linux',
+        "test-rm")
+    String runningContainerId = runResult.container.content.Id
+    dockerClient.stop(runningContainerId)
+    dockerClient.wait(runningContainerId)
 
-        buildFile << """
+    buildFile << """
           task dockerRm(type: de.gesellix.gradle.docker.tasks.DockerRmTask) {
               containerId = '$runningContainerId'
               doLast {
@@ -241,34 +241,34 @@ class DockerPluginIntegrationTest extends Specification {
           }
         """
 
-        when:
-        def result = GradleRunner.create()
-                .withProjectDir(testProjectDir.root)
-                .withArguments('dockerRm')
-                .withPluginClasspath()
-                .build()
+    when:
+    def result = GradleRunner.create()
+        .withProjectDir(testProjectDir.root)
+        .withArguments('dockerRm')
+        .withPluginClasspath()
+        .build()
 
-        then:
-        result.output.contains("request successful: true")
-        result.task(':dockerRm').outcome == TaskOutcome.SUCCESS
+    then:
+    result.output.contains("request successful: true")
+    result.task(':dockerRm').outcome == TaskOutcome.SUCCESS
 
-        cleanup:
-        dockerClient.stop('test-rm')
-        dockerClient.wait('test-rm')
-        dockerClient.rm('test-rm')
-    }
+    cleanup:
+    dockerClient.stop('test-rm')
+    dockerClient.wait('test-rm')
+    dockerClient.rm('test-rm')
+  }
 
-    def "test start"() {
-        given:
-        def dockerClient = new DockerClientImpl()
-        pull(dockerClient, "gesellix/testimage", "os-linux")
-        def containerInfo = dockerClient.createContainer([
-                "Image"     : "gesellix/testimage:os-linux",
-                "Cmd"       : ["true"],
-                "Name"      : "test-start",
-                "HostConfig": ["AutoRemove": true]])
+  def "test start"() {
+    given:
+    def dockerClient = new DockerClientImpl()
+    pull(dockerClient, "gesellix/testimage", "os-linux")
+    def containerInfo = dockerClient.createContainer([
+        "Image"     : "gesellix/testimage:os-linux",
+        "Cmd"       : ["true"],
+        "Name"      : "test-start",
+        "HostConfig": ["AutoRemove": true]])
 
-        buildFile << """
+    buildFile << """
           task dockerStart(type: de.gesellix.gradle.docker.tasks.DockerStartTask) {
               containerId = '${containerInfo.content.Id}'
               doLast {
@@ -277,35 +277,35 @@ class DockerPluginIntegrationTest extends Specification {
           }
         """
 
-        when:
-        def result = GradleRunner.create()
-                .withProjectDir(testProjectDir.root)
-                .withArguments('dockerStart')
-                .withPluginClasspath()
-                .build()
+    when:
+    def result = GradleRunner.create()
+        .withProjectDir(testProjectDir.root)
+        .withArguments('dockerStart')
+        .withPluginClasspath()
+        .build()
 
-        then:
-        result.output.contains("request successful: true")
-        result.task(':dockerStart').outcome == TaskOutcome.SUCCESS
+    then:
+    result.output.contains("request successful: true")
+    result.task(':dockerStart').outcome == TaskOutcome.SUCCESS
 
-        cleanup:
-        dockerClient.stop('test-start')
-        dockerClient.wait('test-start')
-        dockerClient.rm('test-start')
-    }
+    cleanup:
+    dockerClient.stop('test-start')
+    dockerClient.wait('test-start')
+    dockerClient.rm('test-start')
+  }
 
-    def "test ps"() {
-        given:
-        def dockerClient = new DockerClientImpl()
-        def uuid = UUID.randomUUID().toString()
-        def cmd = "true || $uuid".toString()
-        dockerClient.run(
-                'gesellix/testimage',
-                ["Cmd": [cmd]],
-                'os-linux',
-                "test-ps")
+  def "test ps"() {
+    given:
+    def dockerClient = new DockerClientImpl()
+    def uuid = UUID.randomUUID().toString()
+    def cmd = "true || $uuid".toString()
+    dockerClient.run(
+        'gesellix/testimage',
+        ["Cmd": [cmd]],
+        'os-linux',
+        "test-ps")
 
-        buildFile << """
+    buildFile << """
           task dockerPs(type: de.gesellix.gradle.docker.tasks.DockerPsTask) {
               doLast {
                   logger.lifecycle("request successful: " + (containers.status.code == 200))
@@ -317,30 +317,30 @@ class DockerPluginIntegrationTest extends Specification {
           }
         """
 
-        when:
-        def result = GradleRunner.create()
-                .withProjectDir(testProjectDir.root)
-                .withArguments('dockerPs')
-                .withPluginClasspath()
-                .build()
+    when:
+    def result = GradleRunner.create()
+        .withProjectDir(testProjectDir.root)
+        .withArguments('dockerPs')
+        .withPluginClasspath()
+        .build()
 
-        then:
-        result.output.contains("found: true")
-        result.task(':dockerPs').outcome == TaskOutcome.SUCCESS
+    then:
+    result.output.contains("found: true")
+    result.task(':dockerPs').outcome == TaskOutcome.SUCCESS
 
-        cleanup:
-        dockerClient.stop('test-ps')
-        dockerClient.wait('test-ps')
-        dockerClient.rm('test-ps')
-    }
+    cleanup:
+    dockerClient.stop('test-ps')
+    dockerClient.wait('test-ps')
+    dockerClient.rm('test-ps')
+  }
 
-    def "test images"() {
-        given:
-        def dockerClient = new DockerClientImpl()
-        pull(dockerClient, "gesellix/testimage", "os-linux")
-        tag(dockerClient, "gesellix/testimage:os-linux", "gesellix/images-list")
+  def "test images"() {
+    given:
+    def dockerClient = new DockerClientImpl()
+    pull(dockerClient, "gesellix/testimage", "os-linux")
+    tag(dockerClient, "gesellix/testimage:os-linux", "gesellix/images-list")
 
-        buildFile << """
+    buildFile << """
           task dockerImages(type: de.gesellix.gradle.docker.tasks.DockerImagesTask) {
               doLast {
                   logger.lifecycle("request successful: " + (images.status.code == 200))
@@ -352,42 +352,42 @@ class DockerPluginIntegrationTest extends Specification {
           }
         """
 
-        when:
-        def result = GradleRunner.create()
-                .withProjectDir(testProjectDir.root)
-                .withArguments('dockerImages')
-                .withPluginClasspath()
-                .build()
+    when:
+    def result = GradleRunner.create()
+        .withProjectDir(testProjectDir.root)
+        .withArguments('dockerImages')
+        .withPluginClasspath()
+        .build()
 
-        then:
-        result.output.contains("found: true")
-        result.task(':dockerImages').outcome == TaskOutcome.SUCCESS
+    then:
+    result.output.contains("found: true")
+    result.task(':dockerImages').outcome == TaskOutcome.SUCCESS
 
-        cleanup:
-        dockerClient.rmi("gesellix/images-list:latest")
-    }
+    cleanup:
+    dockerClient.rmi("gesellix/images-list:latest")
+  }
 
-    def "test run with data volumes"() {
-        given:
-        def hostDir = "/tmp"
-        def dockerClient = new DockerClientImpl()
+  def "test run with data volumes"() {
+    given:
+    def hostDir = "/tmp"
+    def dockerClient = new DockerClientImpl()
 
-        pull(dockerClient, "gesellix/testimage", "os-linux")
-        tag(dockerClient, "gesellix/testimage:os-linux", "gesellix/run-with-data-volumes")
+    pull(dockerClient, "gesellix/testimage", "os-linux")
+    tag(dockerClient, "gesellix/testimage:os-linux", "gesellix/run-with-data-volumes")
 
-        dockerClient.createContainer(
-                [
-                        "Cmd"       : ["-"],
-                        "Image"     : "gesellix/run-with-data-volumes",
-                        "HostConfig": [
-                                "Binds"     : ["$hostDir:/data"],
-                                "AutoRemove": true
-                        ],
-                ], [
-                        name: "the-data-example"
-                ])
+    dockerClient.createContainer(
+        [
+            "Cmd"       : ["-"],
+            "Image"     : "gesellix/run-with-data-volumes",
+            "HostConfig": [
+                "Binds"     : ["$hostDir:/data"],
+                "AutoRemove": true
+            ],
+        ], [
+            name: "the-data-example"
+        ])
 
-        buildFile << """
+    buildFile << """
           task dockerRun(type: de.gesellix.gradle.docker.tasks.DockerRunTask) {
               containerConfiguration = ["Cmd"       : ["true"],
                                         "HostConfig": ["VolumesFrom": ["the-data-example"],
@@ -402,48 +402,48 @@ class DockerPluginIntegrationTest extends Specification {
           }
         """
 
-        when:
-        def result = GradleRunner.create()
-                .withProjectDir(testProjectDir.root)
-                .withArguments('dockerRun')
-                .withPluginClasspath()
-                .build()
+    when:
+    def result = GradleRunner.create()
+        .withProjectDir(testProjectDir.root)
+        .withArguments('dockerRun')
+        .withPluginClasspath()
+        .build()
 
-        then:
-        result.output.contains("request successful: true")
-        result.task(':dockerRun').outcome == TaskOutcome.SUCCESS
+    then:
+    result.output.contains("request successful: true")
+    result.task(':dockerRun').outcome == TaskOutcome.SUCCESS
 
-        cleanup:
-        dockerClient.stop("the-service-example")
-        dockerClient.wait("the-service-example")
-        dockerClient.rm("the-service-example")
-        dockerClient.stop("the-data-example")
-        dockerClient.wait("the-data-example")
-        dockerClient.rm("the-data-example")
-        dockerClient.rmi("gesellix/run-with-data-volumes:latest")
-    }
+    cleanup:
+    dockerClient.stop("the-service-example")
+    dockerClient.wait("the-service-example")
+    dockerClient.rm("the-service-example")
+    dockerClient.stop("the-data-example")
+    dockerClient.wait("the-data-example")
+    dockerClient.rm("the-data-example")
+    dockerClient.rmi("gesellix/run-with-data-volumes:latest")
+  }
 
-    def "test volume create and remove"() {
-        given:
-        def hostDir = "/tmp"
-        def dockerClient = new DockerClientImpl()
+  def "test volume create and remove"() {
+    given:
+    def hostDir = "/tmp"
+    def dockerClient = new DockerClientImpl()
 
-        pull(dockerClient, "gesellix/testimage", "os-linux")
-        tag(dockerClient, "gesellix/testimage:os-linux", "gesellix/run-with-data-volumes")
+    pull(dockerClient, "gesellix/testimage", "os-linux")
+    tag(dockerClient, "gesellix/testimage:os-linux", "gesellix/run-with-data-volumes")
 
-        dockerClient.createContainer(
-                [
-                        "Cmd"       : ["-"],
-                        "Image"     : "gesellix/run-with-data-volumes",
-                        "HostConfig": [
-                                "Binds"     : ["$hostDir:/data"],
-                                "AutoRemove": true
-                        ],
-                ], [
-                        name: "the-data-example"
-                ])
+    dockerClient.createContainer(
+        [
+            "Cmd"       : ["-"],
+            "Image"     : "gesellix/run-with-data-volumes",
+            "HostConfig": [
+                "Binds"     : ["$hostDir:/data"],
+                "AutoRemove": true
+            ],
+        ], [
+            name: "the-data-example"
+        ])
 
-        buildFile << """
+    buildFile << """
           task dockerVolumeCreate(type: de.gesellix.gradle.docker.tasks.DockerVolumeCreateTask) {
               volumeConfig = [
                   Name      : "my-volume",
@@ -464,38 +464,38 @@ class DockerPluginIntegrationTest extends Specification {
           }
         """
 
-        when:
-        def result = GradleRunner.create()
-                .withProjectDir(testProjectDir.root)
-                .withArguments('dockerVolumeCreate', 'dockerVolumeRm')
-                .withPluginClasspath()
-                .build()
+    when:
+    def result = GradleRunner.create()
+        .withProjectDir(testProjectDir.root)
+        .withArguments('dockerVolumeCreate', 'dockerVolumeRm')
+        .withPluginClasspath()
+        .build()
 
-        then:
-        result.output.contains("task 1 successful: true")
-        result.output.contains("task 2 successful: true")
-        result.task(':dockerVolumeRm').outcome == TaskOutcome.SUCCESS
-        result.task(':dockerVolumeCreate').outcome == TaskOutcome.SUCCESS
+    then:
+    result.output.contains("task 1 successful: true")
+    result.output.contains("task 2 successful: true")
+    result.task(':dockerVolumeRm').outcome == TaskOutcome.SUCCESS
+    result.task(':dockerVolumeCreate').outcome == TaskOutcome.SUCCESS
 
-        cleanup:
-        dockerClient.stop("the-data-example")
-        dockerClient.wait("the-data-example")
-        dockerClient.rm("the-data-example")
-        try {
-            dockerClient.rmVolume("my-volume")
-        }
-        catch (Exception ignored) {
-        }
+    cleanup:
+    dockerClient.stop("the-data-example")
+    dockerClient.wait("the-data-example")
+    dockerClient.rm("the-data-example")
+    try {
+      dockerClient.rmVolume("my-volume")
     }
+    catch (Exception ignored) {
+    }
+  }
 
-    def "test swarm with services"() {
+  def "test swarm with services"() {
 //    docker swarm init
 //    docker network create -d overlay my-network
 //    docker service create --name my-service --replicas 2 --network my-network -p 80:80/tcp nginx
-        given:
-        def dockerClient = new DockerClientImpl()
+    given:
+    def dockerClient = new DockerClientImpl()
 
-        buildFile << """
+    buildFile << """
             task createNetwork(type: de.gesellix.gradle.docker.tasks.DockerNetworkCreateTask) {
                 networkName = "my-network"
                 networkConfig = [
@@ -534,10 +534,10 @@ class DockerPluginIntegrationTest extends Specification {
             }
         """
 
-        def swarmCreated = false
-        def dockerInfo = dockerClient.info().content
-        if (dockerInfo.Swarm.LocalNodeState != "active") {
-          buildFile << """
+    def swarmCreated = false
+    def dockerInfo = dockerClient.info().content
+    if (dockerInfo.Swarm.LocalNodeState != "active") {
+      buildFile << """
                 def swarmConfig = [
                     "AdvertiseAddr"  : "127.0.0.1",
                     "ListenAddr"     : "0.0.0.0",
@@ -548,31 +548,31 @@ class DockerPluginIntegrationTest extends Specification {
                 }
                 createNetwork.dependsOn initSwarm
             """
-            swarmCreated = true
-        }
-
-        when:
-        def result = GradleRunner.create()
-                .withProjectDir(testProjectDir.root)
-                .withArguments('createService')
-                .withPluginClasspath()
-                .build()
-
-        then:
-        result.output.contains("request successful: true")
-        result.task(':createService').outcome == TaskOutcome.SUCCESS
-
-        cleanup:
-        dockerClient.rmService("my-service")
-        dockerClient.rmNetwork("my-network")
-        if (swarmCreated) {
-            dockerClient.leaveSwarm([force: true])
-        }
+      swarmCreated = true
     }
 
-    def "test certPath"() {
-        given:
-        buildFile << """
+    when:
+    def result = GradleRunner.create()
+        .withProjectDir(testProjectDir.root)
+        .withArguments('createService')
+        .withPluginClasspath()
+        .build()
+
+    then:
+    result.output.contains("request successful: true")
+    result.task(':createService').outcome == TaskOutcome.SUCCESS
+
+    cleanup:
+    dockerClient.rmService("my-service")
+    dockerClient.rmNetwork("my-network")
+    if (swarmCreated) {
+      dockerClient.leaveSwarm([force: true])
+    }
+  }
+
+  def "test certPath"() {
+    given:
+    buildFile << """
           task testTask(type: de.gesellix.gradle.docker.tasks.GenericDockerTask) {
               certPath = "\${System.getProperty('user.home')}/.docker/machine/machines/default"
               doFirst {
@@ -585,22 +585,22 @@ class DockerPluginIntegrationTest extends Specification {
           }
         """
 
-        when:
-        def result = GradleRunner.create()
-                .withProjectDir(testProjectDir.root)
-                .withArguments('testTask')
-                .withPluginClasspath()
-                .build()
+    when:
+    def result = GradleRunner.create()
+        .withProjectDir(testProjectDir.root)
+        .withArguments('testTask')
+        .withPluginClasspath()
+        .build()
 
-        then:
-        result.output.contains("same version: true")
-        result.task(':testTask').outcome == TaskOutcome.SUCCESS
-    }
+    then:
+    result.output.contains("same version: true")
+    result.task(':testTask').outcome == TaskOutcome.SUCCESS
+  }
 
-    @Requires({ LocalDocker.isLinuxContainersOnWindows() })
-    def "test high level DockerContainerTask windows volume source (LCOW)"() {
-        given:
-        buildFile << """
+  @Requires({ LocalDocker.isLinuxContainersOnWindows() })
+  def "test high level DockerContainerTask windows volume source (LCOW)"() {
+    given:
+    buildFile << """
           task testTask(type: de.gesellix.gradle.docker.tasks.DockerContainerTask) {
               targetState = "started"
               image = 'gesellix/testimage:os-linux'
@@ -619,38 +619,38 @@ class DockerPluginIntegrationTest extends Specification {
           }
         """
 
-        when:
-        def result = GradleRunner.create()
-                .withProjectDir(testProjectDir.root)
-                .withArguments('testTask')
-                .withPluginClasspath()
-                .build()
+    when:
+    def result = GradleRunner.create()
+        .withProjectDir(testProjectDir.root)
+        .withArguments('testTask')
+        .withPluginClasspath()
+        .build()
 
-        then:
-        result.output.contains("/host_mnt/c/Users:/data1:rw")
-        result.output.contains("/host_mnt/c/Users:/data2:ro")
-        result.task(':testTask').outcome == TaskOutcome.SUCCESS
+    then:
+    result.output.contains("/host_mnt/c/Users:/data1:rw")
+    result.output.contains("/host_mnt/c/Users:/data2:ro")
+    result.task(':testTask').outcome == TaskOutcome.SUCCESS
 
-        cleanup:
-        def dockerClient = new DockerClientImpl()
-        dockerClient.stop('windows-volumes-lcow')
-        dockerClient.wait('windows-volumes-lcow')
-        dockerClient.rm('windows-volumes-lcow')
+    cleanup:
+    def dockerClient = new DockerClientImpl()
+    dockerClient.stop('windows-volumes-lcow')
+    dockerClient.wait('windows-volumes-lcow')
+    dockerClient.rm('windows-volumes-lcow')
+  }
+
+  void pull(DockerClient dockerClient, String image, String tag) {
+    def createResponse = dockerClient.create([fromImage: image, tag: tag], [:])
+    if (!createResponse.status.success) {
+      println "create: ${createResponse}"
+      Assert.fail("`docker pull $image:$tag` failed")
     }
+  }
 
-    void pull(DockerClient dockerClient, String image, String tag) {
-        def createResponse = dockerClient.create([fromImage: image, tag: tag], [:])
-        if (!createResponse.status.success) {
-            println "create: ${createResponse}"
-            Assert.fail("`docker pull $image:$tag` failed")
-        }
+  void tag(DockerClient dockerClient, String from, String to) {
+    def tagResponse = dockerClient.tag(from, to)
+    if (!tagResponse.status.success) {
+      println "tag: ${tagResponse}"
+      Assert.fail("`docker tag $from $to` failed")
     }
-
-    void tag(DockerClient dockerClient, String from, String to) {
-        def tagResponse = dockerClient.tag(from, to)
-        if (!tagResponse.status.success) {
-            println "tag: ${tagResponse}"
-            Assert.fail("`docker tag $from $to` failed")
-        }
-    }
+  }
 }

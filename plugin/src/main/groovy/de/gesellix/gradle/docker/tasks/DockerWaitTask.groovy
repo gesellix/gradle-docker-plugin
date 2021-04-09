@@ -6,21 +6,21 @@ import org.gradle.api.tasks.TaskAction
 
 class DockerWaitTask extends GenericDockerTask {
 
-    @Input
-    def containerId
+  @Input
+  def containerId
 
-    @Internal
-    def result
+  @Internal
+  def result
 
-    DockerWaitTask() {
-        description = "Block until a container stops, then print its exit code."
-        group = "Docker"
-    }
+  DockerWaitTask() {
+    description = "Block until a container stops, then print its exit code."
+    group = "Docker"
+  }
 
-    @TaskAction
-    def awaitStop() {
-        logger.info "docker wait"
-        result = getDockerClient().wait(getContainerId())
-        return result
-    }
+  @TaskAction
+  def awaitStop() {
+    logger.info "docker wait"
+    result = getDockerClient().wait(getContainerId())
+    return result
+  }
 }

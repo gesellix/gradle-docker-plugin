@@ -7,34 +7,34 @@ import spock.lang.Specification
 
 class DockerServiceCreateTaskSpec extends Specification {
 
-    def project
-    def task
-    def dockerClient = Mock(DockerClient)
+  def project
+  def task
+  def dockerClient = Mock(DockerClient)
 
-    def setup() {
-        project = ProjectBuilder.builder().build()
-        task = project.task('createService', type: DockerServiceCreateTask)
-        task.dockerClient = dockerClient
-    }
+  def setup() {
+    project = ProjectBuilder.builder().build()
+    task = project.task('createService', type: DockerServiceCreateTask)
+    task.dockerClient = dockerClient
+  }
 
-    def "delegates to dockerClient and saves result"() {
-        given:
-        def response = new EngineResponse()
-        task.serviceConfig = [
-                "Name"        : "a-service",
-                "TaskTemplate": ["ContainerSpec": ["Image": "nginx"]]
-        ]
+  def "delegates to dockerClient and saves result"() {
+    given:
+    def response = new EngineResponse()
+    task.serviceConfig = [
+        "Name"        : "a-service",
+        "TaskTemplate": ["ContainerSpec": ["Image": "nginx"]]
+    ]
 
-        when:
-        task.createService()
+    when:
+    task.createService()
 
-        then:
-        1 * dockerClient.createService([
-                "Name"        : "a-service",
-                "TaskTemplate": ["ContainerSpec": ["Image": "nginx"]]
-        ]) >> response
+    then:
+    1 * dockerClient.createService([
+        "Name"        : "a-service",
+        "TaskTemplate": ["ContainerSpec": ["Image": "nginx"]]
+    ]) >> response
 
-        and:
-        task.response == response
-    }
+    and:
+    task.response == response
+  }
 }

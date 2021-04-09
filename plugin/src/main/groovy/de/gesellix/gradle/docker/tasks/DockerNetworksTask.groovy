@@ -5,17 +5,17 @@ import org.gradle.api.tasks.TaskAction
 
 class DockerNetworksTask extends GenericDockerTask {
 
-    @Internal
-    def networks
+  @Internal
+  def networks
 
-    DockerNetworksTask() {
-        description = "Lists all networks"
-        group = "Docker"
-    }
+  DockerNetworksTask() {
+    description = "Lists all networks"
+    group = "Docker"
+  }
 
-    @TaskAction
-    def networks() {
-        logger.info "docker network ls"
-        networks = getDockerClient().networks()
-    }
+  @TaskAction
+  def networks() {
+    logger.info "docker network ls"
+    networks = getDockerClient().networks()
+  }
 }

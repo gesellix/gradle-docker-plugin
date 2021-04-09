@@ -7,24 +7,24 @@ import org.gradle.api.tasks.TaskAction
 
 class DockerPushTask extends GenericDockerTask {
 
-    @Input
-    def repositoryName
-    @Input
-    @Optional
-    def registry
+  @Input
+  def repositoryName
+  @Input
+  @Optional
+  def registry
 
-    @Internal
-    def result
+  @Internal
+  def result
 
-    DockerPushTask() {
-        description = "Push an image or a repository to a Docker registry server"
-        group = "Docker"
-    }
+  DockerPushTask() {
+    description = "Push an image or a repository to a Docker registry server"
+    group = "Docker"
+  }
 
-    @TaskAction
-    def push() {
-        logger.info "docker push"
-        result = dockerClient.push(getRepositoryName() as String, getAuthConfig() as String, getRegistry() as String)
-        return result
-    }
+  @TaskAction
+  def push() {
+    logger.info "docker push"
+    result = dockerClient.push(getRepositoryName() as String, getAuthConfig() as String, getRegistry() as String)
+    return result
+  }
 }

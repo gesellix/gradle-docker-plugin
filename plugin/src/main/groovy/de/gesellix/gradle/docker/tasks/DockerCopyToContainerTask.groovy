@@ -5,22 +5,22 @@ import org.gradle.api.tasks.TaskAction
 
 class DockerCopyToContainerTask extends GenericDockerTask {
 
-    @Input
-    def container
-    @Input
-    def targetPath
-    @Input
-    InputStream tarInputStream
+  @Input
+  def container
+  @Input
+  def targetPath
+  @Input
+  InputStream tarInputStream
 
-    DockerCopyToContainerTask() {
-        description = "Copy files/folders from your host to a container."
-        group = "Docker"
-    }
+  DockerCopyToContainerTask() {
+    description = "Copy files/folders from your host to a container."
+    group = "Docker"
+  }
 
-    @TaskAction
-    def copyToContainer() {
-        logger.info "docker cp to container"
+  @TaskAction
+  def copyToContainer() {
+    logger.info "docker cp to container"
 
-        getDockerClient().putArchive(getContainer(), getTargetPath(), getTarInputStream())
-    }
+    getDockerClient().putArchive(getContainer(), getTargetPath(), getTarInputStream())
+  }
 }

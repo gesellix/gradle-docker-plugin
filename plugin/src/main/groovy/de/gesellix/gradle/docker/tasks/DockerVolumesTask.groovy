@@ -7,21 +7,21 @@ import org.gradle.api.tasks.TaskAction
 
 class DockerVolumesTask extends GenericDockerTask {
 
-    @Input
-    @Optional
-    def query = [:]
+  @Input
+  @Optional
+  def query = [:]
 
-    @Internal
-    def volumes
+  @Internal
+  def volumes
 
-    DockerVolumesTask() {
-        description = "List volumes from all volume drivers"
-        group = "Docker"
-    }
+  DockerVolumesTask() {
+    description = "List volumes from all volume drivers"
+    group = "Docker"
+  }
 
-    @TaskAction
-    def volumes() {
-        logger.info "docker volume ls"
-        volumes = getDockerClient().volumes(getQuery() ?: [:])
-    }
+  @TaskAction
+  def volumes() {
+    logger.info "docker volume ls"
+    volumes = getDockerClient().volumes(getQuery() ?: [:])
+  }
 }

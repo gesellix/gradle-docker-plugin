@@ -12,28 +12,28 @@ import spock.lang.Specification
 @Requires({ LocalDocker.available() })
 class DockerBuildTaskFunctionalTest extends Specification {
 
-    @Rule
-    TemporaryFolder testProjectDir = new TemporaryFolder()
+  @Rule
+  TemporaryFolder testProjectDir = new TemporaryFolder()
 
-    File buildFile
+  File buildFile
 
-    // Also requires './gradlew :plugin:pluginUnderTestMetadata' to be run before performing the tests.
-    def setup() {
-        buildFile = testProjectDir.newFile('build.gradle')
-        buildFile << """
+  // Also requires './gradlew :plugin:pluginUnderTestMetadata' to be run before performing the tests.
+  def setup() {
+    buildFile = testProjectDir.newFile('build.gradle')
+    buildFile << """
             plugins {
                 id 'de.gesellix.docker'
             }
         """
-    }
+  }
 
-    def "can perform a build configured via config closure"() {
-        given:
-        URL dockerfile = getClass().getResource('/docker/Dockerfile')
-        String baseDir = new File(dockerfile.toURI()).parentFile.absolutePath.replaceAll("\\${File.separator}", "/")
-        String imageName = "gesellix/test-build:${UUID.randomUUID()}"
+  def "can perform a build configured via config closure"() {
+    given:
+    URL dockerfile = getClass().getResource('/docker/Dockerfile')
+    String baseDir = new File(dockerfile.toURI()).parentFile.absolutePath.replaceAll("\\${File.separator}", "/")
+    String imageName = "gesellix/test-build:${UUID.randomUUID()}"
 
-        buildFile << """
+    buildFile << """
           task dockerBuild(type: de.gesellix.gradle.docker.tasks.DockerBuildTask) {
               buildContextDirectory = '$baseDir'
               imageName = '$imageName'
@@ -43,28 +43,28 @@ class DockerBuildTaskFunctionalTest extends Specification {
           }
         """
 
-        when:
-        def result = GradleRunner.create()
-                .withProjectDir(testProjectDir.root)
-                .withArguments('dockerBuild', '--info', '--debug', '--stacktrace')
-                .withPluginClasspath()
-                .build()
+    when:
+    def result = GradleRunner.create()
+        .withProjectDir(testProjectDir.root)
+        .withArguments('dockerBuild', '--info', '--debug', '--stacktrace')
+        .withPluginClasspath()
+        .build()
 
-        then:
-        result.output.contains("Resulting image id: sha256:")
-        result.task(":dockerBuild").outcome == TaskOutcome.SUCCESS
+    then:
+    result.output.contains("Resulting image id: sha256:")
+    result.task(":dockerBuild").outcome == TaskOutcome.SUCCESS
 
-        cleanup:
-        new DockerClientImpl().rmi(imageName)
-    }
+    cleanup:
+    new DockerClientImpl().rmi(imageName)
+  }
 
-    def "can perform a build configured via task property setter"() {
-        given:
-        URL dockerfile = getClass().getResource('/docker/Dockerfile')
-        String baseDir = new File(dockerfile.toURI()).parentFile.absolutePath.replaceAll("\\${File.separator}", "/")
-        String imageName = "gesellix/test-build:${UUID.randomUUID()}"
+  def "can perform a build configured via task property setter"() {
+    given:
+    URL dockerfile = getClass().getResource('/docker/Dockerfile')
+    String baseDir = new File(dockerfile.toURI()).parentFile.absolutePath.replaceAll("\\${File.separator}", "/")
+    String imageName = "gesellix/test-build:${UUID.randomUUID()}"
 
-        buildFile << """
+    buildFile << """
           task dockerBuild(type: de.gesellix.gradle.docker.tasks.DockerBuildTask) {
               imageName = '$imageName'
               doFirst {
@@ -77,64 +77,64 @@ class DockerBuildTaskFunctionalTest extends Specification {
           dockerBuild.setBuildContextDirectory('$baseDir')
         """
 
-        when:
-        def result = GradleRunner.create()
-                .withProjectDir(testProjectDir.root)
-                .withArguments('dockerBuild', '--info', '--debug', '--stacktrace')
-                .withPluginClasspath()
-                .withDebug(true)
-                .build()
+    when:
+    def result = GradleRunner.create()
+        .withProjectDir(testProjectDir.root)
+        .withArguments('dockerBuild', '--info', '--debug', '--stacktrace')
+        .withPluginClasspath()
+        .withDebug(true)
+        .build()
 
-        then:
-        result.output.contains("Resulting image id: sha256:")
-        result.task(":dockerBuild").outcome == TaskOutcome.SUCCESS
+    then:
+    result.output.contains("Resulting image id: sha256:")
+    result.task(":dockerBuild").outcome == TaskOutcome.SUCCESS
 
-        cleanup:
-        new DockerClientImpl().rmi(imageName)
-    }
+    cleanup:
+    new DockerClientImpl().rmi(imageName)
+  }
 
-    def "accepts only task configs with at least one of buildContext or buildContextDirectory"() {
-        given:
-        buildFile << """
+  def "accepts only task configs with at least one of buildContext or buildContextDirectory"() {
+    given:
+    buildFile << """
           task dockerBuild(type: de.gesellix.gradle.docker.tasks.DockerBuildTask) {
               buildContextDirectory = null
               buildContext = null
           }
         """
 
-        when:
-        GradleRunner.create()
-                .withProjectDir(testProjectDir.root)
-                .withArguments('dockerBuild')
-                .withPluginClasspath()
-                .build()
+    when:
+    GradleRunner.create()
+        .withProjectDir(testProjectDir.root)
+        .withArguments('dockerBuild')
+        .withPluginClasspath()
+        .build()
 
-        then:
-        Exception exception = thrown()
-        exception.message.contains("Execution failed for task ':dockerBuild'.")
-    }
+    then:
+    Exception exception = thrown()
+    exception.message.contains("Execution failed for task ':dockerBuild'.")
+  }
 
-    def "accepts exactly one of buildContext or buildContextDirectory"() {
-        URL dockerfile = getClass().getResource('/docker/Dockerfile')
-        String baseDir = new File(dockerfile.toURI()).parentFile.absolutePath.replaceAll("\\${File.separator}", "/")
+  def "accepts exactly one of buildContext or buildContextDirectory"() {
+    URL dockerfile = getClass().getResource('/docker/Dockerfile')
+    String baseDir = new File(dockerfile.toURI()).parentFile.absolutePath.replaceAll("\\${File.separator}", "/")
 
-        given:
-        buildFile << """
+    given:
+    buildFile << """
           task dockerBuild(type: de.gesellix.gradle.docker.tasks.DockerBuildTask) {
               buildContextDirectory = '$baseDir'
               buildContext = new FileInputStream(File.createTempFile("docker", "test"))
           }
         """
 
-        when:
-        GradleRunner.create()
-                .withProjectDir(testProjectDir.root)
-                .withArguments('dockerBuild')
-                .withPluginClasspath()
-                .build()
+    when:
+    GradleRunner.create()
+        .withProjectDir(testProjectDir.root)
+        .withArguments('dockerBuild')
+        .withPluginClasspath()
+        .build()
 
-        then:
-        Exception exception = thrown()
-        exception.message.contains("Execution failed for task ':dockerBuild'.")
-    }
+    then:
+    Exception exception = thrown()
+    exception.message.contains("Execution failed for task ':dockerBuild'.")
+  }
 }

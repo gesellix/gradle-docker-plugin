@@ -6,21 +6,21 @@ import org.gradle.api.tasks.TaskAction
 
 class DockerRestartTask extends GenericDockerTask {
 
-    @Input
-    def containerId
+  @Input
+  def containerId
 
-    @Internal
-    def result
+  @Internal
+  def result
 
-    DockerRestartTask() {
-        description = "Restart a running container"
-        group = "Docker"
-    }
+  DockerRestartTask() {
+    description = "Restart a running container"
+    group = "Docker"
+  }
 
-    @TaskAction
-    def restart() {
-        logger.info "docker restart"
-        result = getDockerClient().restart(getContainerId())
-        return result
-    }
+  @TaskAction
+  def restart() {
+    logger.info "docker restart"
+    result = getDockerClient().restart(getContainerId())
+    return result
+  }
 }

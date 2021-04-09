@@ -6,20 +6,20 @@ import org.gradle.api.tasks.TaskAction
 
 class DockerServiceRmTask extends GenericDockerTask {
 
-    @Input
-    def serviceName = [:]
+  @Input
+  def serviceName = [:]
 
-    @Internal
-    def response
+  @Internal
+  def response
 
-    DockerServiceRmTask() {
-        description = "Remove a service"
-        group = "Docker"
-    }
+  DockerServiceRmTask() {
+    description = "Remove a service"
+    group = "Docker"
+  }
 
-    @TaskAction
-    def rmService() {
-        logger.info "docker service rm"
-        response = getDockerClient().rmService(getServiceName())
-    }
+  @TaskAction
+  def rmService() {
+    logger.info "docker service rm"
+    response = getDockerClient().rmService(getServiceName())
+  }
 }

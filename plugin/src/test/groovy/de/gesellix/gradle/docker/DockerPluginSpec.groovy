@@ -7,46 +7,45 @@ import spock.lang.Specification
 
 class DockerPluginSpec extends Specification {
 
-    private Project project
+  private Project project
 
-    def setup() {
-        project = ProjectBuilder.builder().build()
-    }
+  def setup() {
+    project = ProjectBuilder.builder().build()
+  }
 
-    def "DockerPluginExtension is added to project"() {
-        when:
-        project.apply plugin: 'de.gesellix.docker'
-        then:
-        project["docker"] instanceof DockerPluginExtension
-    }
+  def "DockerPluginExtension is added to project"() {
+    when:
+    project.apply plugin: 'de.gesellix.docker'
+    then:
+    project["docker"] instanceof DockerPluginExtension
+  }
 
-    def "configuration is passed to tasks"() {
-        given:
-        project.apply plugin: 'de.gesellix.docker'
-        project.docker.dockerHost = "http://example.org:2375"
-        project.docker.certPath = 'foo'
-        project.docker.authConfigPlain = ["plain auth"]
-        project.docker.authConfigEncoded = "encoded auth"
+  def "configuration is passed to tasks"() {
+    given:
+    project.apply plugin: 'de.gesellix.docker'
+    project.docker.dockerHost = "http://example.org:2375"
+    project.docker.certPath = 'foo'
+    project.docker.authConfigPlain = ["plain auth"]
+    project.docker.authConfigEncoded = "encoded auth"
 
-        when:
-        def task = project.tasks.create("testTask", TestTask)
+    when:
+    def task = project.tasks.create("testTask", TestTask)
 
-        then:
-        task.dockerHost == "http://example.org:2375"
-        task.certPath == project.file('foo').absolutePath
-        task.authConfigPlain == ["plain auth"]
-        task.authConfigEncoded == "encoded auth"
-    }
+    then:
+    task.dockerHost == "http://example.org:2375"
+    task.certPath == project.file('foo').absolutePath
+    task.authConfigPlain == ["plain auth"]
+    task.authConfigEncoded == "encoded auth"
+  }
 
-    def "returns the absolute certification path"() {
-        given:
-        project.apply plugin: 'de.gesellix.docker'
+  def "returns the absolute certification path"() {
+    given:
+    project.apply plugin: 'de.gesellix.docker'
 
-        when:
-        project.docker.certPath = 'foo'
+    when:
+    project.docker.certPath = 'foo'
 
-        then:
-        project.docker.certPath == project.file('foo').absolutePath
-
-    }
+    then:
+    project.docker.certPath == project.file('foo').absolutePath
+  }
 }

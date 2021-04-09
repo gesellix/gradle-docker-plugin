@@ -6,24 +6,24 @@ import org.gradle.api.tasks.TaskAction
 
 class DockerCleanupTask extends GenericDockerTask {
 
-    @Input
-    @Optional
-    def shouldKeepContainer
+  @Input
+  @Optional
+  def shouldKeepContainer
 
-    @Input
-    @Optional
-    def shouldKeepVolume = { volume -> true }
+  @Input
+  @Optional
+  def shouldKeepVolume = { volume -> true }
 
-    DockerCleanupTask() {
-        description = "Removes stopped containers, dangling images, and dangling volumes"
-        group = "Docker"
-    }
+  DockerCleanupTask() {
+    description = "Removes stopped containers, dangling images, and dangling volumes"
+    group = "Docker"
+  }
 
-    @TaskAction
-    def cleanup() {
-        logger.info "docker cleanup"
-        def keepContainer = getShouldKeepContainer() ?: { container -> false }
-        def keepVolume = getShouldKeepVolume() ?: { volume -> true }
-        dockerClient.cleanupStorage keepContainer, keepVolume
-    }
+  @TaskAction
+  def cleanup() {
+    logger.info "docker cleanup"
+    def keepContainer = getShouldKeepContainer() ?: { container -> false }
+    def keepVolume = getShouldKeepVolume() ?: { volume -> true }
+    dockerClient.cleanupStorage keepContainer, keepVolume
+  }
 }

@@ -5,17 +5,17 @@ import org.gradle.api.tasks.TaskAction
 
 class DockerPsTask extends GenericDockerTask {
 
-    @Internal
-    def containers
+  @Internal
+  def containers
 
-    DockerPsTask() {
-        description = "List containers"
-        group = "Docker"
-    }
+  DockerPsTask() {
+    description = "List containers"
+    group = "Docker"
+  }
 
-    @TaskAction
-    def ps() {
-        logger.info "docker ps"
-        containers = getDockerClient().ps()
-    }
+  @TaskAction
+  def ps() {
+    logger.info "docker ps"
+    containers = getDockerClient().ps()
+  }
 }

@@ -6,21 +6,21 @@ import org.gradle.api.tasks.TaskAction
 
 class DockerStartTask extends GenericDockerTask {
 
-    @Input
-    def containerId
+  @Input
+  def containerId
 
-    @Internal
-    def result
+  @Internal
+  def result
 
-    DockerStartTask() {
-        description = "Start a stopped container"
-        group = "Docker"
-    }
+  DockerStartTask() {
+    description = "Start a stopped container"
+    group = "Docker"
+  }
 
-    @TaskAction
-    def start() {
-        logger.info "docker start"
-        result = getDockerClient().startContainer(getContainerId())
-        return result
-    }
+  @TaskAction
+  def start() {
+    logger.info "docker start"
+    result = getDockerClient().startContainer(getContainerId())
+    return result
+  }
 }

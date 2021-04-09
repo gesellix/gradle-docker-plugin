@@ -6,31 +6,31 @@ import spock.lang.Specification
 
 class DockerSwarmLeaveTaskSpec extends Specification {
 
-    def project
-    def task
-    def dockerClient = Mock(DockerClient)
+  def project
+  def task
+  def dockerClient = Mock(DockerClient)
 
-    def setup() {
-        project = ProjectBuilder.builder().build()
-        task = project.task('leaveSwarm', type: DockerSwarmLeaveTask)
-        task.dockerClient = dockerClient
-    }
+  def setup() {
+    project = ProjectBuilder.builder().build()
+    task = project.task('leaveSwarm', type: DockerSwarmLeaveTask)
+    task.dockerClient = dockerClient
+  }
 
-    def "delegates to dockerClient and saves result"() {
-        given:
-        task.query = [
-                "key": "value"
-        ]
+  def "delegates to dockerClient and saves result"() {
+    given:
+    task.query = [
+        "key": "value"
+    ]
 
-        when:
-        task.leaveSwarm()
+    when:
+    task.leaveSwarm()
 
-        then:
-        1 * dockerClient.leaveSwarm([
-                "key": "value"
-        ]) >> [content: "swarm-result"]
+    then:
+    1 * dockerClient.leaveSwarm([
+        "key": "value"
+    ]) >> [content: "swarm-result"]
 
-        and:
-        task.response == [content: "swarm-result"]
-    }
+    and:
+    task.response == [content: "swarm-result"]
+  }
 }

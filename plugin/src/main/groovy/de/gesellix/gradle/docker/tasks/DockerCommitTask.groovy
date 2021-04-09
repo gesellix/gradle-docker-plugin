@@ -6,41 +6,41 @@ import org.gradle.api.tasks.TaskAction
 
 class DockerCommitTask extends GenericDockerTask {
 
-    @Input
-    def containerId
-    @Optional
-    @Input
-    def tag
-    @Input
-    def repo
-    @Optional
-    @Input
-    def author
-    @Optional
-    @Input
-    def comment
-    @Input
-    @Optional
-    def pauseContainer
-    @Optional
-    @Input
-    def changes
+  @Input
+  def containerId
+  @Optional
+  @Input
+  def tag
+  @Input
+  def repo
+  @Optional
+  @Input
+  def author
+  @Optional
+  @Input
+  def comment
+  @Input
+  @Optional
+  def pauseContainer
+  @Optional
+  @Input
+  def changes
 
-    DockerCommitTask() {
-        description = "Commit changes to a container"
-        group = "Docker"
-    }
+  DockerCommitTask() {
+    description = "Commit changes to a container"
+    group = "Docker"
+  }
 
-    @TaskAction
-    def commit() {
-        logger.info "docker commit"
-        return getDockerClient().commit(getContainerId(), [
-                repo   : getRepo(),
-                tag    : getTag(),
-                comment: getComment(),
-                author : getAuthor(),
-                changes: getChanges(),
-                pause  : getPauseContainer()
-        ])
-    }
+  @TaskAction
+  def commit() {
+    logger.info "docker commit"
+    return getDockerClient().commit(getContainerId(), [
+        repo   : getRepo(),
+        tag    : getTag(),
+        comment: getComment(),
+        author : getAuthor(),
+        changes: getChanges(),
+        pause  : getPauseContainer()
+    ])
+  }
 }

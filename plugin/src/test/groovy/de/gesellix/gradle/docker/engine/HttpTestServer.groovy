@@ -7,24 +7,24 @@ import java.util.concurrent.Executors
 
 class HttpTestServer {
 
-    HttpServer httpServer
+  HttpServer httpServer
 
-    def start(String context, HttpHandler handler) {
-        InetSocketAddress address = new InetSocketAddress(0)
+  def start(String context, HttpHandler handler) {
+    InetSocketAddress address = new InetSocketAddress(0)
 
-        httpServer = HttpServer.create(address, address.port)
+    httpServer = HttpServer.create(address, address.port)
 
-        httpServer.with {
-            createContext(context, handler)
-            setExecutor(Executors.newCachedThreadPool())
-            start()
-        }
-        return httpServer.address
+    httpServer.with {
+      createContext(context, handler)
+      setExecutor(Executors.newCachedThreadPool())
+      start()
     }
+    return httpServer.address
+  }
 
-    def stop() {
-        if (httpServer) {
-            httpServer.stop(0)
-        }
+  def stop() {
+    if (httpServer) {
+      httpServer.stop(0)
     }
+  }
 }

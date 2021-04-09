@@ -6,21 +6,21 @@ import org.gradle.api.tasks.TaskAction
 
 class DockerKillTask extends GenericDockerTask {
 
-    @Input
-    def containerId
+  @Input
+  def containerId
 
-    @Internal
-    def result
+  @Internal
+  def result
 
-    DockerKillTask() {
-        description = "Kill a running container"
-        group = "Docker"
-    }
+  DockerKillTask() {
+    description = "Kill a running container"
+    group = "Docker"
+  }
 
-    @TaskAction
-    def kill() {
-        logger.info "docker kill"
-        result = getDockerClient().kill(getContainerId())
-        return result
-    }
+  @TaskAction
+  def kill() {
+    logger.info "docker kill"
+    result = getDockerClient().kill(getContainerId())
+    return result
+  }
 }

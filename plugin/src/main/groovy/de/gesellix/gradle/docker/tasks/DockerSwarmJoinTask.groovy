@@ -7,18 +7,18 @@ import org.gradle.api.tasks.TaskAction
 
 class DockerSwarmJoinTask extends GenericDockerTask {
 
-    @Input
-    @Optional
-    def config = [:]
+  @Input
+  @Optional
+  def config = [:]
 
-    @Internal
-    def response
+  @Internal
+  def response
 
-    @TaskAction
-    def joinSwarm() {
-        logger.info "docker swarm join"
+  @TaskAction
+  def joinSwarm() {
+    logger.info "docker swarm join"
 
-        response = getDockerClient().joinSwarm(getConfig())
-        return response
-    }
+    response = getDockerClient().joinSwarm(getConfig())
+    return response
+  }
 }

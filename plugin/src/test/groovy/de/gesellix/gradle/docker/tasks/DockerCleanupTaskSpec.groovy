@@ -6,32 +6,32 @@ import spock.lang.Specification
 
 class DockerCleanupTaskSpec extends Specification {
 
-    def project
-    def task
-    def dockerClient = Mock(DockerClient)
+  def project
+  def task
+  def dockerClient = Mock(DockerClient)
 
-    def setup() {
-        project = ProjectBuilder.builder().build()
-        task = project.task('dockerCleanup', type: DockerCleanupTask)
-        task.dockerClient = dockerClient
+  def setup() {
+    project = ProjectBuilder.builder().build()
+    task = project.task('dockerCleanup', type: DockerCleanupTask)
+    task.dockerClient = dockerClient
+  }
+
+  def "delegates to dockerClient"() {
+    given:
+    def containerPredicate = { container ->
+      container.Names.any { String name ->
+        name.replaceAll("^/", "").matches(".*data.*")
+      }
     }
+    task.shouldKeepContainer = containerPredicate
 
-    def "delegates to dockerClient"() {
-        given:
-        def containerPredicate = { container ->
-            container.Names.any { String name ->
-                name.replaceAll("^/", "").matches(".*data.*")
-            }
-        }
-        task.shouldKeepContainer = containerPredicate
+    def volumePredicate = { volume -> true }
+    task.shouldKeepVolume = volumePredicate
 
-        def volumePredicate = { volume -> true }
-        task.shouldKeepVolume = volumePredicate
+    when:
+    task.cleanup()
 
-        when:
-        task.cleanup()
-
-        then:
-        1 * dockerClient.cleanupStorage(containerPredicate, volumePredicate)
-    }
+    then:
+    1 * dockerClient.cleanupStorage(containerPredicate, volumePredicate)
+  }
 }

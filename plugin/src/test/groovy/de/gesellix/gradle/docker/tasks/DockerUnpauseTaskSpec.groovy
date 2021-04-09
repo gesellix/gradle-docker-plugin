@@ -6,24 +6,24 @@ import spock.lang.Specification
 
 class DockerUnpauseTaskSpec extends Specification {
 
-    def project
-    def task
-    def dockerClient = Mock(DockerClient)
+  def project
+  def task
+  def dockerClient = Mock(DockerClient)
 
-    def setup() {
-        project = ProjectBuilder.builder().build()
-        task = project.task('dockerUnpause', type: DockerUnpauseTask)
-        task.dockerClient = dockerClient
-    }
+  def setup() {
+    project = ProjectBuilder.builder().build()
+    task = project.task('dockerUnpause', type: DockerUnpauseTask)
+    task.dockerClient = dockerClient
+  }
 
-    def "delegates to dockerClient"() {
-        given:
-        task.containerId = "4711"
+  def "delegates to dockerClient"() {
+    given:
+    task.containerId = "4711"
 
-        when:
-        task.unpause()
+    when:
+    task.unpause()
 
-        then:
-        1 * dockerClient.unpause("4711")
-    }
+    then:
+    1 * dockerClient.unpause("4711")
+  }
 }

@@ -6,21 +6,21 @@ import org.gradle.api.tasks.TaskAction
 
 class DockerStopTask extends GenericDockerTask {
 
-    @Input
-    def containerId
+  @Input
+  def containerId
 
-    @Internal
-    def result
+  @Internal
+  def result
 
-    DockerStopTask() {
-        description = "Stop a running container"
-        group = "Docker"
-    }
+  DockerStopTask() {
+    description = "Stop a running container"
+    group = "Docker"
+  }
 
-    @TaskAction
-    def stop() {
-        logger.info "docker stop"
-        result = getDockerClient().stop(getContainerId())
-        return result
-    }
+  @TaskAction
+  def stop() {
+    logger.info "docker stop"
+    result = getDockerClient().stop(getContainerId())
+    return result
+  }
 }

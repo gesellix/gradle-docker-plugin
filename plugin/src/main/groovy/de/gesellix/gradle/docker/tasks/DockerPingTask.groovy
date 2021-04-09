@@ -5,17 +5,17 @@ import org.gradle.api.tasks.TaskAction
 
 class DockerPingTask extends GenericDockerTask {
 
-    @Internal
-    def result
+  @Internal
+  def result
 
-    DockerPingTask() {
-        description = "Ping the docker server"
-        group = "Docker"
-    }
+  DockerPingTask() {
+    description = "Ping the docker server"
+    group = "Docker"
+  }
 
-    @TaskAction
-    def ping() {
-        logger.info "docker ping"
-        result = getDockerClient().ping()
-    }
+  @TaskAction
+  def ping() {
+    logger.info "docker ping"
+    result = getDockerClient().ping()
+  }
 }

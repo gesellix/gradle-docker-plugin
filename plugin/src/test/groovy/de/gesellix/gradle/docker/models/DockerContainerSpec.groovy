@@ -5,260 +5,260 @@ import spock.lang.Specification
 
 class DockerContainerSpec extends Specification {
 
-    def dockerClient = Mock(DockerClient)
+  def dockerClient = Mock(DockerClient)
 
-    def "reloaded w/ different image"() {
-        given:
-        def container = Spy(DockerContainer, constructorArgs: [
-                dockerClient,
-                "example",
-                "testImage:latest",
-                [:]
-        ])
+  def "reloaded w/ different image"() {
+    given:
+    def container = Spy(DockerContainer, constructorArgs: [
+        dockerClient,
+        "example",
+        "testImage:latest",
+        [:]
+    ])
 
-        when:
-        def upToDate = container.isReloaded()
-        container.ensureReloaded()
+    when:
+    def upToDate = container.isReloaded()
+    container.ensureReloaded()
 
-        then:
-        1 * dockerClient.ps([filters: [name: ["example"]]]) >> [
-                content: [[Names: ["/example"], Id: "123"]]
-        ]
-        2 * dockerClient.inspectContainer("123") >> [
-                content: [
-                        Image: "image1",
-                        State: [Running: true]]
-        ]
-        2 * dockerClient.inspectImage("testImage:latest") >> [
-                status : [success: true],
-                content: [Id: "image0"]
-        ]
-        1 * container.reload(_) >> { String msg ->
-            println msg
-            assert msg.startsWith("Image identifiers differ")
-        }
-
-        and:
-        upToDate == false
+    then:
+    1 * dockerClient.ps([filters: [name: ["example"]]]) >> [
+        content: [[Names: ["/example"], Id: "123"]]
+    ]
+    2 * dockerClient.inspectContainer("123") >> [
+        content: [
+            Image: "image1",
+            State: [Running: true]]
+    ]
+    2 * dockerClient.inspectImage("testImage:latest") >> [
+        status : [success: true],
+        content: [Id: "image0"]
+    ]
+    1 * container.reload(_) >> { String msg ->
+      println msg
+      assert msg.startsWith("Image identifiers differ")
     }
 
-    def "reloaded w/ different exposed ports"() {
-        given:
-        def container = Spy(DockerContainer, constructorArgs: [
-                dockerClient,
-                "example",
-                "testImage:latest",
-                [:]
-        ])
+    and:
+    upToDate == false
+  }
 
-        when:
-        def upToDate = container.isReloaded()
-        container.ensureReloaded()
+  def "reloaded w/ different exposed ports"() {
+    given:
+    def container = Spy(DockerContainer, constructorArgs: [
+        dockerClient,
+        "example",
+        "testImage:latest",
+        [:]
+    ])
 
-        then:
-        1 * dockerClient.ps([filters: [name: ["example"]]]) >> [
-                content: [[Names: ["/example"], Id: "123"]]
-        ]
-        2 * dockerClient.inspectContainer("123") >> [
-                content: [
-                        Image : "image1",
-                        State : [Running: true],
-                        Config: [ExposedPorts: ["8080/tcp": []]]]
-        ]
-        2 * dockerClient.inspectImage("testImage:latest") >> [
-                status : [success: true],
-                content: [Id: "image1", ContainerConfig: [ExposedPorts: []]]
-        ]
-        1 * container.reload(_) >> { String msg ->
-            println msg
-            assert msg.startsWith("Exposed ports do not match")
-        }
+    when:
+    def upToDate = container.isReloaded()
+    container.ensureReloaded()
 
-        and:
-        upToDate == false
+    then:
+    1 * dockerClient.ps([filters: [name: ["example"]]]) >> [
+        content: [[Names: ["/example"], Id: "123"]]
+    ]
+    2 * dockerClient.inspectContainer("123") >> [
+        content: [
+            Image : "image1",
+            State : [Running: true],
+            Config: [ExposedPorts: ["8080/tcp": []]]]
+    ]
+    2 * dockerClient.inspectImage("testImage:latest") >> [
+        status : [success: true],
+        content: [Id: "image1", ContainerConfig: [ExposedPorts: []]]
+    ]
+    1 * container.reload(_) >> { String msg ->
+      println msg
+      assert msg.startsWith("Exposed ports do not match")
     }
 
-    def "reloaded w/ different cmd"() {
-        given:
-        def container = Spy(DockerContainer, constructorArgs: [
-                dockerClient,
-                "example",
-                "testImage:latest",
-                [Cmd: ["true"]]
-        ])
+    and:
+    upToDate == false
+  }
 
-        when:
-        def upToDate = container.isReloaded()
-        container.ensureReloaded()
+  def "reloaded w/ different cmd"() {
+    given:
+    def container = Spy(DockerContainer, constructorArgs: [
+        dockerClient,
+        "example",
+        "testImage:latest",
+        [Cmd: ["true"]]
+    ])
 
-        then:
-        1 * dockerClient.ps([filters: [name: ["example"]]]) >> [content: [[Names: ["/example"], Id: "123"]]]
-        2 * dockerClient.inspectContainer("123") >> [
-                content: [
-                        Image : "image1",
-                        State : [Running: true],
-                        Config: [
-                                ExposedPorts: ["8080/tcp": []],
-                                Cmd         : ["echo", "false"]
-                        ]]
+    when:
+    def upToDate = container.isReloaded()
+    container.ensureReloaded()
+
+    then:
+    1 * dockerClient.ps([filters: [name: ["example"]]]) >> [content: [[Names: ["/example"], Id: "123"]]]
+    2 * dockerClient.inspectContainer("123") >> [
+        content: [
+            Image : "image1",
+            State : [Running: true],
+            Config: [
+                ExposedPorts: ["8080/tcp": []],
+                Cmd         : ["echo", "false"]
+            ]]
+    ]
+    2 * dockerClient.inspectImage("testImage:latest") >> [
+        status : [success: true],
+        content: [
+            Id             : "image1",
+            ContainerConfig: [ExposedPorts: ["8080/tcp": []]],
+            Config         : [
+                Entrypoint: "echo",
+                Cmd       : "false"
+            ]
         ]
-        2 * dockerClient.inspectImage("testImage:latest") >> [
-                status : [success: true],
-                content: [
-                        Id             : "image1",
-                        ContainerConfig: [ExposedPorts: ["8080/tcp": []]],
-                        Config         : [
-                                Entrypoint: "echo",
-                                Cmd       : "false"
-                        ]
-                ]
-        ]
-        1 * container.reload(_) >> { String msg ->
-            println msg
-            assert msg.startsWith("Entrypoints and Cmd do not match")
-        }
-
-        and:
-        upToDate == false
+    ]
+    1 * container.reload(_) >> { String msg ->
+      println msg
+      assert msg.startsWith("Entrypoints and Cmd do not match")
     }
 
-    def "reloaded w/ different volumes"() {
-        given:
-        def container = Spy(DockerContainer, constructorArgs: [
-                dockerClient,
-                "example",
-                "testImage:latest",
-                [
-                        ExposedPorts: ["8080/tcp": []],
-                        Volumes     : ["/data": []]
-                ]
-        ])
+    and:
+    upToDate == false
+  }
 
-        when:
-        def upToDate = container.isReloaded()
-        container.ensureReloaded()
-
-        then:
-        1 * dockerClient.ps([filters: [name: ["example"]]]) >> [content: [[Names: ["/example"], Id: "123"]]]
-        2 * dockerClient.inspectContainer("123") >> [
-                content: [
-                        Image : "image1",
-                        State : [Running: true],
-                        Config: [ExposedPorts: ["8080/tcp": []]]]
+  def "reloaded w/ different volumes"() {
+    given:
+    def container = Spy(DockerContainer, constructorArgs: [
+        dockerClient,
+        "example",
+        "testImage:latest",
+        [
+            ExposedPorts: ["8080/tcp": []],
+            Volumes     : ["/data": []]
         ]
-        2 * dockerClient.inspectImage("testImage:latest") >> [
-                status : [success: true],
-                content: [Id: "image1", ContainerConfig: [ExposedPorts: []]]
-        ]
-        1 * container.reload(_) >> { String msg ->
-            println msg
-            assert msg.startsWith("Volumes do not match")
-        }
+    ])
 
-        and:
-        upToDate == false
+    when:
+    def upToDate = container.isReloaded()
+    container.ensureReloaded()
+
+    then:
+    1 * dockerClient.ps([filters: [name: ["example"]]]) >> [content: [[Names: ["/example"], Id: "123"]]]
+    2 * dockerClient.inspectContainer("123") >> [
+        content: [
+            Image : "image1",
+            State : [Running: true],
+            Config: [ExposedPorts: ["8080/tcp": []]]]
+    ]
+    2 * dockerClient.inspectImage("testImage:latest") >> [
+        status : [success: true],
+        content: [Id: "image1", ContainerConfig: [ExposedPorts: []]]
+    ]
+    1 * container.reload(_) >> { String msg ->
+      println msg
+      assert msg.startsWith("Volumes do not match")
     }
 
-    def "reloaded w/ different envs"() {
-        given:
-        def container = Spy(DockerContainer, constructorArgs: [
-                dockerClient,
-                "example",
-                "testImage:latest",
-                [
-                        ExposedPorts: ["8080/tcp": []],
-                        Volumes     : ["/data": []],
-                        Env         : ["TMP=1"]
-                ]
-        ])
+    and:
+    upToDate == false
+  }
 
-        when:
-        def upToDate = container.isReloaded()
-        container.ensureReloaded()
+  def "reloaded w/ different envs"() {
+    given:
+    def container = Spy(DockerContainer, constructorArgs: [
+        dockerClient,
+        "example",
+        "testImage:latest",
+        [
+            ExposedPorts: ["8080/tcp": []],
+            Volumes     : ["/data": []],
+            Env         : ["TMP=1"]
+        ]
+    ])
 
-        then:
-        1 * dockerClient.ps([filters: [name: ["example"]]]) >> [
-                content: [[Names: ["/example"], Id: "123"]]
-        ]
-        2 * dockerClient.inspectContainer("123") >> [
-                content: [
-                        Image : "image1",
-                        State : [Running: true],
-                        Config: [
-                                ExposedPorts: ["8080/tcp": []],
-                                Volumes     : ["/data": [], "/spec": []],
-                                Env         : ["TMP=1"]
-                        ]]
-        ]
-        2 * dockerClient.inspectImage("testImage:latest") >> [
-                status : [success: true],
-                content: [
-                        Id             : "image1",
-                        ContainerConfig: [
-                                ExposedPorts: [],
-                                Volumes     : ["/spec": []],
-                                Env         : ["MYVAR=myval"]
-                        ]
-                ]
-        ]
-        1 * container.reload(_) >> { String msg ->
-            println msg
-            assert msg.startsWith("Env does not match")
-        }
+    when:
+    def upToDate = container.isReloaded()
+    container.ensureReloaded()
 
-        and:
-        upToDate == false
+    then:
+    1 * dockerClient.ps([filters: [name: ["example"]]]) >> [
+        content: [[Names: ["/example"], Id: "123"]]
+    ]
+    2 * dockerClient.inspectContainer("123") >> [
+        content: [
+            Image : "image1",
+            State : [Running: true],
+            Config: [
+                ExposedPorts: ["8080/tcp": []],
+                Volumes     : ["/data": [], "/spec": []],
+                Env         : ["TMP=1"]
+            ]]
+    ]
+    2 * dockerClient.inspectImage("testImage:latest") >> [
+        status : [success: true],
+        content: [
+            Id             : "image1",
+            ContainerConfig: [
+                ExposedPorts: [],
+                Volumes     : ["/spec": []],
+                Env         : ["MYVAR=myval"]
+            ]
+        ]
+    ]
+    1 * container.reload(_) >> { String msg ->
+      println msg
+      assert msg.startsWith("Env does not match")
     }
 
-    def "reloaded w/ everything same"() {
-        given:
-        def container = Spy(DockerContainer, constructorArgs: [
-                dockerClient,
-                "example",
-                "testImage:latest",
-                [
-                        ExposedPorts: ["8080/tcp": []],
-                        Volumes     : ["/data": []],
-                        Env         : ["TMP=1"],
-                        HostConfig  : [Binds: ["/data:/data"]]
-                ]
-        ])
+    and:
+    upToDate == false
+  }
 
-        when:
-        def upToDate = container.isReloaded()
-        def changed = container.ensureReloaded()
-
-        then:
-        1 * dockerClient.ps([filters: [name: ["example"]]]) >> [content: [[Names: ["/example"], Id: "123"]]]
-        2 * dockerClient.inspectContainer("123") >> [
-                content: [
-                        Image     : "image1",
-                        State     : [Running: true],
-                        Config    : [
-                                ExposedPorts: ["8080/tcp": []],
-                                Volumes     : ["/data": [], "/spec": []],
-                                Env         : ["TMP=1", "MYVAR=myval"],
-                        ],
-                        HostConfig: [
-                                Binds: ["/data:/data"]
-                        ]]
+  def "reloaded w/ everything same"() {
+    given:
+    def container = Spy(DockerContainer, constructorArgs: [
+        dockerClient,
+        "example",
+        "testImage:latest",
+        [
+            ExposedPorts: ["8080/tcp": []],
+            Volumes     : ["/data": []],
+            Env         : ["TMP=1"],
+            HostConfig  : [Binds: ["/data:/data"]]
         ]
-        2 * dockerClient.inspectImage("testImage:latest") >> [
-                status : [success: true],
-                content: [
-                        Id             : "image1",
-                        ContainerConfig: [
-                                ExposedPorts: [],
-                                Volumes     : ["/spec": []],
-                                Env         : ["MYVAR=myval"]
-                        ],
-                        Config         : []
-                ]
-        ]
-        0 * container.reload(_)
+    ])
 
-        and:
-        upToDate == true
-        changed == false
-    }
+    when:
+    def upToDate = container.isReloaded()
+    def changed = container.ensureReloaded()
+
+    then:
+    1 * dockerClient.ps([filters: [name: ["example"]]]) >> [content: [[Names: ["/example"], Id: "123"]]]
+    2 * dockerClient.inspectContainer("123") >> [
+        content: [
+            Image     : "image1",
+            State     : [Running: true],
+            Config    : [
+                ExposedPorts: ["8080/tcp": []],
+                Volumes     : ["/data": [], "/spec": []],
+                Env         : ["TMP=1", "MYVAR=myval"],
+            ],
+            HostConfig: [
+                Binds: ["/data:/data"]
+            ]]
+    ]
+    2 * dockerClient.inspectImage("testImage:latest") >> [
+        status : [success: true],
+        content: [
+            Id             : "image1",
+            ContainerConfig: [
+                ExposedPorts: [],
+                Volumes     : ["/spec": []],
+                Env         : ["MYVAR=myval"]
+            ],
+            Config         : []
+        ]
+    ]
+    0 * container.reload(_)
+
+    and:
+    upToDate == true
+    changed == false
+  }
 }

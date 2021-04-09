@@ -6,24 +6,24 @@ import spock.lang.Specification
 
 class DockerStopTaskSpec extends Specification {
 
-    def project
-    def task
-    def dockerClient = Mock(DockerClient)
+  def project
+  def task
+  def dockerClient = Mock(DockerClient)
 
-    def setup() {
-        project = ProjectBuilder.builder().build()
-        task = project.task('dockerStop', type: DockerStopTask)
-        task.dockerClient = dockerClient
-    }
+  def setup() {
+    project = ProjectBuilder.builder().build()
+    task = project.task('dockerStop', type: DockerStopTask)
+    task.dockerClient = dockerClient
+  }
 
-    def "delegates to dockerClient"() {
-        given:
-        task.containerId = "4711"
+  def "delegates to dockerClient"() {
+    given:
+    task.containerId = "4711"
 
-        when:
-        task.stop()
+    when:
+    task.stop()
 
-        then:
-        1 * dockerClient.stop("4711")
-    }
+    then:
+    1 * dockerClient.stop("4711")
+  }
 }

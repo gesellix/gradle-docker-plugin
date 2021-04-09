@@ -6,22 +6,22 @@ import org.gradle.api.tasks.TaskAction
 
 class DockerVolumeRmTask extends GenericDockerTask {
 
-    @Input
-    def volumeName
+  @Input
+  def volumeName
 
-    @Internal
-    def response
+  @Internal
+  def response
 
-    DockerVolumeRmTask() {
-        description = "Remove a volume"
-        group = "Docker"
-    }
+  DockerVolumeRmTask() {
+    description = "Remove a volume"
+    group = "Docker"
+  }
 
-    @TaskAction
-    def rmVolume() {
-        logger.info "docker volume rm"
+  @TaskAction
+  def rmVolume() {
+    logger.info "docker volume rm"
 
-        response = getDockerClient().rmVolume(getVolumeName())
-        return response
-    }
+    response = getDockerClient().rmVolume(getVolumeName())
+    return response
+  }
 }

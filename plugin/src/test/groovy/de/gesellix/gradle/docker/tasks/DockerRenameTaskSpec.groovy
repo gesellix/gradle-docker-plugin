@@ -7,33 +7,33 @@ import spock.lang.Specification
 
 class DockerRenameTaskSpec extends Specification {
 
-    def project
-    def task
-    def dockerClient = Mock(DockerClient)
+  def project
+  def task
+  def dockerClient = Mock(DockerClient)
 
-    def setup() {
-        project = ProjectBuilder.builder().build()
-        task = project.task('dockerRename', type: DockerRenameTask)
-        task.dockerClient = dockerClient
-    }
+  def setup() {
+    project = ProjectBuilder.builder().build()
+    task = project.task('dockerRename', type: DockerRenameTask)
+    task.dockerClient = dockerClient
+  }
 
-    def "delegates rename command to dockerClient and saves result"() {
-        given:
-        def containerId = 'oldName'
-        task.containerId = containerId
+  def "delegates rename command to dockerClient and saves result"() {
+    given:
+    def containerId = 'oldName'
+    task.containerId = containerId
 
-        def newName = 'anotherName'
-        task.newName = newName
+    def newName = 'anotherName'
+    task.newName = newName
 
-        def expectedResult = new EngineResponse(content: "result")
+    def expectedResult = new EngineResponse(content: "result")
 
-        when:
-        task.rename()
+    when:
+    task.rename()
 
-        then:
-        1 * dockerClient.rename(containerId, newName) >> expectedResult
+    then:
+    1 * dockerClient.rename(containerId, newName) >> expectedResult
 
-        and:
-        task.result == expectedResult
-    }
+    and:
+    task.result == expectedResult
+  }
 }

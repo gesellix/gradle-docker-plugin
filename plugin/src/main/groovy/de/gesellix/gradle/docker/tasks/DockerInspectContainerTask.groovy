@@ -6,21 +6,21 @@ import org.gradle.api.tasks.TaskAction
 
 class DockerInspectContainerTask extends GenericDockerTask {
 
-    @Input
-    def containerId
+  @Input
+  def containerId
 
-    @Internal
-    def containerInfo
+  @Internal
+  def containerInfo
 
-    DockerInspectContainerTask() {
-        description = "Return low-level information on a container"
-        group = "Docker"
-    }
+  DockerInspectContainerTask() {
+    description = "Return low-level information on a container"
+    group = "Docker"
+  }
 
-    @TaskAction
-    def inspect() {
-        logger.info "docker inspect"
+  @TaskAction
+  def inspect() {
+    logger.info "docker inspect"
 
-        containerInfo = getDockerClient().inspectContainer(getContainerId())
-    }
+    containerInfo = getDockerClient().inspectContainer(getContainerId())
+  }
 }
