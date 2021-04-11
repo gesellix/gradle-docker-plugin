@@ -214,7 +214,7 @@ class DockerContainerTask extends GenericDockerTask {
     return !changed
   }
 
-  def createConfig() {
+  Map createConfig() {
     def config = [:]
 
     config.Image = image
@@ -281,7 +281,7 @@ class DockerContainerTask extends GenericDockerTask {
       config.Volumes = [:]
       config.HostConfig.Binds = []
       volumes.each { String v ->
-        config.Volumes[getMountTarget(v)] = {}
+        config.Volumes[getMountTarget(v)] = [:]
         if (isHostMount(v)) {
           config.HostConfig.Binds << v
         }

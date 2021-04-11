@@ -682,8 +682,8 @@ class DockerContainerTaskFunctionalTest extends Specification {
               image = "testImage:latest"
               containerName = "windows-example"
               volumes = [
-                  'C:\\\\mnt\\\\data:/data',
-                  'C:\\\\mnt\\\\data2:/data2:ro'
+                  "C:\\\\mnt\\\\data:/data",
+                  "C:\\\\mnt\\\\data2:/data2:ro"
               ]
               doLast {
                   logger.lifecycle("Done.")
@@ -724,12 +724,12 @@ class DockerContainerTaskFunctionalTest extends Specification {
     when:
     def result = GradleRunner.create()
         .withProjectDir(testProjectDir.root)
-        .withArguments('dockerContainer')
+        .withArguments("dockerContainer")
         .withPluginClasspath()
         .build()
 
     then:
-    result.task(':dockerContainer').outcome == TaskOutcome.SUCCESS
+    result.task(":dockerContainer").outcome == TaskOutcome.SUCCESS
 //        result.task(':dockerContainer').outcome == TaskOutcome.UP_TO_DATE
     result.output.contains("Done.")
     dockerEngineHttpHandler.expectedRequests.empty

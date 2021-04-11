@@ -11,7 +11,7 @@ class DockerContainer {
   String name
   String imageName
   DockerClient client
-  def config
+  Map config
 
   String id
   String imageId
@@ -19,7 +19,7 @@ class DockerContainer {
   boolean exists
   List<String> ignoredEnvKeys
 
-  DockerContainer(DockerClient client, String name, String imageName, def config, List<String> ignoredEnvKeys = []) {
+  DockerContainer(DockerClient client, String name, String imageName, Map config, List<String> ignoredEnvKeys = []) {
     this.client = client
     this.name = name
     this.imageName = imageName
