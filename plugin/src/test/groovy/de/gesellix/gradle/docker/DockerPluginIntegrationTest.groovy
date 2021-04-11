@@ -380,7 +380,7 @@ class DockerPluginIntegrationTest extends Specification {
             "Cmd"       : ["-"],
             "Image"     : "gesellix/run-with-data-volumes",
             "HostConfig": [
-                "Binds"     : ["$hostDir:/data"],
+                "Binds"     : ["$hostDir:/data".toString()],
                 "AutoRemove": true
             ],
         ], [
@@ -436,7 +436,7 @@ class DockerPluginIntegrationTest extends Specification {
             "Cmd"       : ["-"],
             "Image"     : "gesellix/run-with-data-volumes",
             "HostConfig": [
-                "Binds"     : ["$hostDir:/data"],
+                "Binds"     : ["$hostDir:/data".toString()],
                 "AutoRemove": true
             ],
         ], [
