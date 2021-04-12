@@ -24,7 +24,10 @@ dependencies {
 
   api("de.gesellix:docker-client:2021-04-10T14-34-47")
 
-  testImplementation("org.spockframework:spock-core:1.3-groovy-2.5")
+  testImplementation("org.spockframework:spock-core:2.0-M5-groovy-3.0")
+  testImplementation("org.junit.jupiter:junit-jupiter-api:5.7.1")
+  testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.7.1")
+  testRuntimeOnly("org.junit.platform:junit-platform-launcher:1.7.1")
   testImplementation("cglib:cglib-nodep:3.3.0")
 
   // see https://docs.gradle.org/current/userguide/test_kit.html
@@ -38,7 +41,7 @@ java {
 
 tasks {
   withType(Test::class.java) {
-    useJUnit()
+    useJUnitPlatform()
   }
 }
 

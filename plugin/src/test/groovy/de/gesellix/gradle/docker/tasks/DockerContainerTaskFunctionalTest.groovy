@@ -8,14 +8,13 @@ import de.gesellix.gradle.docker.engine.HttpTestServer
 import groovy.json.JsonOutput
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
-import org.junit.Rule
-import org.junit.rules.TemporaryFolder
 import spock.lang.Specification
+import spock.lang.TempDir
 
 class DockerContainerTaskFunctionalTest extends Specification {
 
-  @Rule
-  TemporaryFolder testProjectDir = new TemporaryFolder()
+  @TempDir
+  File testProjectDir
 
   File buildFile
 
@@ -31,7 +30,7 @@ class DockerContainerTaskFunctionalTest extends Specification {
     dockerEngineHttpHandler = new DockerEngineHttpHandler()
     testServerAddress = testServer.start("/", dockerEngineHttpHandler)
 
-    buildFile = testProjectDir.newFile('build.gradle')
+    buildFile = new File(testProjectDir, 'build.gradle')
     buildFile << """
             plugins {
                 id 'de.gesellix.docker'
@@ -59,7 +58,7 @@ class DockerContainerTaskFunctionalTest extends Specification {
 
     when:
     GradleRunner.create()
-        .withProjectDir(testProjectDir.root)
+        .withProjectDir(testProjectDir)
         .withArguments('dockerContainer')
         .withPluginClasspath()
         .build()
@@ -113,7 +112,7 @@ class DockerContainerTaskFunctionalTest extends Specification {
 
     when:
     def result = GradleRunner.create()
-        .withProjectDir(testProjectDir.root)
+        .withProjectDir(testProjectDir)
         .withArguments('dockerContainer')
         .withPluginClasspath()
         .build()
@@ -165,7 +164,7 @@ class DockerContainerTaskFunctionalTest extends Specification {
 
     when:
     def result = GradleRunner.create()
-        .withProjectDir(testProjectDir.root)
+        .withProjectDir(testProjectDir)
         .withArguments('dockerContainer')
         .withPluginClasspath()
         .build()
@@ -209,7 +208,7 @@ class DockerContainerTaskFunctionalTest extends Specification {
 
     when:
     def result = GradleRunner.create()
-        .withProjectDir(testProjectDir.root)
+        .withProjectDir(testProjectDir)
         .withArguments('dockerContainer')
         .withPluginClasspath()
         .build()
@@ -261,7 +260,7 @@ class DockerContainerTaskFunctionalTest extends Specification {
 
     when:
     def result = GradleRunner.create()
-        .withProjectDir(testProjectDir.root)
+        .withProjectDir(testProjectDir)
         .withArguments('dockerContainer')
         .withPluginClasspath()
         .build()
@@ -305,7 +304,7 @@ class DockerContainerTaskFunctionalTest extends Specification {
 
     when:
     def result = GradleRunner.create()
-        .withProjectDir(testProjectDir.root)
+        .withProjectDir(testProjectDir)
         .withArguments('dockerContainer')
         .withPluginClasspath()
         .build()
@@ -362,7 +361,7 @@ class DockerContainerTaskFunctionalTest extends Specification {
 
     when:
     def result = GradleRunner.create()
-        .withProjectDir(testProjectDir.root)
+        .withProjectDir(testProjectDir)
         .withArguments('dockerContainer')
         .withPluginClasspath()
         .build()
@@ -410,7 +409,7 @@ class DockerContainerTaskFunctionalTest extends Specification {
 
     when:
     def result = GradleRunner.create()
-        .withProjectDir(testProjectDir.root)
+        .withProjectDir(testProjectDir)
         .withArguments('dockerContainer')
         .withPluginClasspath()
         .build()
@@ -446,7 +445,7 @@ class DockerContainerTaskFunctionalTest extends Specification {
 
     when:
     def result = GradleRunner.create()
-        .withProjectDir(testProjectDir.root)
+        .withProjectDir(testProjectDir)
         .withArguments('dockerContainer')
         .withPluginClasspath()
         .build()
@@ -507,7 +506,7 @@ class DockerContainerTaskFunctionalTest extends Specification {
 
     when:
     def result = GradleRunner.create()
-        .withProjectDir(testProjectDir.root)
+        .withProjectDir(testProjectDir)
         .withArguments('dockerContainer')
         .withPluginClasspath()
         .build()
@@ -579,7 +578,7 @@ class DockerContainerTaskFunctionalTest extends Specification {
 
     when:
     def result = GradleRunner.create()
-        .withProjectDir(testProjectDir.root)
+        .withProjectDir(testProjectDir)
         .withArguments('dockerContainer')
         .withPluginClasspath()
         .build()
@@ -663,7 +662,7 @@ class DockerContainerTaskFunctionalTest extends Specification {
 
     when:
     def result = GradleRunner.create()
-        .withProjectDir(testProjectDir.root)
+        .withProjectDir(testProjectDir)
         .withArguments('dockerContainer')
         .withPluginClasspath()
         .build()
@@ -723,7 +722,7 @@ class DockerContainerTaskFunctionalTest extends Specification {
 
     when:
     def result = GradleRunner.create()
-        .withProjectDir(testProjectDir.root)
+        .withProjectDir(testProjectDir)
         .withArguments("dockerContainer")
         .withPluginClasspath()
         .build()
@@ -827,7 +826,7 @@ class DockerContainerTaskFunctionalTest extends Specification {
 
     when:
     def result = GradleRunner.create()
-        .withProjectDir(testProjectDir.root)
+        .withProjectDir(testProjectDir)
         .withArguments('dockerContainer')
         .withPluginClasspath()
         .build()
@@ -881,7 +880,7 @@ class DockerContainerTaskFunctionalTest extends Specification {
 
     when:
     def result = GradleRunner.create()
-        .withProjectDir(testProjectDir.root)
+        .withProjectDir(testProjectDir)
         .withArguments('dockerContainer')
         .withPluginClasspath()
         .buildAndFail()
@@ -952,7 +951,7 @@ class DockerContainerTaskFunctionalTest extends Specification {
 
     when:
     def result = GradleRunner.create()
-        .withProjectDir(testProjectDir.root)
+        .withProjectDir(testProjectDir)
         .withArguments('dockerContainer')
         .withPluginClasspath()
         .buildAndFail()
@@ -1038,7 +1037,7 @@ class DockerContainerTaskFunctionalTest extends Specification {
 
     when:
     def result = GradleRunner.create()
-        .withProjectDir(testProjectDir.root)
+        .withProjectDir(testProjectDir)
         .withArguments('dockerContainer')
         .withPluginClasspath()
         .build()
