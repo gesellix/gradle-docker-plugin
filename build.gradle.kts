@@ -9,14 +9,13 @@ plugins {
 
 val dependencyVersions = listOf(
   "com.squareup.okio:okio:2.10.0",
-  "org.jetbrains:annotations:20.1.0",
-  "org.jetbrains.kotlin:kotlin-reflect:1.4.31",
-  "org.jetbrains.kotlin:kotlin-stdlib:1.4.31",
-  "org.jetbrains.kotlin:kotlin-stdlib-common:1.4.31"
+  "org.jetbrains.kotlin:kotlin-reflect:1.3.72",
+  "org.jetbrains.kotlin:kotlin-stdlib:1.3.72",
+  "org.jetbrains.kotlin:kotlin-stdlib-common:1.3.72"
 )
 
 val dependencyVersionsByGroup = mapOf(
-  "org.codehaus.groovy" to "3.0.7"
+  "org.codehaus.groovy" to "2.5.13"
 )
 
 subprojects {
