@@ -14,6 +14,7 @@ public class DockerPlugin implements Plugin<Project> {
 
   @Override
   public void apply(Project project) {
+    project.getLogger().lifecycle("apply gradle7 variant of plugin {}", this.getClass());
     DockerPluginExtension extension = project.getExtensions().create(EXTENSION_NAME, DockerPluginExtension.class, project);
     ProviderFactory providers = project.getProviders();
     extension.getDockerHost().convention(providers.systemProperty("docker.host")

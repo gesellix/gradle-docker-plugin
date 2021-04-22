@@ -37,28 +37,34 @@ java {
   targetCompatibility = JavaVersion.VERSION_1_8
 }
 
+val isSnapshot = project.version == "unspecified"
+var artifactVersion = if (!isSnapshot) project.version as String else SimpleDateFormat("yyyy-MM-dd\'T\'HH-mm-ss").format(Date())!!
+artifactVersion = "local"
+project.version = artifactVersion
+val publicationName = "gradleDockerPlugin"
+
 val gradle7 = sourceSets.create("gradle7")
-//java {
-//  registerFeature(gradle7.name) {
-//    usingSourceSet(gradle7)
-//    capability(project.group.toString(), project.name, project.version.toString())
-//  }
-//}
-//configurations.configureEach {
-//  if (isCanBeConsumed && name.startsWith(gradle7.name))  {
-//    attributes {
-//      attribute(GradlePluginApiVersion.GRADLE_PLUGIN_API_VERSION_ATTRIBUTE,
-//        objects.named("7.0"))
-//    }
-//  }
-//}
-//tasks.named<Copy>(gradle7.processResourcesTaskName) {
-//  val copyPluginDescriptors = rootSpec.addChild()
-//  copyPluginDescriptors.into("META-INF/gradle-plugins")
-//  copyPluginDescriptors.from(tasks.pluginDescriptors)
-//}
+java {
+  registerFeature(gradle7.name) {
+    usingSourceSet(gradle7)
+    capability(project.group.toString(), project.name, artifactVersion)
+  }
+}
+configurations.configureEach {
+  if (isCanBeConsumed && name.startsWith(gradle7.name)) {
+    attributes {
+      attribute(GradlePluginApiVersion.GRADLE_PLUGIN_API_VERSION_ATTRIBUTE, objects.named("7.0"))
+    }
+  }
+}
+tasks.named<Copy>(gradle7.processResourcesTaskName) {
+  val copyPluginDescriptors = rootSpec.addChild()
+  copyPluginDescriptors.into("META-INF/gradle-plugins")
+  copyPluginDescriptors.from(tasks.pluginDescriptors)
+}
 dependencies {
   "gradle7CompileOnly"(gradleApi())
+  "gradle7CompileOnly"(localGroovy())
   "gradle7CompileOnly"("de.gesellix:docker-client:2021-04-10T14-34-47")
   "gradle7CompileOnly"(project(":tasks"))
 }
@@ -87,10 +93,6 @@ artifacts {
 }
 
 fun findProperty(s: String) = project.findProperty(s) as String?
-
-val isSnapshot = project.version == "unspecified"
-val artifactVersion = if (!isSnapshot) project.version as String else SimpleDateFormat("yyyy-MM-dd\'T\'HH-mm-ss").format(Date())!!
-val publicationName = "gradleDockerPlugin"
 publishing {
   repositories {
     maven {
@@ -143,15 +145,23 @@ signing {
   sign(publishing.publications[publicationName])
 }
 
+gradlePlugin {
+  plugins {
+    create(publicationName) {
+      implementationClass = "de.gesellix.gradle.docker.DockerPlugin"
+      id = "de.gesellix.docker"
+    }
+  }
+}
+
 pluginBundle {
   website = "https://github.com/gesellix/gradle-docker-plugin"
   vcsUrl = "https://github.com/gesellix/gradle-docker-plugin.git"
   description = "A Docker plugin for Gradle"
   tags = listOf("docker", "gradle", "remote api", "plugin")
 
-  plugins {
-    register(publicationName) {
-      id = "de.gesellix.docker"
+  (plugins) {
+    publicationName {
       displayName = "Gradle Docker plugin"
       version = artifactVersion
     }

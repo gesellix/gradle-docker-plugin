@@ -64,8 +64,10 @@ artifacts {
 fun findProperty(s: String) = project.findProperty(s) as String?
 
 val isSnapshot = project.version == "unspecified"
-val artifactVersion = if (!isSnapshot) project.version as String else SimpleDateFormat("yyyy-MM-dd\'T\'HH-mm-ss").format(Date())!!
-val publicationName = "gradleDockerPlugin"
+var artifactVersion = if (!isSnapshot) project.version as String else SimpleDateFormat("yyyy-MM-dd\'T\'HH-mm-ss").format(Date())!!
+artifactVersion = "local"
+project.version = artifactVersion
+val publicationName = "gradleDockerTasks"
 publishing {
   repositories {
     maven {
@@ -80,7 +82,7 @@ publishing {
   publications {
     register(publicationName, MavenPublication::class) {
       pom {
-        name.set("gradle-docker-plugin")
+        name.set("gradle-docker-plugin-tasks")
         description.set("A Docker plugin for Gradle")
         url.set("https://github.com/gesellix/gradle-docker-plugin")
         licenses {
@@ -102,7 +104,7 @@ publishing {
           url.set("https://github.com/gesellix/gradle-docker-plugin")
         }
       }
-      artifactId = "gradle-docker-plugin"
+      artifactId = "gradle-docker-plugin-tasks"
       version = artifactVersion
       from(components["java"])
       artifact(sourcesJar.get())
