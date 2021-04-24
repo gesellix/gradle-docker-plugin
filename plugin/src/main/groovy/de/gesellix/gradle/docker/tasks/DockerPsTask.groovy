@@ -1,16 +1,20 @@
 package de.gesellix.gradle.docker.tasks
 
+import org.gradle.api.model.ObjectFactory
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.TaskAction
+
+import javax.inject.Inject
 
 class DockerPsTask extends GenericDockerTask {
 
   @Internal
   def containers
 
-  DockerPsTask() {
+  @Inject
+  DockerPsTask(ObjectFactory objectFactory) {
+    super(objectFactory)
     description = "List containers"
-    group = "Docker"
   }
 
   @TaskAction

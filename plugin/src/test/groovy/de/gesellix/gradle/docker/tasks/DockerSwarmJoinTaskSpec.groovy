@@ -18,11 +18,11 @@ class DockerSwarmJoinTaskSpec extends Specification {
 
   def "delegates to dockerClient and saves result"() {
     given:
-    task.config = [
+    task.config.putAll([
         "ListenAddr": "0.0.0.0:4500",
         "RemoteAddr": "node1:4500",
         "Manager"   : false
-    ]
+    ])
 
     when:
     task.joinSwarm()

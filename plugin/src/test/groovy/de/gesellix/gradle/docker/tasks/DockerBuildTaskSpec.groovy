@@ -50,8 +50,8 @@ class DockerBuildTaskSpec extends Specification {
 
   def "delegates to dockerClient with buildContext"() {
     def inputStream = new FileInputStream(File.createTempFile("docker", "test"))
-    def query = [rm: true, t: "imageName"]
-    def options = [:]
+    Map<String, Object> query = [rm: true, t: "imageName"]
+    Map<String, Object> options = [:]
 
     given:
     task.buildContext = inputStream
@@ -69,8 +69,8 @@ class DockerBuildTaskSpec extends Specification {
 
   def "delegates to dockerClient with buildContext and buildParams"() {
     def inputStream = new FileInputStream(File.createTempFile("docker", "test"))
-    def query = [rm: true, t: "imageName", dockerfile: './custom.Dockerfile']
-    def options = [:]
+    Map<String, Object> query = [rm: true, t: "imageName", dockerfile: './custom.Dockerfile']
+    Map<String, Object> options = [:]
 
     given:
     task.buildContext = inputStream
@@ -89,8 +89,8 @@ class DockerBuildTaskSpec extends Specification {
 
   def "delegates to dockerClient with buildContext and buildOptions"() {
     def inputStream = new FileInputStream(File.createTempFile("docker", "test"))
-    def query = [rm: true, t: "imageName"]
-    def options = [EncodedRegistryConfig: "base-64"]
+    Map<String, Object> query = [rm: true, t: "imageName"]
+    Map<String, Object> options = [EncodedRegistryConfig: "base-64"]
 
     given:
     task.buildContext = inputStream
@@ -109,8 +109,8 @@ class DockerBuildTaskSpec extends Specification {
 
   def "does not override rm build param if given"() {
     def inputStream = new FileInputStream(File.createTempFile("docker", "test"))
-    def query = [rm: false, t: "imageName", dockerfile: './custom.Dockerfile']
-    def options = [:]
+    Map<String, Object> query = [rm: false, t: "imageName", dockerfile: './custom.Dockerfile']
+    Map<String, Object> options = [:]
 
     given:
     task.buildContext = inputStream
@@ -129,9 +129,9 @@ class DockerBuildTaskSpec extends Specification {
 
   def "uses auth configs if not overridden via build options"() {
     def inputStream = new FileInputStream(File.createTempFile("docker", "test"))
-    def query = [rm: true, t: "imageName"]
-    def authConfigs = ["host.name": new AuthConfig(username: "user-name", password: "a secret")]
-    def options = [EncodedRegistryConfig: "encoded-auth"]
+    Map<String, Object> query = [rm: true, t: "imageName"]
+    Map<String, AuthConfig> authConfigs = ["host.name": new AuthConfig(username: "user-name", password: "a secret")]
+    Map<String, Object> options = [EncodedRegistryConfig: "encoded-auth"]
 
     given:
     task.authConfigs = authConfigs
@@ -151,8 +151,8 @@ class DockerBuildTaskSpec extends Specification {
 
   def "delegates to dockerClient with buildContext (with logs)"() {
     def inputStream = new FileInputStream(File.createTempFile("docker", "test"))
-    def query = [rm: true, t: "imageName"]
-    def options = [:]
+    Map<String, Object> query = [rm: true, t: "imageName"]
+    Map<String, Object> options = [:]
 
     given:
     task.buildContext = inputStream
@@ -171,8 +171,8 @@ class DockerBuildTaskSpec extends Specification {
 
   def "delegates to dockerClient with buildContext and buildParams (with logs)"() {
     def inputStream = new FileInputStream(File.createTempFile("docker", "test"))
-    def query = [rm: true, t: "imageName", dockerfile: './custom.Dockerfile']
-    def options = [:]
+    Map<String, Object> query = [rm: true, t: "imageName", dockerfile: './custom.Dockerfile']
+    Map<String, Object> options = [:]
 
     given:
     task.buildContext = inputStream
@@ -192,7 +192,7 @@ class DockerBuildTaskSpec extends Specification {
 
   def "normalizedImageName should match [a-z0-9-_.]"() {
     expect:
-    task.getNormalizedImageName() ==~ "[a-z0-9-_\\.]+"
+    task.getNormalizedImageName() ==~ "[a-z0-9-_.]+"
   }
 
   def parentDir(URL resource) {

@@ -1,9 +1,9 @@
 package de.gesellix.gradle.docker.tasks
 
 import de.gesellix.docker.client.DockerClient
+import de.gesellix.docker.client.DockerClientImpl
 import de.gesellix.docker.client.authentication.AuthConfig
-import de.gesellix.gradle.docker.DockerPluginExtension
-import org.gradle.api.Project
+import de.gesellix.docker.engine.DockerEnv
 import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.Specification
 
@@ -30,15 +30,15 @@ class GenericDockerTaskSpec extends Specification {
 
   def "delegates to dockerClient with default dockerHost"() {
     when:
-    def dockerClient = task.dockerClient
+    DockerClientImpl dockerClient = task.dockerClient
 
     then:
-    dockerClient.env.dockerHost == new DockerPluginExtension(task.project as Project).dockerHost ?: 'http://127.0.0.1:2375'
+    dockerClient.env.dockerHost == DockerEnv.dockerHostOrDefault
   }
 
   def "delegates to dockerClient with configured dockerHost"() {
     when:
-    task.dockerHost = "http://example.org:4243"
+    task.dockerHost.set("http://example.org:4243")
     def dockerClient = task.dockerClient
 
     then:
@@ -47,7 +47,7 @@ class GenericDockerTaskSpec extends Specification {
 
   def "delegates to dockerClient with configured certPath"() {
     when:
-    task.certPath = "/path/to/certs"
+    task.certPath.set("/path/to/certs")
     def dockerClient = task.dockerClient
 
     then:
@@ -59,7 +59,7 @@ class GenericDockerTaskSpec extends Specification {
     task.authConfigPlain = [identitytoken: "foo"]
 
     then:
-    task.getAuthConfig() == "eyJpZGVudGl0eXRva2VuIjoiZm9vIn0="
+    task.getEncodedAuthConfig() == "eyJpZGVudGl0eXRva2VuIjoiZm9vIn0="
   }
 
   def "getAuthConfig with plain AuthConfig"() {
@@ -67,7 +67,7 @@ class GenericDockerTaskSpec extends Specification {
     task.authConfigPlain = new AuthConfig(identitytoken: "foo")
 
     then:
-    task.getAuthConfig() == "eyJpZGVudGl0eXRva2VuIjoiZm9vIn0="
+    task.getEncodedAuthConfig() == "eyJpZGVudGl0eXRva2VuIjoiZm9vIn0="
   }
 
   def "getAuthConfig with encoded AuthConfig"() {
@@ -75,15 +75,14 @@ class GenericDockerTaskSpec extends Specification {
     task.authConfigEncoded = "--auth.base64--"
 
     then:
-    task.getAuthConfig() == "--auth.base64--"
+    thrown(UnsupportedOperationException)
   }
 
   def "getAuthConfig without AuthConfig"() {
     when:
     task.authConfigPlain = null
-    task.authConfigEncoded = null
 
     then:
-    task.getAuthConfig() == ''
+    task.getEncodedAuthConfig() == ''
   }
 }

@@ -1,35 +1,71 @@
 package de.gesellix.gradle.docker.tasks
 
 import de.gesellix.docker.client.DockerClientException
+import org.gradle.api.model.ObjectFactory
+import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.TaskAction
 
+import javax.inject.Inject
+
 class DockerDisposeContainerTask extends GenericDockerTask {
 
   @Input
-  def containerId
-  @Input
-  @Optional
-  def rmiParentImage = false
-  @Input
-  @Optional
-  Boolean removeVolumes = false
+  Property<String> containerId
 
-  DockerDisposeContainerTask() {
+  /**
+   * @deprecated This setter will be removed, please use the Property<> instead.
+   * @see #getContainerId()
+   */
+  @Deprecated
+  void setContainerId(String containerId) {
+    this.containerId.set(containerId)
+  }
+
+  @Input
+  @Optional
+  Property<Boolean> rmiParentImage
+
+  /**
+   * @deprecated This setter will be removed, please use the Property<> instead.
+   * @see #getRmiParentImage()
+   */
+  @Deprecated
+  void setRmiParentImage(boolean rmiParentImage) {
+    this.rmiParentImage.set(rmiParentImage)
+  }
+
+  @Input
+  @Optional
+  Property<Boolean> removeVolumes
+
+  /**
+   * @deprecated This setter will be removed, please use the Property<> instead.
+   * @see #getRemoveVolumes()
+   */
+  @Deprecated
+  void setRemoveVolumes(boolean removeVolumes) {
+    this.removeVolumes.set(removeVolumes)
+  }
+
+  @Inject
+  DockerDisposeContainerTask(ObjectFactory objectFactory) {
+    super(objectFactory)
     description = "Stops and removes a container and optionally its parent image"
-    group = "Docker"
+
+    containerId = objectFactory.property(String)
+    rmiParentImage = objectFactory.property(Boolean)
+    rmiParentImage.convention(false)
+    removeVolumes = objectFactory.property(Boolean)
+    removeVolumes.convention(false)
   }
 
   @TaskAction
   def dispose() {
     logger.info "docker dispose"
 
-    if (getRemoveVolumes() == null) {
-      setRemoveVolumes(false)
-    }
-
-    def containerId = getContainerId()
+    String containerId = getContainerId().get()
     def containerDetails
     try {
       containerDetails = getDockerClient().inspectContainer(containerId)
@@ -45,8 +81,8 @@ class DockerDisposeContainerTask extends GenericDockerTask {
     }
     getDockerClient().stop(containerId)
     getDockerClient().wait(containerId)
-    getDockerClient().rm(containerId, ["v": getRemoveVolumes() ? 1 : 0])
-    if (getRmiParentImage()) {
+    getDockerClient().rm(containerId, ["v": getRemoveVolumes().getOrElse(false) ? 1 : 0])
+    if (getRmiParentImage().getOrElse(false)) {
       getDockerClient().rmi(containerDetails.content.Image as String)
     }
   }

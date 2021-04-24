@@ -1,52 +1,121 @@
 package de.gesellix.gradle.docker.tasks
 
+import de.gesellix.docker.client.authentication.AuthConfig
 import org.gradle.api.Task
+import org.gradle.api.file.DirectoryProperty
+import org.gradle.api.model.ObjectFactory
+import org.gradle.api.provider.MapProperty
+import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.TaskAction
 
+import javax.inject.Inject
+
 class DockerPublishTask extends GenericDockerTask {
-
-  def buildContextDirectory
-
-  @Input
-  @Optional
-  def buildContext
 
   @InputDirectory
   @Optional
-  File getBuildContextDirectory() {
-    buildContextDirectory ? project.file(this.buildContextDirectory) : null
+  DirectoryProperty buildContextDirectory
+
+  /**
+   * @deprecated This setter will be removed, please use the Property<> instead.
+   * @see #getBuildContextDirectory()
+   */
+  @Deprecated
+  void setBuildContextDirectory(File buildContextDirectory) {
+    this.buildContextDirectory.set(buildContextDirectory)
+  }
+
+  /**
+   * @deprecated This setter will be removed, please use the Property<> instead.
+   * @see #getBuildContextDirectory()
+   */
+  @Deprecated
+  void setBuildContextDirectory(String buildContextDirectory) {
+    this.buildContextDirectory.set(project.file(buildContextDirectory))
   }
 
   @Input
-  def imageName
+  @Optional
+  Property<InputStream> buildContext
+
+  /**
+   * @deprecated This setter will be removed, please use the Property<> instead.
+   * @see #getBuildContext()
+   */
+  @Deprecated
+  void setBuildContext(InputStream buildContext) {
+    this.buildContext.set(buildContext)
+  }
+
+  @Input
+  Property<String> imageName
+
+  /**
+   * @deprecated This setter will be removed, please use the Property<> instead.
+   * @see #getImageName()
+   */
+  @Deprecated
+  void setImageName(String imageName) {
+    this.imageName.set(imageName)
+  }
 
   @Input
   @Optional
-  def imageTag
+  Property<String> imageTag
+
+  /**
+   * @deprecated This setter will be removed, please use the Property<> instead.
+   * @see #getImageTag()
+   */
+  @Deprecated
+  void setImageTag(String imageTag) {
+    this.imageTag.set(imageTag)
+  }
+
+  @Input
+  @Optional
+  MapProperty<String, String> targetRegistries
+
+  /**
+   * @deprecated This setter will be removed, please use the Property<> instead.
+   * @see #getTargetRegistries()
+   */
+  @Deprecated
+  void setTargetRegistries(Map<String, String> targetRegistries) {
+    this.targetRegistries.set(targetRegistries)
+  }
+
+  private Property<String> imageNameWithTag
 
   @Internal
-  String imageNameWithTag
+  Property<String> getImageNameWithTag() {
+    return imageNameWithTag
+  }
 
-  @Input
-  @Optional
-  def targetRegistries
-
-  DockerPublishTask() {
+  @Inject
+  DockerPublishTask(ObjectFactory objectFactory) {
+    super(objectFactory)
     description = "builds and publishes an image"
-    group = "Docker"
+
+    buildContextDirectory = objectFactory.directoryProperty()
+    buildContext = objectFactory.property(InputStream)
+    imageName = objectFactory.property(String)
+    imageTag = objectFactory.property(String)
+    imageNameWithTag = objectFactory.property(String)
+    targetRegistries = objectFactory.mapProperty(String, String)
   }
 
   @Override
   Task configure(Closure closure) {
     def configuredTask = super.configure(closure)
 
-    imageNameWithTag = "${configuredTask.getImageName()}"
-    if (configuredTask.getImageTag()) {
-      imageNameWithTag += ":${configuredTask.getImageTag()}"
+    imageNameWithTag.set("${configuredTask.getImageName().get()}")
+    if (configuredTask.getImageTag().isPresent()) {
+      imageNameWithTag.set("${configuredTask.getImageName().get()}:${configuredTask.getImageTag().get()}")
     }
 
     def buildImageTask = configureBuildImageTask()
@@ -57,11 +126,11 @@ class DockerPublishTask extends GenericDockerTask {
     }
     configuredTask.dependsOn buildImageTask
 
-    if ((getTargetRegistries() ?: [:]).isEmpty()) {
+    if ((getTargetRegistries().getOrElse([:])).isEmpty()) {
       logger.warn("No targetRegistries configured, image won't be pushed to any registry.")
     }
-    getTargetRegistries().each { registryName, targetRegistry ->
-      def pushTask = createUniquePushTask(registryName, targetRegistry, imageNameWithTag, getAuthConfig())
+    getTargetRegistries().get().each { String registryName, String targetRegistry ->
+      def pushTask = createUniquePushTask(registryName, targetRegistry, imageNameWithTag, authConfig)
       pushTask.dependsOn buildImageTask
       configuredTask.dependsOn pushTask
     }
@@ -69,24 +138,25 @@ class DockerPublishTask extends GenericDockerTask {
     return configuredTask
   }
 
-  def createUniquePushTask(registryName, targetRegistry, imageNameWithTag, authConfig) {
-    def pushTask = createUniqueTask(DockerPushTask, "pushImageTo${registryName.capitalize()}For${this.name.capitalize()}").configure {
-      repositoryName = imageNameWithTag
-      registry = targetRegistry
-      authConfigEncoded = authConfig
+  Task createUniquePushTask(String registryName, String targetRegistry, Property<String> imageNameWithTag, Property<AuthConfig> authConfig) {
+    def pushTask = createUniqueTask(DockerPushTask, "pushImageTo${registryName.capitalize()}For${this.name.capitalize()}").configure { DockerPushTask t ->
+      t.repositoryName.set(imageNameWithTag)
+      t.registry.set(targetRegistry)
+      t.authConfig = authConfig
     }
-    def rmiTask = createUniqueTask(DockerRmiTask, "rmi${registryName.capitalize()}ImageFor${this.name.capitalize()}").configure {
-      imageId = "${targetRegistry}/${imageNameWithTag}"
+    def rmiTask = createUniqueTask(DockerRmiTask, "rmi${registryName.capitalize()}ImageFor${this.name.capitalize()}").configure { DockerRmiTask t ->
+      t.imageId.set("${targetRegistry}/${imageNameWithTag.get()}")
     }
     pushTask.finalizedBy rmiTask
+    return pushTask
   }
 
   private def configureBuildImageTask() {
     def buildImageTaskName = "buildImageFor${this.name.capitalize()}"
-    def buildImageTask = createUniqueTask(DockerBuildTask, buildImageTaskName).configure {
-      imageName = imageNameWithTag
-      buildContext = this.getBuildContext()
-      buildContextDirectory = this.getBuildContextDirectory()
+    def buildImageTask = createUniqueTask(DockerBuildTask, buildImageTaskName).configure { DockerBuildTask t ->
+      t.imageName.set(this.getImageNameWithTag())
+      t.buildContext.set(this.getBuildContext())
+      t.buildContextDirectory.set(this.getBuildContextDirectory())
     }
     return buildImageTask
   }

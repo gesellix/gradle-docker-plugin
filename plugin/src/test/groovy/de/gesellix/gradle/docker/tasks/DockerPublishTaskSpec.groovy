@@ -30,7 +30,7 @@ class DockerPublishTaskSpec extends Specification {
     and:
     project.tasks.findByName("buildImageForDockerPublish") instanceof DockerBuildTask
     and:
-    project.tasks.findByName("buildImageForDockerPublish").imageName == "busybox"
+    project.tasks.findByName("buildImageForDockerPublish").imageName.get() == "busybox"
     and:
     project.tasks.findByName("dockerPublish").getDependsOn().contains project.tasks.findByName("buildImageForDockerPublish")
   }

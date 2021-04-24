@@ -38,7 +38,7 @@ class DockerContainerTaskFunctionalTest extends Specification {
             }
 
             docker {
-                dockerHost = 'tcp://localhost:${testServerAddress.port}'
+                dockerHost = "tcp://localhost:${testServerAddress.port}".toString()
             }
         """
     dockerEngineHttpHandler.expectedRequests = []

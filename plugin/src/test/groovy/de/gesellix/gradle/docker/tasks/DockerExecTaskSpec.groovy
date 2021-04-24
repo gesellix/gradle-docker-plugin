@@ -17,7 +17,7 @@ class DockerExecTaskSpec extends Specification {
     task.dockerClient = dockerClient
   }
 
-  def "delegates plain exec command via 'sh  -c' to dockerClient and saves result"() {
+  def "delegates plain exec command via 'sh -c' to dockerClient and saves result"() {
     given:
     def containerId = 'foo'
     task.containerId = containerId

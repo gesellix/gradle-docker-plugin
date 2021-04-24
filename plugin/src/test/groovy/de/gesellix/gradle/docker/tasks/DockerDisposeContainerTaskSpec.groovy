@@ -88,7 +88,7 @@ class DockerDisposeContainerTaskSpec extends Specification {
     task.dispose()
 
     then:
-    task.removeVolumes == false
+    task.removeVolumes.get() == false
     1 * dockerClient.rm("4712", [v: 0])
   }
 }

@@ -1,16 +1,20 @@
 package de.gesellix.gradle.docker.tasks
 
+import org.gradle.api.model.ObjectFactory
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.TaskAction
+
+import javax.inject.Inject
 
 class DockerImagesTask extends GenericDockerTask {
 
   @Internal
   def images
 
-  DockerImagesTask() {
+  @Inject
+  DockerImagesTask(ObjectFactory objectFactory) {
+    super(objectFactory)
     description = "List images"
-    group = "Docker"
   }
 
   @TaskAction

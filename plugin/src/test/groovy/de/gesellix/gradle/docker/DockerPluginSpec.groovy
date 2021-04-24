@@ -1,5 +1,6 @@
 package de.gesellix.gradle.docker
 
+import de.gesellix.docker.client.authentication.AuthConfig
 import de.gesellix.gradle.docker.tasks.TestTask
 import org.gradle.api.Project
 import org.gradle.testfixtures.ProjectBuilder
@@ -25,17 +26,15 @@ class DockerPluginSpec extends Specification {
     project.apply plugin: 'de.gesellix.docker'
     project.docker.dockerHost = "http://example.org:2375"
     project.docker.certPath = 'foo'
-    project.docker.authConfigPlain = ["plain auth"]
-    project.docker.authConfigEncoded = "encoded auth"
+    project.docker.authConfig = new AuthConfig(username: "plain example")
 
     when:
     def task = project.tasks.create("testTask", TestTask)
 
     then:
-    task.dockerHost == "http://example.org:2375"
-    task.certPath == project.file('foo').absolutePath
-    task.authConfigPlain == ["plain auth"]
-    task.authConfigEncoded == "encoded auth"
+    task.dockerHost.get() =="http://example.org:2375"
+    task.certPath.get() == project.file('foo').absolutePath
+    task.authConfig.get().username == "plain example"
   }
 
   def "returns the absolute certification path"() {

@@ -2,10 +2,13 @@ package de.gesellix.gradle.docker.tasks
 
 import de.gesellix.gradle.docker.models.DockerContainer
 import org.gradle.api.GradleException
+import org.gradle.api.model.ObjectFactory
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.TaskAction
+
+import javax.inject.Inject
 
 class DockerContainerTask extends GenericDockerTask {
 
@@ -120,9 +123,10 @@ class DockerContainerTask extends GenericDockerTask {
   @Internal
   DockerContainer container
 
-  DockerContainerTask() {
+  @Inject
+  DockerContainerTask(ObjectFactory objectFactory) {
+    super(objectFactory)
     description = "Manage the lifecycle of docker container"
-    group = "Docker"
 
     outputs.upToDateWhen { t -> t.checkIfUpToDate() }
   }
@@ -330,7 +334,7 @@ class DockerContainerTask extends GenericDockerTask {
       return false
     }
 
-    String containerHost = new URI(dockerHost).host
+    String containerHost = new URI(dockerHost.get()).host
 
     logger.info "Running Health checks on host ${containerHost}"
 

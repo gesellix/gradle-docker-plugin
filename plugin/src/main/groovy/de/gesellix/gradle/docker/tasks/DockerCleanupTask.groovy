@@ -1,8 +1,11 @@
 package de.gesellix.gradle.docker.tasks
 
+import org.gradle.api.model.ObjectFactory
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.TaskAction
+
+import javax.inject.Inject
 
 class DockerCleanupTask extends GenericDockerTask {
 
@@ -14,9 +17,10 @@ class DockerCleanupTask extends GenericDockerTask {
   @Optional
   def shouldKeepVolume = { volume -> true }
 
-  DockerCleanupTask() {
+  @Inject
+  DockerCleanupTask(ObjectFactory objectFactory) {
+    super(objectFactory)
     description = "Removes stopped containers, dangling images, and dangling volumes"
-    group = "Docker"
   }
 
   @TaskAction
