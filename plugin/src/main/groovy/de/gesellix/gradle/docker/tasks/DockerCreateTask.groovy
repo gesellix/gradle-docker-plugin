@@ -1,81 +1,166 @@
 package de.gesellix.gradle.docker.tasks
 
 import de.gesellix.docker.client.EnvFileParser
+import org.gradle.api.model.ObjectFactory
+import org.gradle.api.provider.ListProperty
+import org.gradle.api.provider.MapProperty
+import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.TaskAction
 
+import javax.inject.Inject
+
 class DockerCreateTask extends GenericDockerTask {
 
   @Input
-  def imageName
+  Property<String> imageName
+
+  /**
+   * @deprecated This setter will be removed, please use the Property<> instead.
+   * @see #getImageName()
+   */
+  @Deprecated
+  void setImageName(String imageName) {
+    this.imageName.set(imageName)
+  }
+
   @Input
   @Optional
-  def tag = ""
+  Property<String> tag
+
+  /**
+   * @deprecated This setter will be removed, please use the Property<> instead.
+   * @see #getTag()
+   */
+  @Deprecated
+  void setTag(String tag) {
+    this.tag.set(tag)
+  }
+
   @Input
   @Optional
-  def containerName = ""
+  Property<String> containerName
+
+  /**
+   * @deprecated This setter will be removed, please use the Property<> instead.
+   * @see #getContainerName()
+   */
+  @Deprecated
+  void setContainerName(String containerName) {
+    this.containerName.set(containerName)
+  }
+
   /**
    * Accepts a list of port mappings with the following pattern: `hostPort:containerPort`.
    * More sophisticated patterns are only supported via plain containerConfig.
    */
   @Input
   @Optional
-  def ports = []
+  ListProperty<String> ports
+
+  /**
+   * @deprecated This setter will be removed, please use the Property<> instead.
+   * @see #getPorts()
+   */
+  @Deprecated
+  void setPorts(List<String> ports) {
+    this.ports.set(ports)
+  }
+
   @Input
   @Optional
-  def containerConfiguration = [:]
+  MapProperty<String, Object> containerConfiguration
+
+  /**
+   * @deprecated This setter will be removed, please use the Property<> instead.
+   * @see #getContainerConfiguration()
+   */
+  @Deprecated
+  void setContainerConfiguration(Map<String, Object> containerConfiguration) {
+    this.containerConfiguration.set(containerConfiguration)
+  }
+
   @Input
   @Optional
-  def env = []
+  ListProperty<String> env
+
+  /**
+   * @deprecated This setter will be removed, please use the Property<> instead.
+   * @see #getEnv()
+   */
+  @Deprecated
+  void setEnv(List<String> env) {
+    this.env.set(env)
+  }
+
   @Input
   @Optional
-  def environmentFiles = []
+  ListProperty<File> environmentFiles
+
+  /**
+   * @deprecated This setter will be removed, please use the Property<> instead.
+   * @see #getEnvironmentFiles()
+   */
+  @Deprecated
+  void setEnvironmentFiles(List<File> environmentFiles) {
+    this.environmentFiles.set(environmentFiles)
+  }
 
   @Internal
-  def envFileParser = new EnvFileParser()
+  EnvFileParser envFileParser = new EnvFileParser()
 
   @Internal
   def result
 
-  DockerCreateTask() {
+  @Inject
+  DockerCreateTask(ObjectFactory objectFactory) {
+    super(objectFactory)
     description = "Create a new container"
-    group = "Docker"
+
+    imageName = objectFactory.property(String)
+    tag = objectFactory.property(String)
+    tag.convention("")
+    containerName = objectFactory.property(String)
+    containerName.convention("")
+    ports = objectFactory.listProperty(String)
+    containerConfiguration = objectFactory.mapProperty(String, Object)
+    env = objectFactory.listProperty(String)
+    environmentFiles = objectFactory.listProperty(File)
   }
 
   @TaskAction
   def create() {
     logger.info "docker create"
-    def containerConfig = getActualContainerConfig()
-    result = getDockerClient().createContainer(containerConfig, [name: getContainerName()])
+    Map<String, ?> containerConfig = getActualContainerConfig()
+    result = getDockerClient().createContainer(containerConfig, [name: getContainerName().getOrElse("")])
     return result
   }
 
   @Internal
-  def getActualContainerConfig() {
-
-    def containerConfig = getContainerConfiguration() ?: [:]
-    containerConfig.Image = getImageName() + (getTag() ? ":${getTag()}" : "")
+  Map<String, ?> getActualContainerConfig() {
+    Map<String, Object> containerConfig = new HashMap<>(getContainerConfiguration().getOrElse([:]))
+    containerConfig.Image = "${getImageName().get()}${getTag().get() ? ":${getTag().get()}" : ""}"
     containerConfig.HostConfig = containerConfig.HostConfig ?: [:]
-    if (getEnvironmentFiles()) {
+    if (getEnvironmentFiles().get()) {
       containerConfig.Env = containerConfig.Env ?: []
-      getEnvironmentFiles().each { File file ->
+      getEnvironmentFiles().get().each { File file ->
         def parsedEnv = envFileParser.parse(file)
         containerConfig.Env.addAll(parsedEnv)
       }
       logger.info "effective container.env: ${containerConfig.Env}"
     }
-    if (getEnv()) {
+    if (getEnv().get()) {
       containerConfig.Env = containerConfig.Env ?: []
-      getEnv().each {
+      getEnv().get().each {
         containerConfig.Env += it
       }
     }
-    if (getPorts()) {
+    if (getPorts().get()) {
       containerConfig.ExposedPorts = containerConfig.ExposedPorts ?: [:]
       containerConfig.HostConfig.PortBindings = containerConfig.HostConfig.PortBindings ?: [:]
-      getPorts().each { String portMapping ->
+      getPorts().get().each { String portMapping ->
         // format: ip:hostPort:containerPort | ip::containerPort | hostPort:containerPort | containerPort
         def splittedPortMapping = portMapping.split(":")
         if (splittedPortMapping.size() != 2) {

@@ -18,7 +18,7 @@ class DockerSwarmInitTaskSpec extends Specification {
 
   def "delegates to dockerClient and saves result"() {
     given:
-    task.config = [
+    task.swarmconfig = [
         "ListenAddr": "0.0.0.0:80"
     ]
 

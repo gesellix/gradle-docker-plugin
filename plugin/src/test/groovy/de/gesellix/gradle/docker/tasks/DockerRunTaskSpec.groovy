@@ -59,7 +59,7 @@ class DockerRunTaskSpec extends Specification {
     given:
     task.imageName = "anImage"
     task.containerConfiguration = [
-        "Env"       : null,
+//        "Env"       : null,
         "HostConfig": ["PublishAllPorts": false]
     ]
     task.environmentFiles = [new File(envfile.toURI())]

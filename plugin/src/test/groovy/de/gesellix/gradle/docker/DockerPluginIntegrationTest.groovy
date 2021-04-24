@@ -3,7 +3,6 @@ package de.gesellix.gradle.docker
 import de.gesellix.docker.client.DockerClient
 import de.gesellix.docker.client.DockerClientImpl
 import de.gesellix.docker.client.LocalDocker
-import de.gesellix.docker.client.authentication.AuthConfig
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
 import org.junit.Rule
@@ -105,12 +104,7 @@ class DockerPluginIntegrationTest extends Specification {
 
   def "test push"() {
     given:
-    def authDetails = new AuthConfig("username": "gesellix",
-                                     "password": "-yet-another-password-",
-                                     "email": "tobias@gesellix.de",
-                                     "serveraddress": "https://index.docker.io/v1/")
     def dockerClient = new DockerClientImpl()
-    def authConfig = dockerClient.encodeAuthConfig(authDetails)
     pull(dockerClient, "gesellix/testimage", "os-linux")
     tag(dockerClient, "gesellix/testimage:os-linux", "gesellix/example")
 
@@ -118,8 +112,11 @@ class DockerPluginIntegrationTest extends Specification {
           task dockerPush(type: de.gesellix.gradle.docker.tasks.DockerPushTask) {
               repositoryName = 'gesellix/example'
 
-              //authConfigPlain = authDetails
-              authConfigEncoded = '$authConfig'
+              authConfig.set(new de.gesellix.docker.client.authentication.AuthConfig(
+                    "username": "gesellix",
+                    "password": "-yet-another-password-",
+                    "email": "tobias@gesellix.de",
+                    "serveraddress": "https://index.docker.io/v1/"))
 
               // don't access the official registry,
               // so that we don't try (and fail) to authenticate for each test execution.
@@ -574,7 +571,7 @@ class DockerPluginIntegrationTest extends Specification {
     given:
     buildFile << """
           task testTask(type: de.gesellix.gradle.docker.tasks.GenericDockerTask) {
-              certPath = "\${System.getProperty('user.home')}/.docker/machine/machines/default"
+              certPath.set("\${System.getProperty('user.home')}/.docker/machine/machines/default".toString())
               doFirst {
                   def version = getDockerClient().version()
                   ext.version = version

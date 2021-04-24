@@ -3,6 +3,10 @@ package de.gesellix.gradle.docker.tasks
 import de.gesellix.docker.client.authentication.AuthConfig
 import de.gesellix.docker.client.image.BuildConfig
 import de.gesellix.gradle.docker.worker.BuildcontextArchiver
+import org.gradle.api.file.DirectoryProperty
+import org.gradle.api.model.ObjectFactory
+import org.gradle.api.provider.MapProperty
+import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.Internal
@@ -14,60 +18,138 @@ import javax.inject.Inject
 
 class DockerBuildTask extends GenericDockerTask {
 
-  def buildContextDirectory
-
   @Input
   @Optional
-  def imageName
+  Property<String> imageName
 
-  @Input
-  @Optional
-  InputStream buildContext
+  /**
+   * @deprecated This setter will be removed, please use the Property<> instead.
+   * @see #getImageName()
+   */
+  @Deprecated
+  void setImageName(String imageName) {
+    this.imageName.set(imageName)
+  }
 
   @InputDirectory
   @Optional
-  File getBuildContextDirectory() {
-    buildContextDirectory ? project.file(this.buildContextDirectory) : null
+  DirectoryProperty buildContextDirectory
+
+  /**
+   * @deprecated This setter will be removed, please use the Property<> instead.
+   * @see #getBuildContextDirectory()
+   */
+  @Deprecated
+  void setBuildContextDirectory(File buildContextDirectory) {
+    this.buildContextDirectory.set(buildContextDirectory)
+  }
+
+  /**
+   * @deprecated This setter will be removed, please use the Property<> instead.
+   * @see #getBuildContextDirectory()
+   */
+  @Deprecated
+  void setBuildContextDirectory(String buildContextDirectory) {
+    this.buildContextDirectory.set(project.file(buildContextDirectory))
   }
 
   @Input
   @Optional
-  def buildParams
+  Property<InputStream> buildContext
+
+  /**
+   * @deprecated This setter will be removed, please use the Property<> instead.
+   * @see #getBuildContext()
+   */
+  @Deprecated
+  void setBuildContext(InputStream buildContext) {
+    this.buildContext.set(buildContext)
+  }
 
   @Input
   @Optional
-  def buildOptions
+  MapProperty<String, Object> buildParams
+
+  /**
+   * @deprecated This setter will be removed, please use the Property<> instead.
+   * @see #getBuildParams()
+   */
+  @Deprecated
+  void setBuildParams(Map<String, Object> buildParams) {
+    this.buildParams.set(buildParams)
+  }
+
+  @Input
+  @Optional
+  MapProperty<String, Object> buildOptions
+
+  /**
+   * @deprecated This setter will be removed, please use the Property<> instead.
+   * @see #getBuildOptions()
+   */
+  @Deprecated
+  void setBuildOptions(Map<String, Object> buildOptions) {
+    this.buildOptions.set(buildOptions)
+  }
 
   /**
    * A map of registry URL name to AuthConfig.
    *
-   * Only the registry domain name (and port if not the default 443) are required. However, for legacy reasons, the Docker Hub registry must be specified with both a https:// prefix and a /v1/ suffix even though Docker will prefer to use the v2 registry API.
+   * Only the registry domain name (and port if not the default 443) are required.
+   * However, for legacy reasons, the Docker Hub registry must be specified with both a https:// prefix and a /v1/ suffix even though Docker will prefer to use the v2 registry API.
    *
    * See https://docs.docker.com/engine/api/v1.40/#operation/ImageBuild for reference.
    */
   @Input
   @Optional
-  Map<String, AuthConfig> authConfigs = [:]
+  MapProperty<String, AuthConfig> authConfigs
+
+  /**
+   * @deprecated This setter will be removed, please use the Property<> instead.
+   * @see #getAuthConfigs()
+   */
+  @Deprecated
+  void setAuthConfigs(Map<String, AuthConfig> authConfigs) {
+    this.authConfigs.set(authConfigs)
+  }
 
   @Input
   @Optional
-  def enableBuildLog = false
+  Property<Boolean> enableBuildLog
+
+  /**
+   * @deprecated This setter will be removed, please use the Property<> instead.
+   * @see #getEnableBuildLog()
+   */
+  @Deprecated
+  void setEnableBuildLog(boolean enableBuildLog) {
+    this.enableBuildLog.set(enableBuildLog)
+  }
 
   @Internal
   File targetFile
 
   @Internal
-  def imageId
+  String imageId
 
   @Internal
   WorkerExecutor workerExecutor
 
   @Inject
-  DockerBuildTask(WorkerExecutor workerExecutor) {
+  DockerBuildTask(ObjectFactory objectFactory, WorkerExecutor workerExecutor) {
+    super(objectFactory)
     this.workerExecutor = workerExecutor
 
     description = "Build an image from a Dockerfile"
-    group = "Docker"
+
+    imageName = objectFactory.property(String)
+    buildContextDirectory = objectFactory.directoryProperty()
+    buildContext = objectFactory.property(InputStream)
+    buildParams = objectFactory.mapProperty(String, Object)
+    buildOptions = objectFactory.mapProperty(String, Object)
+    authConfigs = objectFactory.mapProperty(String, AuthConfig)
+    enableBuildLog = objectFactory.property(Boolean)
+    enableBuildLog.convention(false)
 
 //    addValidator(new TaskValidator() {
 //      @Override
@@ -86,40 +168,43 @@ class DockerBuildTask extends GenericDockerTask {
   def build() {
     logger.info "docker build"
 
-    if (getBuildContextDirectory()) {
+    InputStream actualBuildContext
+    if (getBuildContextDirectory().isPresent()) {
       // only one of buildContext and buildContextDirectory shall be provided
-      assert !getBuildContext()
-      buildContext = createBuildContextFromDirectory()
+      assert !getBuildContext().isPresent()
+      actualBuildContext = createBuildContextFromDirectory()
     }
-
-    // at this point we need the buildContext
-    assert getBuildContext()
+    else {
+      actualBuildContext = getBuildContext().get()
+    }
+    // here we need the buildContext
+    assert actualBuildContext
 
     // Add tag to build params
-    def buildParams = getBuildParams() ?: [rm: true]
-    if (getImageName()) {
+    def buildParams = new HashMap(getBuildParams().getOrElse([rm: true]))
+    if (getImageName().isPresent()) {
       buildParams.putIfAbsent("rm", true)
       if (buildParams.t) {
         logger.warn "Overriding build parameter \"t\" with imageName as both were given"
       }
-      buildParams.t = getImageName() as String
+      buildParams.t = getImageName().get()
     }
 
-    if (getAuthConfig() != '') {
+    if (getAuthConfig().isPresent()) {
       logger.info("Docker Build requires a Map of AuthConfig by registry name. The configured 'authConfig' will be ignored." +
                   " Please use the 'authConfigs' (plural form) task parameter if you need to override the DockerClient's default behaviour.")
     }
-    Map<String, Object> buildOptions = getBuildOptions() ?: [:] as Map
-    if (!buildOptions['EncodedRegistryConfig'] && getAuthConfigs() != [:]) {
-      buildOptions['EncodedRegistryConfig'] = getDockerClient().encodeAuthConfigs(getAuthConfigs())
+    Map<String, Object> buildOptions = new HashMap<>(getBuildOptions().get())
+    if (!buildOptions['EncodedRegistryConfig'] && getAuthConfigs().get() != [:]) {
+      buildOptions['EncodedRegistryConfig'] = getDockerClient().encodeAuthConfigs(getAuthConfigs().get())
     }
 
     // TODO this one needs some beautification
-    if (getEnableBuildLog()) {
-      imageId = getDockerClient().buildWithLogs(getBuildContext(), new BuildConfig(query: buildParams, options: buildOptions)).imageId
+    if (getEnableBuildLog().getOrElse(false)) {
+      imageId = getDockerClient().buildWithLogs(actualBuildContext, new BuildConfig(query: buildParams, options: buildOptions)).imageId
     }
     else {
-      imageId = getDockerClient().build(getBuildContext(), new BuildConfig(query: buildParams, options: buildOptions)).imageId
+      imageId = getDockerClient().build(actualBuildContext, new BuildConfig(query: buildParams, options: buildOptions)).imageId
     }
 
     return imageId
@@ -127,10 +212,10 @@ class DockerBuildTask extends GenericDockerTask {
 
   @Internal
   def getNormalizedImageName() {
-    if (!getImageName()) {
+    if (!getImageName().isPresent()) {
       return UUID.randomUUID().toString()
     }
-    return getImageName().replaceAll("\\W", "_")
+    return getImageName().get().replaceAll("\\W", "_")
   }
 
   InputStream createBuildContextFromDirectory() {
