@@ -1,3 +1,16 @@
+buildscript {
+  repositories {
+    mavenLocal()
+    mavenCentral()
+  }
+
+  dependencies {
+    classpath("gradle-plugin-variants-mcve:plugin:local")
+  }
+}
+
+apply(plugin = "de.gesellix.gradle.plugin.variants.greeting")
+
 plugins {
   id("maven-publish")
   id("com.github.ben-manes.versions") version "0.38.0"

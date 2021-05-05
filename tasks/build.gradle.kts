@@ -3,12 +3,11 @@ import java.util.*
 
 plugins {
   id("groovy")
-  id("java-gradle-plugin")
+  id("java-library")
   id("maven-publish")
   id("signing")
   id("com.github.ben-manes.versions")
   id("net.ossindex.audit")
-  id("com.gradle.plugin-publish")
   // TODO Validation fails for the java-gradle-plugin "PluginMaven" publication
   // Validation is disabled in the ci/cd workflows (`-x validatePomFileForPluginMavenPublication`)
   id("io.freefair.maven-central.validate-poms")
@@ -23,9 +22,11 @@ dependencies {
   api(localGroovy())
 
   api("de.gesellix:docker-client:2021-04-10T14-34-47")
-  api(project(":tasks"))
 
-  testImplementation("org.spockframework:spock-core:1.3-groovy-2.5")
+  testImplementation("org.spockframework:spock-core:2.0-M5-groovy-3.0")
+  testImplementation("org.junit.jupiter:junit-jupiter-api:5.7.1")
+  testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.7.1")
+  testRuntimeOnly("org.junit.platform:junit-platform-launcher:1.7.1")
   testImplementation("cglib:cglib-nodep:3.3.0")
 
   // see https://docs.gradle.org/current/userguide/test_kit.html
@@ -37,41 +38,9 @@ java {
   targetCompatibility = JavaVersion.VERSION_1_8
 }
 
-val isSnapshot = project.version == "unspecified"
-var artifactVersion = if (!isSnapshot) project.version as String else SimpleDateFormat("yyyy-MM-dd\'T\'HH-mm-ss").format(Date())!!
-artifactVersion = "local"
-project.version = artifactVersion
-val publicationName = "gradleDockerPlugin"
-
-val gradle7 = sourceSets.create("gradle7")
-java {
-  registerFeature(gradle7.name) {
-    usingSourceSet(gradle7)
-    capability(project.group.toString(), project.name, artifactVersion)
-  }
-}
-configurations.configureEach {
-  if (isCanBeConsumed && name.startsWith(gradle7.name)) {
-    attributes {
-      attribute(GradlePluginApiVersion.GRADLE_PLUGIN_API_VERSION_ATTRIBUTE, objects.named("7.0"))
-    }
-  }
-}
-tasks.named<Copy>(gradle7.processResourcesTaskName) {
-  val copyPluginDescriptors = rootSpec.addChild()
-  copyPluginDescriptors.into("META-INF/gradle-plugins")
-  copyPluginDescriptors.from(tasks.pluginDescriptors)
-}
-dependencies {
-  "gradle7CompileOnly"(gradleApi())
-  "gradle7CompileOnly"(localGroovy())
-  "gradle7CompileOnly"("de.gesellix:docker-client:2021-04-10T14-34-47")
-  "gradle7CompileOnly"(project(":tasks"))
-}
-
 tasks {
   withType(Test::class.java) {
-    useJUnit()
+    useJUnitPlatform()
   }
 }
 
@@ -93,6 +62,12 @@ artifacts {
 }
 
 fun findProperty(s: String) = project.findProperty(s) as String?
+
+val isSnapshot = project.version == "unspecified"
+var artifactVersion = if (!isSnapshot) project.version as String else SimpleDateFormat("yyyy-MM-dd\'T\'HH-mm-ss").format(Date())!!
+artifactVersion = "local"
+project.version = artifactVersion
+val publicationName = "gradleDockerTasks"
 publishing {
   repositories {
     maven {
@@ -107,7 +82,7 @@ publishing {
   publications {
     register(publicationName, MavenPublication::class) {
       pom {
-        name.set("gradle-docker-plugin")
+        name.set("gradle-docker-plugin-tasks")
         description.set("A Docker plugin for Gradle")
         url.set("https://github.com/gesellix/gradle-docker-plugin")
         licenses {
@@ -129,7 +104,7 @@ publishing {
           url.set("https://github.com/gesellix/gradle-docker-plugin")
         }
       }
-      artifactId = "gradle-docker-plugin"
+      artifactId = "gradle-docker-plugin-tasks"
       version = artifactVersion
       from(components["java"])
       artifact(sourcesJar.get())
@@ -143,33 +118,4 @@ signing {
   val signingPassword: String? by project
   useInMemoryPgpKeys(signingKey, signingPassword)
   sign(publishing.publications[publicationName])
-}
-
-gradlePlugin {
-  plugins {
-    create(publicationName) {
-      implementationClass = "de.gesellix.gradle.docker.DockerPlugin"
-      id = "de.gesellix.docker"
-    }
-  }
-}
-
-pluginBundle {
-  website = "https://github.com/gesellix/gradle-docker-plugin"
-  vcsUrl = "https://github.com/gesellix/gradle-docker-plugin.git"
-  description = "A Docker plugin for Gradle"
-  tags = listOf("docker", "gradle", "remote api", "plugin")
-
-  (plugins) {
-    publicationName {
-      displayName = "Gradle Docker plugin"
-      version = artifactVersion
-    }
-  }
-
-  mavenCoordinates {
-    groupId = "de.gesellix"
-    artifactId = "gradle-docker-plugin"
-    version = artifactVersion
-  }
 }
