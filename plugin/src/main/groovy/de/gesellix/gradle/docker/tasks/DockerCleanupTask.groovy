@@ -35,8 +35,8 @@ class DockerCleanupTask extends GenericDockerTask {
   }
 
   @TaskAction
-  def cleanup() {
-    logger.info "docker cleanup"
+  void cleanup() {
+    logger.info("docker cleanup")
     def keepContainer = getShouldKeepContainer() ?: { container -> false }
     def keepVolume = getShouldKeepVolume() ?: { volume -> true }
     dockerClient.cleanupStorage keepContainer, keepVolume
