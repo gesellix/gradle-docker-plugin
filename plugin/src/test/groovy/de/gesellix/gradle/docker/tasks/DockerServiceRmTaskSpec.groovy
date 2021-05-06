@@ -27,6 +27,6 @@ class DockerServiceRmTaskSpec extends Specification {
     1 * dockerClient.rmService("a-service") >> [content: "service-result"]
 
     and:
-    task.response == [content: "service-result"]
+    task.response.content == "service-result"
   }
 }

@@ -2,6 +2,8 @@ package de.gesellix.gradle.docker.tasks
 
 import de.gesellix.docker.client.DockerClient
 import de.gesellix.docker.client.DockerClientException
+import de.gesellix.docker.engine.EngineResponse
+import de.gesellix.docker.engine.EngineResponseStatus
 import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.Specification
 
@@ -62,7 +64,7 @@ class DockerDisposeContainerTaskSpec extends Specification {
 
     then:
     1 * dockerClient.inspectContainer("4711") >> {
-      throw new DockerClientException(new IllegalArgumentException("foo"), [status: [code: 404]])
+      throw new DockerClientException(new IllegalArgumentException("foo"), new EngineResponse(status: new EngineResponseStatus(code: 404)))
     }
     then:
     0 * dockerClient._

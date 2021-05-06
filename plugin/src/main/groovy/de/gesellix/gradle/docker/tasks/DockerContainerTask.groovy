@@ -184,7 +184,7 @@ class DockerContainerTask extends GenericDockerTask {
   }
 
   @TaskAction
-  def run() {
+  boolean run() {
     if (!containerName) {
       throw new GradleException("containerName is mandatory")
     }
@@ -336,7 +336,7 @@ class DockerContainerTask extends GenericDockerTask {
 
     String containerHost = new URI(dockerHost.get()).host
 
-    logger.info "Running Health checks on host ${containerHost}"
+    logger.info("Running Health checks on host ${containerHost}")
 
     def current = container.inspect()
 
@@ -375,12 +375,12 @@ class DockerContainerTask extends GenericDockerTask {
       switch (healthCheck.type) {
         case "tcp":
           def address = new InetSocketAddress(host, port)
-          logger.info "HealthCheck/tcp: Connecting ${address}, (timeout ${healthCheck.timeout}, retries ${healthCheck.retries}, interval ${healthCheck.interval})"
+          logger.info("HealthCheck/tcp: Connecting ${address}, (timeout ${healthCheck.timeout}, retries ${healthCheck.retries}, interval ${healthCheck.interval})")
           while (counter < (int) healthCheck.retries) {
             try {
               def socket = new Socket()
               socket.connect(address, (int) healthCheck.timeout)
-              logger.info "HealthCheck/tcp: Container is healthy."
+              logger.info("HealthCheck/tcp: Container is healthy.")
               socket.close()
               return true
             }
@@ -391,14 +391,14 @@ class DockerContainerTask extends GenericDockerTask {
 
             counter = counter + 1
             sleep((int) healthCheck.interval * 1000)
-            logger.info "Attempt #${counter + 1}"
+            logger.info("Attempt #${counter + 1}")
           }
 
-          logger.error "container unhealthy after ${(int) healthCheck.retries} checks"
+          logger.error("container unhealthy after ${(int) healthCheck.retries} checks")
           break
         case "http":
           def url = new URL("http", host, port, (String) healthCheck.path)
-          logger.info "HealthCheck/http: Connecting ${url}, (timeout ${healthCheck.timeout}, retries ${healthCheck.retries}, interval ${healthCheck.interval})"
+          logger.info("HealthCheck/http: Connecting ${url}, (timeout ${healthCheck.timeout}, retries ${healthCheck.retries}, interval ${healthCheck.interval})")
           while (counter < (int) healthCheck.retries) {
             URLConnection connection = null
             try {
@@ -406,7 +406,7 @@ class DockerContainerTask extends GenericDockerTask {
               connection.setConnectTimeout(((int) healthCheck.timeout * 1000))
               connection.connect()
               if (((int) (connection.getResponseCode() / 100)) == 2) {
-                logger.info "HealthCheck/http: Container is healthy: ${connection.getResponseCode()}"
+                logger.info("HealthCheck/http: Container is healthy: ${connection.getResponseCode()}")
                 return true
               }
             }
@@ -422,10 +422,10 @@ class DockerContainerTask extends GenericDockerTask {
 
             counter = counter + 1
             sleep((int) healthCheck.interval * 1000)
-            logger.info "Attempt #${counter + 1}"
+            logger.info("Attempt #${counter + 1}")
           }
 
-          logger.error "container unhealthy after ${(int) healthCheck.retries} checks"
+          logger.error("container unhealthy after ${(int) healthCheck.retries} checks")
           break
         default:
           throw new IllegalArgumentException("Unsupported healthcheck type: ${healthCheck.type}")

@@ -31,6 +31,6 @@ class DockerSwarmLeaveTaskSpec extends Specification {
     ]) >> [content: "swarm-result"]
 
     and:
-    task.response == [content: "swarm-result"]
+    task.response.content == "swarm-result"
   }
 }
