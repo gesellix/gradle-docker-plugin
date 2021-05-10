@@ -1,5 +1,6 @@
 package de.gesellix.gradle.docker.tasks
 
+import org.gradle.api.Task
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
@@ -7,6 +8,10 @@ import org.gradle.api.tasks.TaskAction
 
 import javax.inject.Inject
 
+/**
+ * @deprecated this task will be removed in a future release.
+ */
+@Deprecated
 class DockerCleanupTask extends GenericDockerTask {
 
   @Input
@@ -21,6 +26,12 @@ class DockerCleanupTask extends GenericDockerTask {
   DockerCleanupTask(ObjectFactory objectFactory) {
     super(objectFactory)
     description = "Removes stopped containers, dangling images, and dangling volumes"
+  }
+
+  @Override
+  Task configure(Closure closure) {
+    logger.warn("This task is deprecated and will be removed in a future release.")
+    return super.configure(closure)
   }
 
   @TaskAction
