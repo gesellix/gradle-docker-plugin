@@ -62,7 +62,6 @@ public class DockerExecTask extends GenericDockerTask {
   public void exec() {
     getLogger().info("docker exec");
 
-    final List<String> get = cmds.get();
     List<String> commandline = (!cmds.get().isEmpty()) ? cmds.get() : Arrays.asList("sh", "-c", cmd.getOrNull());
     Map<String, Object> execCreateConfig = new HashMap<>(5);
     execCreateConfig.put("AttachStdin", false);
