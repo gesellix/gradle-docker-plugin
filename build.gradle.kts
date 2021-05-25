@@ -12,7 +12,7 @@ val dependencyVersions = listOf(
   "org.jetbrains:annotations:20.1.0",
   "org.jetbrains.kotlin:kotlin-reflect:1.3.72",
   "org.jetbrains.kotlin:kotlin-stdlib:1.3.72",
-  "org.jetbrains.kotlin:kotlin-stdlib-common:1.3.72"
+  "org.jetbrains.kotlin:kotlin-stdlib-common:1.5.10"
 )
 
 val dependencyVersionsByGroup = mapOf(
