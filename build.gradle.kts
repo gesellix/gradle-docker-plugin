@@ -1,6 +1,6 @@
 plugins {
   id("maven-publish")
-  id("com.github.ben-manes.versions") version "0.38.0"
+  id("com.github.ben-manes.versions") version "0.39.0"
   id("net.ossindex.audit") version "0.4.11"
   id("com.gradle.plugin-publish") version "0.15.0" apply false
   id("io.freefair.maven-central.validate-poms") version "5.3.3.3"
@@ -10,13 +10,15 @@ plugins {
 val dependencyVersions = listOf(
   "com.squareup.okio:okio:2.10.0",
   "org.jetbrains:annotations:20.1.0",
-  "org.jetbrains.kotlin:kotlin-reflect:1.3.72",
-  "org.jetbrains.kotlin:kotlin-stdlib:1.3.72",
-  "org.jetbrains.kotlin:kotlin-stdlib-common:1.3.72"
+  "org.jetbrains.kotlin:kotlin-reflect:1.4.20",
+  "org.jetbrains.kotlin:kotlin-stdlib:1.4.20",
+  "org.jetbrains.kotlin:kotlin-stdlib-common:1.4.20",
+  "org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.4.20",
+  "org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.4.20"
 )
 
 val dependencyVersionsByGroup = mapOf(
-  "org.codehaus.groovy" to "2.5.13"
+  "org.codehaus.groovy" to "2.5.14"
 )
 
 subprojects {

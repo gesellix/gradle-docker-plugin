@@ -4,22 +4,21 @@ import de.gesellix.docker.client.DockerClientImpl
 import de.gesellix.docker.client.LocalDocker
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
-import org.junit.Rule
-import org.junit.rules.TemporaryFolder
 import spock.lang.Requires
 import spock.lang.Specification
+import spock.lang.TempDir
 
 @Requires({ LocalDocker.available() })
 class DockerBuildTaskFunctionalTest extends Specification {
 
-  @Rule
-  TemporaryFolder testProjectDir = new TemporaryFolder()
+  @TempDir
+  File testProjectDir
 
   File buildFile
 
   // Also requires './gradlew :plugin:pluginUnderTestMetadata' to be run before performing the tests.
   def setup() {
-    buildFile = testProjectDir.newFile('build.gradle')
+    buildFile = new File(testProjectDir, 'build.gradle')
     buildFile << """
             plugins {
                 id 'de.gesellix.docker'
@@ -45,7 +44,7 @@ class DockerBuildTaskFunctionalTest extends Specification {
 
     when:
     def result = GradleRunner.create()
-        .withProjectDir(testProjectDir.root)
+        .withProjectDir(testProjectDir)
         .withArguments('dockerBuild', '--info', '--debug', '--stacktrace')
         .withPluginClasspath()
         .build()
@@ -79,7 +78,7 @@ class DockerBuildTaskFunctionalTest extends Specification {
 
     when:
     def result = GradleRunner.create()
-        .withProjectDir(testProjectDir.root)
+        .withProjectDir(testProjectDir)
         .withArguments('dockerBuild', '--info', '--debug', '--stacktrace')
         .withPluginClasspath()
         .withDebug(true)
@@ -104,7 +103,7 @@ class DockerBuildTaskFunctionalTest extends Specification {
 
     when:
     GradleRunner.create()
-        .withProjectDir(testProjectDir.root)
+        .withProjectDir(testProjectDir)
         .withArguments('dockerBuild')
         .withPluginClasspath()
         .build()
@@ -128,7 +127,7 @@ class DockerBuildTaskFunctionalTest extends Specification {
 
     when:
     GradleRunner.create()
-        .withProjectDir(testProjectDir.root)
+        .withProjectDir(testProjectDir)
         .withArguments('dockerBuild')
         .withPluginClasspath()
         .build()

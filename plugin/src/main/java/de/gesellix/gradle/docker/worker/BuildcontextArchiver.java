@@ -1,6 +1,6 @@
 package de.gesellix.gradle.docker.worker;
 
-import de.gesellix.docker.client.builder.BuildContextBuilder;
+import de.gesellix.docker.builder.BuildContextBuilder;
 import org.gradle.workers.WorkAction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
