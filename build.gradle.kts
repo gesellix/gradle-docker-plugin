@@ -9,10 +9,13 @@ plugins {
 
 val dependencyVersions = listOf(
   "com.squareup.okio:okio:2.10.0",
+  "junit:junit:4.13.1",
   "org.jetbrains:annotations:20.1.0",
-  "org.jetbrains.kotlin:kotlin-reflect:1.3.72",
-  "org.jetbrains.kotlin:kotlin-stdlib:1.3.72",
-  "org.jetbrains.kotlin:kotlin-stdlib-common:1.3.72"
+  "org.jetbrains.kotlin:kotlin-reflect:1.4.20",
+  "org.jetbrains.kotlin:kotlin-stdlib:1.4.20",
+  "org.jetbrains.kotlin:kotlin-stdlib-common:1.4.20",
+  "org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.4.20",
+  "org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.4.20"
 )
 
 val dependencyVersionsByGroup = mapOf(
