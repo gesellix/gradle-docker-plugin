@@ -5,24 +5,23 @@ import de.gesellix.docker.client.DockerClientImpl
 import de.gesellix.docker.client.LocalDocker
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
-import org.junit.Rule
-import org.junit.rules.TemporaryFolder
 import org.spockframework.util.Assert
 import spock.lang.Ignore
 import spock.lang.Requires
 import spock.lang.Specification
+import spock.lang.TempDir
 
 @Requires({ LocalDocker.available() })
 class DockerPluginIntegrationTest extends Specification {
 
-  @Rule
-  TemporaryFolder testProjectDir = new TemporaryFolder()
+  @TempDir
+  File testProjectDir
 
   File buildFile
 
   // Also requires './gradlew :plugin:pluginUnderTestMetadata' to be run before performing the tests.
   def setup() {
-    buildFile = testProjectDir.newFile('build.gradle')
+    buildFile = new File(testProjectDir, 'build.gradle')
     buildFile << """
             plugins {
                 id 'de.gesellix.docker'
@@ -42,7 +41,7 @@ class DockerPluginIntegrationTest extends Specification {
 
     when:
     def result = GradleRunner.create()
-        .withProjectDir(testProjectDir.root)
+        .withProjectDir(testProjectDir)
         .withArguments('dockerInfo', '--debug', '--info', '--stacktrace')
         .withPluginClasspath()
         .build()
@@ -66,13 +65,13 @@ class DockerPluginIntegrationTest extends Specification {
 
     when:
     def result = GradleRunner.create()
-        .withProjectDir(testProjectDir.root)
+        .withProjectDir(testProjectDir)
         .withArguments('dockerPull')
         .withPluginClasspath()
         .build()
 
     then:
-    result.output.contains("id: sha256:0ce18ad10d281bef97fe2333a9bdcc2dbf84b5302f66d796fed73aac675320db")
+    result.output.contains("id: sha256:da16ff11360dedb8bbb3f2a89da87527fb5e7d956e9efcb032df123caf2d5c9f")
     result.task(':dockerPull').outcome == TaskOutcome.SUCCESS
   }
 
@@ -92,7 +91,7 @@ class DockerPluginIntegrationTest extends Specification {
 
     when:
     def result = GradleRunner.create()
-        .withProjectDir(testProjectDir.root)
+        .withProjectDir(testProjectDir)
         .withArguments('dockerPullPrivate')
         .withPluginClasspath()
         .build()
@@ -131,7 +130,7 @@ class DockerPluginIntegrationTest extends Specification {
 
     when:
     GradleRunner.create()
-        .withProjectDir(testProjectDir.root)
+        .withProjectDir(testProjectDir)
         .withArguments('dockerPush')
         .withPluginClasspath()
         .build()
@@ -165,7 +164,7 @@ class DockerPluginIntegrationTest extends Specification {
 
     when:
     def result = GradleRunner.create()
-        .withProjectDir(testProjectDir.root)
+        .withProjectDir(testProjectDir)
         .withArguments('dockerRun')
         .withPluginClasspath()
         .build()
@@ -202,7 +201,7 @@ class DockerPluginIntegrationTest extends Specification {
 
     when:
     def result = GradleRunner.create()
-        .withProjectDir(testProjectDir.root)
+        .withProjectDir(testProjectDir)
         .withArguments('dockerStop')
         .withPluginClasspath()
         .build()
@@ -240,7 +239,7 @@ class DockerPluginIntegrationTest extends Specification {
 
     when:
     def result = GradleRunner.create()
-        .withProjectDir(testProjectDir.root)
+        .withProjectDir(testProjectDir)
         .withArguments('dockerRm')
         .withPluginClasspath()
         .build()
@@ -276,7 +275,7 @@ class DockerPluginIntegrationTest extends Specification {
 
     when:
     def result = GradleRunner.create()
-        .withProjectDir(testProjectDir.root)
+        .withProjectDir(testProjectDir)
         .withArguments('dockerStart')
         .withPluginClasspath()
         .build()
@@ -316,7 +315,7 @@ class DockerPluginIntegrationTest extends Specification {
 
     when:
     def result = GradleRunner.create()
-        .withProjectDir(testProjectDir.root)
+        .withProjectDir(testProjectDir)
         .withArguments('dockerPs')
         .withPluginClasspath()
         .build()
@@ -351,7 +350,7 @@ class DockerPluginIntegrationTest extends Specification {
 
     when:
     def result = GradleRunner.create()
-        .withProjectDir(testProjectDir.root)
+        .withProjectDir(testProjectDir)
         .withArguments('dockerImages')
         .withPluginClasspath()
         .build()
@@ -401,7 +400,7 @@ class DockerPluginIntegrationTest extends Specification {
 
     when:
     def result = GradleRunner.create()
-        .withProjectDir(testProjectDir.root)
+        .withProjectDir(testProjectDir)
         .withArguments('dockerRun')
         .withPluginClasspath()
         .build()
@@ -463,7 +462,7 @@ class DockerPluginIntegrationTest extends Specification {
 
     when:
     def result = GradleRunner.create()
-        .withProjectDir(testProjectDir.root)
+        .withProjectDir(testProjectDir)
         .withArguments('dockerVolumeCreate', 'dockerVolumeRm')
         .withPluginClasspath()
         .build()
@@ -550,7 +549,7 @@ class DockerPluginIntegrationTest extends Specification {
 
     when:
     def result = GradleRunner.create()
-        .withProjectDir(testProjectDir.root)
+        .withProjectDir(testProjectDir)
         .withArguments('createService')
         .withPluginClasspath()
         .build()
@@ -584,7 +583,7 @@ class DockerPluginIntegrationTest extends Specification {
 
     when:
     def result = GradleRunner.create()
-        .withProjectDir(testProjectDir.root)
+        .withProjectDir(testProjectDir)
         .withArguments('testTask')
         .withPluginClasspath()
         .build()
@@ -618,7 +617,7 @@ class DockerPluginIntegrationTest extends Specification {
 
     when:
     def result = GradleRunner.create()
-        .withProjectDir(testProjectDir.root)
+        .withProjectDir(testProjectDir)
         .withArguments('testTask')
         .withPluginClasspath()
         .build()
