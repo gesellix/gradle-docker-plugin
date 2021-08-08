@@ -71,7 +71,7 @@ class DockerPluginIntegrationTest extends Specification {
         .build()
 
     then:
-    result.output.contains("id: sha256:da16ff11360dedb8bbb3f2a89da87527fb5e7d956e9efcb032df123caf2d5c9f")
+    result.output.contains("id: sha256:")
     result.task(':dockerPull').outcome == TaskOutcome.SUCCESS
   }
 
