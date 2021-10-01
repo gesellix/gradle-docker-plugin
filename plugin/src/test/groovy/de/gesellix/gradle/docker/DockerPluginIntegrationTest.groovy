@@ -138,8 +138,8 @@ class DockerPluginIntegrationTest extends Specification {
     then:
     //pushResult.status ==~ "Pushing tag for rev \\[[a-z0-9]+\\] on \\{https://registry-1.docker.io/v1/repositories/gesellix/example/tags/latest\\}"
     //pushResult.error ==~ "Error: Status 401 trying to push repository gesellix/example: \"\""
-    def exc = thrown(Exception)
-    exc.message.contains("error:Get https://example.com:5000/v2/")
+    Exception exc = thrown(Exception)
+    exc.message.readLines().find { it.matches(".*error:Get \"?https://example.com:5000/v2/.*") }
 
     cleanup:
     dockerClient.rmi("gesellix/example")
