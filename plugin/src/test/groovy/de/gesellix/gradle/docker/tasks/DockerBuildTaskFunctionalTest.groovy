@@ -2,6 +2,7 @@ package de.gesellix.gradle.docker.tasks
 
 import de.gesellix.docker.client.DockerClientImpl
 import de.gesellix.docker.client.LocalDocker
+import de.gesellix.gradle.docker.testutil.TestImage
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
 import spock.lang.Requires
@@ -11,6 +12,8 @@ import spock.lang.TempDir
 @Requires({ LocalDocker.available() })
 class DockerBuildTaskFunctionalTest extends Specification {
 
+  TestImage testImage
+
   @TempDir
   File testProjectDir
 
@@ -18,6 +21,7 @@ class DockerBuildTaskFunctionalTest extends Specification {
 
   // Also requires './gradlew :plugin:pluginUnderTestMetadata' to be run before performing the tests.
   def setup() {
+    testImage = new TestImage(new DockerClientImpl())
     buildFile = new File(testProjectDir, 'build.gradle')
     buildFile << """
             plugins {
@@ -28,6 +32,7 @@ class DockerBuildTaskFunctionalTest extends Specification {
 
   def "can perform a build configured via config closure"() {
     given:
+    new DockerClientImpl().tag(testImage.imageWithTag, "test:build-base")
     URL dockerfile = getClass().getResource('/docker/Dockerfile')
     String baseDir = new File(dockerfile.toURI()).parentFile.absolutePath.replaceAll("\\${File.separator}", "/")
     String imageName = "gesellix/test-build:${UUID.randomUUID()}"
@@ -55,10 +60,12 @@ class DockerBuildTaskFunctionalTest extends Specification {
 
     cleanup:
     new DockerClientImpl().rmi(imageName)
+    new DockerClientImpl().rmi("test:build-base")
   }
 
   def "can perform a build configured via task property setter"() {
     given:
+    new DockerClientImpl().tag(testImage.imageWithTag, "test:build-base")
     URL dockerfile = getClass().getResource('/docker/Dockerfile')
     String baseDir = new File(dockerfile.toURI()).parentFile.absolutePath.replaceAll("\\${File.separator}", "/")
     String imageName = "gesellix/test-build:${UUID.randomUUID()}"
@@ -90,6 +97,7 @@ class DockerBuildTaskFunctionalTest extends Specification {
 
     cleanup:
     new DockerClientImpl().rmi(imageName)
+    new DockerClientImpl().rmi("test:build-base")
   }
 
   def "accepts only task configs with at least one of buildContext or buildContextDirectory"() {
