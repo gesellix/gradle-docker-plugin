@@ -1,5 +1,5 @@
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Date
 
 plugins {
   id("groovy")
@@ -80,7 +80,7 @@ publishing {
       pom {
         name.set("gradle-docker-plugin")
         description.set("A Docker plugin for Gradle")
-        url.set("https://github.com/gesellix/gradle-docker-plugin")
+        url.set("https://github.com/cryptoki/gradle-docker-plugin")
         licenses {
           license {
             name.set("MIT")
@@ -95,9 +95,9 @@ publishing {
           }
         }
         scm {
-          connection.set("scm:git:github.com/gesellix/gradle-docker-plugin.git")
-          developerConnection.set("scm:git:ssh://github.com/gesellix/gradle-docker-plugin.git")
-          url.set("https://github.com/gesellix/gradle-docker-plugin")
+          connection.set("scm:git:github.com/cryptoki/gradle-docker-plugin.git")
+          developerConnection.set("scm:git:ssh://github.com/cryptoki/gradle-docker-plugin.git")
+          url.set("https://github.com/cryptoki/gradle-docker-plugin")
         }
       }
       artifactId = "gradle-docker-plugin"
@@ -117,8 +117,8 @@ signing {
 }
 
 pluginBundle {
-  website = "https://github.com/gesellix/gradle-docker-plugin"
-  vcsUrl = "https://github.com/gesellix/gradle-docker-plugin.git"
+  website = "https://github.com/cryptoki/gradle-docker-plugin"
+  vcsUrl = "https://github.com/cryptoki/gradle-docker-plugin.git"
   description = "A Docker plugin for Gradle"
   tags = listOf("docker", "gradle", "remote api", "plugin")
 
@@ -131,7 +131,7 @@ pluginBundle {
   }
 
   mavenCoordinates {
-    groupId = "de.gesellix"
+    groupId = "de.cryptoki"
     artifactId = "gradle-docker-plugin"
     version = artifactVersion
   }

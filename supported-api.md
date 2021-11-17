@@ -2,16 +2,14 @@
 
 *feature set based on the [Docker Engine API v1.25](https://docs.docker.com/engine/api/v1.25/)*
 
-Since the Docker engine api tends to be backwards compatible,
-the underlying Docker Client currently supports most other api versions, too.
+Since the Docker engine api tends to be backwards compatible, the underlying Docker Client currently supports most other api versions, too.
 
 Current api coverage: 40/114 endpoints.
 
 This project tends to support most api endpoints, but only if there's an actual use case. If you're missing a feature, please file
-a [new issue](https://github.com/gesellix/gradle-docker-plugin/issues) or a [pull request](https://github.com/gesellix/gradle-docker-plugin/pulls)
-and we'll add it as soon as the time allows. This plugin relies on the [Docker Client](https://github.com/gesellix/docker-client) while
-there's a [similar Gradle Docker plugin](https://github.com/bmuschko/gradle-docker-plugin) based
-on the [Java Docker API Client](https://github.com/docker-java/docker-java) available, too.
+a [new issue](https://github.com/cryptoki/gradle-docker-plugin/issues) or a [pull request](https://github.com/cryptoki/gradle-docker-plugin/pulls)
+and we'll add it as soon as the time allows. This plugin relies on the [Docker Client](https://github.com/cryptoki/docker-client) while there's
+a [similar Gradle Docker plugin](https://github.com/bmuschko/gradle-docker-plugin) based on the [Java Docker API Client](https://github.com/docker-java/docker-java) available, too.
 
 # Management Commands
 

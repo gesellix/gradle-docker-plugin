@@ -14,6 +14,8 @@ import java.util.Map;
 
 public class DockerPullTask extends GenericDockerTask {
 
+  private static final int RETRY_COUNT = 2;
+
   private final Property<String> imageName;
 
   @Input
@@ -68,7 +70,13 @@ public class DockerPullTask extends GenericDockerTask {
     Map<String, Object> options = new HashMap<>(1);
     options.put("EncodedRegistryAuth", getEncodedAuthConfig());
 
-    EngineResponse response = getDockerClient().create(query, options);
+    EngineResponse response;
+    int counter = 0;
+    do {
+      counter++;
+      response = getDockerClient().create(query, options);
+    } while(!response.getStatus().isSuccess() && counter <= RETRY_COUNT);
+
     if (response.getStatus().isSuccess()) {
       imageId = getDockerClient().findImageId(query.get("fromImage"), query.get("tag"));
     }
