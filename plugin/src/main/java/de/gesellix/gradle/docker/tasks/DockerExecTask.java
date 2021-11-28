@@ -1,20 +1,17 @@
 package de.gesellix.gradle.docker.tasks;
 
-import de.gesellix.docker.engine.EngineResponse;
+import de.gesellix.docker.remote.api.ExecConfig;
+import de.gesellix.docker.remote.api.ExecStartConfig;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.Input;
-import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.Optional;
 import org.gradle.api.tasks.TaskAction;
 
 import javax.inject.Inject;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class DockerExecTask extends GenericDockerTask {
 
@@ -41,13 +38,6 @@ public class DockerExecTask extends GenericDockerTask {
     return cmd;
   }
 
-  private EngineResponse result;
-
-  @Internal
-  public EngineResponse getResult() {
-    return result;
-  }
-
   @Inject
   public DockerExecTask(ObjectFactory objectFactory) {
     super(objectFactory);
@@ -63,46 +53,16 @@ public class DockerExecTask extends GenericDockerTask {
     getLogger().info("docker exec");
 
     List<String> commandline = (!cmds.get().isEmpty()) ? cmds.get() : Arrays.asList("sh", "-c", cmd.getOrNull());
-    Map<String, Object> execCreateConfig = new HashMap<>(5);
-    execCreateConfig.put("AttachStdin", false);
-    execCreateConfig.put("AttachStdout", true);
-    execCreateConfig.put("AttachStderr", true);
-    execCreateConfig.put("Tty", false);
-    execCreateConfig.put("Cmd", commandline);
-    getLogger().debug("exec cmd: '" + execCreateConfig.get("Cmd") + "'");
-    EngineResponse execCreateResult = getDockerClient().createExec(containerId.get(), execCreateConfig);
+    ExecConfig execCreateConfig = new ExecConfig();
+    execCreateConfig.setAttachStdin(false);
+    execCreateConfig.setAttachStdout(true);
+    execCreateConfig.setAttachStderr(true);
+    execCreateConfig.setTty(false);
+    execCreateConfig.setCmd(commandline);
+    getLogger().debug("exec cmd: '" + execCreateConfig.getCmd() + "'");
+    String execId = getDockerClient().createExec(containerId.get(), execCreateConfig).getContent().getId();
 
-    String execId = (String) ((Map<String, Object>) execCreateResult.getContent()).get("Id");
-    Map<String, Boolean> execStartConfig = new HashMap<>(2);
-    execStartConfig.put("Detach", false);
-    execStartConfig.put("Tty", false);
-    result = getDockerClient().startExec(execId, execStartConfig);
-  }
-
-  /**
-   * @see #getContainerId()
-   * @deprecated This setter will be removed, please use the Property instead.
-   */
-  @Deprecated
-  public void setContainerId(String containerId) {
-    this.containerId.set(containerId);
-  }
-
-  /**
-   * @see #getCmd()
-   * @deprecated This setter will be removed, please use the Property instead.
-   */
-  @Deprecated
-  public void setCommandLine(String commandLine) {
-    this.cmd.set(commandLine);
-  }
-
-  /**
-   * @see #getCmds()
-   * @deprecated This setter will be removed, please use the Property instead.
-   */
-  @Deprecated
-  public void setCommandLine(Collection<String> commandLine) {
-    this.cmds.set(commandLine);
+    ExecStartConfig execStartConfig = new ExecStartConfig(false, false);
+    getDockerClient().startExec(execId, execStartConfig, null, null);
   }
 }

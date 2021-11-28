@@ -18,19 +18,12 @@ class DockerSwarmLeaveTaskSpec extends Specification {
 
   def "delegates to dockerClient and saves result"() {
     given:
-    task.query = [
-        "key": "value"
-    ]
+    task.force = true
 
     when:
     task.leaveSwarm()
 
     then:
-    1 * dockerClient.leaveSwarm([
-        "key": "value"
-    ]) >> [content: "swarm-result"]
-
-    and:
-    task.response.content == "swarm-result"
+    1 * dockerClient.leaveSwarm(true)
   }
 }

@@ -1,7 +1,10 @@
 package de.gesellix.gradle.docker.tasks
 
+import de.gesellix.docker.authentication.AuthConfig
 import de.gesellix.docker.client.DockerClient
-import de.gesellix.docker.client.authentication.AuthConfig
+import de.gesellix.docker.remote.api.ContainerCreateRequest
+import de.gesellix.docker.remote.api.HostConfig
+import de.gesellix.docker.remote.api.PortBinding
 import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.Specification
 
@@ -20,37 +23,31 @@ class DockerRunTaskSpec extends Specification {
   def "delegates to dockerClient"() {
     given:
     task.imageName = "anImage"
-    task.tag = "aTag"
+    task.imageTag = "aTag"
     task.containerName = "aContainerName"
-    task.containerConfiguration = [
-        "ExposedPorts": [
-            "8889/tcp": [],
-            "9300/tcp": []],
-        HostConfig    : ["PortBindings": [
-            "8889/tcp": [
-                ["HostIp"  : "0.0.0.0",
-                 "HostPort": "8889"]]
-        ]]
-    ]
+    task.containerConfiguration = new ContainerCreateRequest().tap {
+      exposedPorts = [
+          "8889/tcp": [],
+          "9300/tcp": []]
+      hostConfig = new HostConfig().tap {
+        portBindings = ["8889/tcp": [new PortBinding("0.0.0.0", "8889")]]
+      }
+    }
+    def containerConfig = new ContainerCreateRequest().tap {
+      exposedPorts = [
+          "8889/tcp": [],
+          "9300/tcp": []]
+      hostConfig = new HostConfig().tap {
+        portBindings = ["8889/tcp": [new PortBinding("0.0.0.0", "8889")]]
+      }
+      image = "anImage:aTag"
+    }
 
     when:
     task.run()
 
     then:
-    1 * dockerClient.run(
-        "anImage",
-        ["ExposedPorts": [
-            "8889/tcp": [],
-            "9300/tcp": []],
-         "HostConfig"  : [
-             "PortBindings": [
-                 "8889/tcp": [
-                     ["HostIp"  : "0.0.0.0",
-                      "HostPort": "8889"]]
-             ]]],
-        "aTag",
-        "aContainerName",
-        "")
+    1 * dockerClient.run(containerConfig, "aContainerName", "")
   }
 
   def "parses env-file to containerConfig.Env"() {
@@ -58,75 +55,62 @@ class DockerRunTaskSpec extends Specification {
 
     given:
     task.imageName = "anImage"
-    task.containerConfiguration = [
-//        "Env"       : null,
-        "HostConfig": ["PublishAllPorts": false]
-    ]
+    task.containerConfiguration = new ContainerCreateRequest().tap {
+      hostConfig = new HostConfig().tap { publishAllPorts = false }
+    }
     task.environmentFiles = [new File(envfile.toURI())]
+    def containerConfig = new ContainerCreateRequest().tap {
+      hostConfig = new HostConfig().tap { publishAllPorts = false }
+      env = ['THE_WIND=CAUGHT_IT', 'FOO=BAR Baz']
+      image = "anImage"
+    }
 
     when:
     task.run()
 
     then:
-    1 * dockerClient.run(
-        "anImage",
-        ["Env"       : ['THE_WIND=CAUGHT_IT', 'FOO=BAR Baz'],
-         "HostConfig": ["PublishAllPorts": false]],
-        '',
-        '',
-        ''
-    )
+    1 * dockerClient.run(containerConfig, "", "")
   }
 
   def "maps env and port properties to actual containerConfig"() {
     given:
     task.imageName = "anImage"
-    task.tag = "aTag"
+    task.imageTag = "aTag"
     task.containerName = "aContainerName"
     task.env = ["foo=bar"]
     task.ports = ["8080:80", "8889:8889"]
+    def containerConfig = new ContainerCreateRequest().tap {
+      env = ["foo=bar"]
+      image = "anImage:aTag"
+      exposedPorts = ["80/tcp"  : [:],
+                      "8889/tcp": [:]]
+      hostConfig = new HostConfig().tap {
+        portBindings = [
+            "80/tcp"  : [new PortBinding("0.0.0.0", "8080")],
+            "8889/tcp": [new PortBinding("0.0.0.0", "8889")]
+        ]
+      }
+    }
 
     when:
     task.run()
 
     then:
-    1 * dockerClient.run(
-        "anImage",
-        [Env         : ["foo=bar"],
-         ExposedPorts: [
-             "80/tcp"  : [:],
-             "8889/tcp": [:]],
-         HostConfig  : [
-             PortBindings: [
-                 "80/tcp"  : [
-                     [HostIp  : "0.0.0.0",
-                      HostPort: "8080"]],
-                 "8889/tcp": [
-                     [HostIp  : "0.0.0.0",
-                      HostPort: "8889"]]
-             ]]],
-        "aTag",
-        "aContainerName",
-        '')
+    1 * dockerClient.run(containerConfig, "aContainerName", '')
   }
 
   def "passes auth config to docker client"() {
     given:
     task.imageName = "anImage"
-    task.tag = "theTag"
+    task.imageTag = "theTag"
     task.containerName = "anotherContainerName"
-    task.authConfigPlain = new AuthConfig(identitytoken: "token")
+    task.authConfig = new AuthConfig(identitytoken: "token")
 
     when:
     task.run()
 
     then:
     1 * dockerClient.encodeAuthConfig(new AuthConfig(identitytoken: "token")) >> "encoded-auth"
-    1 * dockerClient.run(
-        "anImage",
-        [HostConfig: [:]],
-        "theTag",
-        "anotherContainerName",
-        "encoded-auth")
+    1 * dockerClient.run(_, "anotherContainerName", "encoded-auth")
   }
 }

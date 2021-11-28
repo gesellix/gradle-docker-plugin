@@ -15,6 +15,21 @@ plugins {
 }
 
 repositories {
+//  mavenLocal()
+//  fun findProperty(s: String) = project.findProperty(s) as String?
+//  listOf(
+//    "docker-client/*",
+//    "gesellix/*"
+//  ).forEach { repo ->
+//    maven {
+//      name = "github"
+//      setUrl("https://maven.pkg.github.com/$repo")
+//      credentials {
+//        username = System.getenv("PACKAGE_REGISTRY_USER") ?: findProperty("github.package-registry.username")
+//        password = System.getenv("PACKAGE_REGISTRY_TOKEN") ?: findProperty("github.package-registry.password")
+//      }
+//    }
+//  }
   mavenCentral()
 }
 

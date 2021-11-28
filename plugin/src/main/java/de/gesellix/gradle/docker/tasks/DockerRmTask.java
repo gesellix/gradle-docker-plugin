@@ -1,10 +1,8 @@
 package de.gesellix.gradle.docker.tasks;
 
-import de.gesellix.docker.engine.EngineResponse;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.Input;
-import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.Optional;
 import org.gradle.api.tasks.TaskAction;
 
@@ -29,13 +27,6 @@ public class DockerRmTask extends GenericDockerTask {
     return removeVolumes;
   }
 
-  private EngineResponse result;
-
-  @Internal
-  public EngineResponse getResult() {
-    return result;
-  }
-
   @Inject
   public DockerRmTask(ObjectFactory objectFactory) {
     super(objectFactory);
@@ -47,29 +38,10 @@ public class DockerRmTask extends GenericDockerTask {
   }
 
   @TaskAction
-  public EngineResponse rm() {
+  public void rm() {
     getLogger().info("docker rm");
     Map<String, Object> query = new HashMap<>(1);
     query.put("v", getRemoveVolumes().get() ? 1 : 0);
-    result = getDockerClient().rm(getContainerId().get(), query);
-    return result;
-  }
-
-  /**
-   * @see #getContainerId()
-   * @deprecated This setter will be removed, please use the Property instead.
-   */
-  @Deprecated
-  public void setContainerId(String containerId) {
-    this.containerId.set(containerId);
-  }
-
-  /**
-   * @see #getRemoveVolumes()
-   * @deprecated This setter will be removed, please use the Property instead.
-   */
-  @Deprecated
-  public void setRemoveVolumes(boolean removeVolumes) {
-    this.removeVolumes.set(removeVolumes);
+    getDockerClient().rm(getContainerId().get(), query);
   }
 }

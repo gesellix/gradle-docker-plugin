@@ -1,41 +1,22 @@
 package de.gesellix.gradle.docker.tasks;
 
-import de.gesellix.docker.engine.EngineResponse;
+import de.gesellix.docker.remote.api.SwarmJoinRequest;
 import org.gradle.api.model.ObjectFactory;
-import org.gradle.api.provider.MapProperty;
+import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.Input;
-import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.Optional;
 import org.gradle.api.tasks.TaskAction;
 
 import javax.inject.Inject;
-import java.util.HashMap;
-import java.util.Map;
 
 public class DockerSwarmJoinTask extends GenericDockerTask {
 
-  private final MapProperty<String, Object> config;
+  private final Property<SwarmJoinRequest> config;
 
   @Input
   @Optional
-  public MapProperty<String, Object> getConfig() {
+  public Property<SwarmJoinRequest> getConfig() {
     return config;
-  }
-
-  private EngineResponse response;
-
-  @Internal
-  public EngineResponse getResponse() {
-    return response;
-  }
-
-  /**
-   * @see #getConfig()
-   * @deprecated This setter will be removed, please use the Property instead.
-   */
-  @Deprecated
-  public void setConfig(Map<String, Object> config) {
-    this.config.set(config);
   }
 
   @Inject
@@ -43,14 +24,12 @@ public class DockerSwarmJoinTask extends GenericDockerTask {
     super(objectFactory);
     setDescription("Join a swarm as a node and/or manager");
 
-    config = objectFactory.mapProperty(String.class, Object.class);
+    config = objectFactory.property(SwarmJoinRequest.class);
   }
 
   @TaskAction
-  public EngineResponse joinSwarm() {
+  public void joinSwarm() {
     getLogger().info("docker swarm join");
-
-    response = getDockerClient().joinSwarm(new HashMap<>(getConfig().get()));
-    return response;
+    getDockerClient().joinSwarm(getConfig().get());
   }
 }

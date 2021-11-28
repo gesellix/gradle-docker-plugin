@@ -1,22 +1,21 @@
 package de.gesellix.gradle.docker.tasks;
 
 import de.gesellix.docker.engine.EngineResponse;
+import de.gesellix.docker.remote.api.SwarmInitRequest;
 import org.gradle.api.model.ObjectFactory;
-import org.gradle.api.provider.MapProperty;
+import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.TaskAction;
 
 import javax.inject.Inject;
-import java.util.HashMap;
-import java.util.Map;
 
 public class DockerSwarmInitTask extends GenericDockerTask {
 
-  private final MapProperty<String, Object> swarmconfig;
+  private final Property<SwarmInitRequest> swarmconfig;
 
   @Input
-  public MapProperty<String, Object> getSwarmconfig() {
+  public Property<SwarmInitRequest> getSwarmconfig() {
     return swarmconfig;
   }
 
@@ -32,23 +31,13 @@ public class DockerSwarmInitTask extends GenericDockerTask {
     super(objectFactory);
     setDescription("Initialize a swarm");
 
-    swarmconfig = objectFactory.mapProperty(String.class, Object.class);
+    swarmconfig = objectFactory.property(SwarmInitRequest.class);
   }
 
   @TaskAction
   public EngineResponse initSwarm() {
     getLogger().info("docker swarm init");
-
-    response = getDockerClient().initSwarm(new HashMap<>(getSwarmconfig().get()));
+    response = getDockerClient().initSwarm(getSwarmconfig().get());
     return response;
-  }
-
-  /**
-   * @see #getSwarmconfig()
-   * @deprecated This setter will be removed, please use the Property instead.
-   */
-  @Deprecated
-  public void setSwarmconfig(Map<String, Object> swarmconfig) {
-    this.swarmconfig.set(swarmconfig);
   }
 }

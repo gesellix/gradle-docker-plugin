@@ -10,8 +10,6 @@ import org.gradle.api.tasks.TaskAction;
 
 import javax.inject.Inject;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 public class DockerNetworkCreateTask extends GenericDockerTask {
 
@@ -48,24 +46,6 @@ public class DockerNetworkCreateTask extends GenericDockerTask {
   @TaskAction
   public void createNetwork() {
     getLogger().info("docker network create");
-    response = getDockerClient().createNetwork(getNetworkName().get(), new HashMap<>(getNetworkConfig().getOrElse(new LinkedHashMap<String, Object>())));
-  }
-
-  /**
-   * @see #getNetworkName()
-   * @deprecated This setter will be removed, please use the Property instead.
-   */
-  @Deprecated
-  public void setNetworkName(String networkName) {
-    this.networkName.set(networkName);
-  }
-
-  /**
-   * @see #getNetworkConfig()
-   * @deprecated This setter will be removed, please use the Property instead.
-   */
-  @Deprecated
-  public void setNetworkConfig(Map<String, Object> networkConfig) {
-    this.networkConfig.set(networkConfig);
+    response = getDockerClient().createNetwork(getNetworkName().get(), new HashMap<>(getNetworkConfig().getOrElse(new HashMap<>())));
   }
 }

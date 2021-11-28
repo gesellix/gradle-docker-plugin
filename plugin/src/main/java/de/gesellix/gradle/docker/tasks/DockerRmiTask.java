@@ -29,13 +29,4 @@ public class DockerRmiTask extends GenericDockerTask {
     getLogger().info("docker rmi");
     getDockerClient().rmi(getImageId().get());
   }
-
-  /**
-   * @see #getImageId()
-   * @deprecated This setter will be removed, please use the Property instead.
-   */
-  @Deprecated
-  public void setImageId(String imageId) {
-    this.imageId.set(imageId);
-  }
 }
