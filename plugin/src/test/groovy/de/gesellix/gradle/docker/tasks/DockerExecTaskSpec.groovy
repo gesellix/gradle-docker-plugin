@@ -2,6 +2,9 @@ package de.gesellix.gradle.docker.tasks
 
 import de.gesellix.docker.client.DockerClient
 import de.gesellix.docker.engine.EngineResponse
+import de.gesellix.docker.remote.api.ExecConfig
+import de.gesellix.docker.remote.api.ExecStartConfig
+import de.gesellix.docker.remote.api.IdResponse
 import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.Specification
 
@@ -23,28 +26,22 @@ class DockerExecTaskSpec extends Specification {
     task.containerId = containerId
 
     def commandLine = 'echo "foo" > /bar.txt && cat /bar.txt'
-    task.commandLine = commandLine
+    task.cmd = commandLine
 
-    def expectedResult = new EngineResponse(content: "some exec result")
+    def execConfig = new ExecConfig().tap {
+      attachStdin = false
+      attachStdout = true
+      attachStderr = true
+      tty = false
+      cmd = ["sh", "-c", commandLine]
+    }
 
     when:
     task.exec()
 
     then:
-    1 * dockerClient.createExec(containerId, [
-        "AttachStdin" : false,
-        "AttachStdout": true,
-        "AttachStderr": true,
-        "Tty"         : false,
-        "Cmd"         : ["sh", "-c", commandLine]
-    ]) >> new EngineResponse(content: [Id: "exec-id"])
-
-    1 * dockerClient.startExec("exec-id", [
-        "Detach": false,
-        "Tty"   : false]) >> expectedResult
-
-    and:
-    task.result == expectedResult
+    1 * dockerClient.createExec(containerId, execConfig) >> new EngineResponse(content: new IdResponse("exec-id"))
+    1 * dockerClient.startExec("exec-id", new ExecStartConfig(false, false), null, null)
   }
 
   def "delegates exec commands to dockerClient and saves result"() {
@@ -53,27 +50,21 @@ class DockerExecTaskSpec extends Specification {
     task.containerId = containerId
 
     def commands = ['sh', '-c', 'echo "foo" > /baz.txt && cat /baz.txt']
-    task.commandLine = commands
+    task.cmds = commands
 
-    def expectedResult = new EngineResponse(content: "some exec result")
+    def execConfig = new ExecConfig().tap {
+      attachStdin = false
+      attachStdout = true
+      attachStderr = true
+      tty = false
+      cmd = commands
+    }
 
     when:
     task.exec()
 
     then:
-    1 * dockerClient.createExec(containerId, [
-        "AttachStdin" : false,
-        "AttachStdout": true,
-        "AttachStderr": true,
-        "Tty"         : false,
-        "Cmd"         : commands
-    ]) >> new EngineResponse(content: [Id: "exec-id"])
-
-    1 * dockerClient.startExec("exec-id", [
-        "Detach": false,
-        "Tty"   : false]) >> expectedResult
-
-    and:
-    task.result == expectedResult
+    1 * dockerClient.createExec(containerId, execConfig) >> new EngineResponse(content: new IdResponse("exec-id"))
+    1 * dockerClient.startExec("exec-id", new ExecStartConfig(false, false), null, null)
   }
 }

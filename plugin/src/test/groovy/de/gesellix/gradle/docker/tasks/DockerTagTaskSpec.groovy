@@ -19,7 +19,7 @@ class DockerTagTaskSpec extends Specification {
   def "delegates to dockerClient"() {
     given:
     task.imageId = "4711"
-    task.tag = "aTag"
+    task.imageTag = "aTag"
 
     when:
     task.tag()

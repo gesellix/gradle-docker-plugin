@@ -1,6 +1,7 @@
 package de.gesellix.gradle.docker.tasks
 
 import de.gesellix.docker.client.DockerClient
+import de.gesellix.docker.remote.api.SwarmInitRequest
 import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.Specification
 
@@ -18,17 +19,16 @@ class DockerSwarmInitTaskSpec extends Specification {
 
   def "delegates to dockerClient and saves result"() {
     given:
-    task.swarmconfig = [
-        "ListenAddr": "0.0.0.0:80"
-    ]
+    def swarmConfig = new SwarmInitRequest().tap {
+      listenAddr = "0.0.0.0:80"
+    }
+    task.swarmconfig.set(swarmConfig)
 
     when:
     task.initSwarm()
 
     then:
-    1 * dockerClient.initSwarm([
-        "ListenAddr": "0.0.0.0:80"
-    ]) >> [content: "swarm-result"]
+    1 * dockerClient.initSwarm(swarmConfig) >> [content: "swarm-result"]
 
     and:
     task.response.content == "swarm-result"

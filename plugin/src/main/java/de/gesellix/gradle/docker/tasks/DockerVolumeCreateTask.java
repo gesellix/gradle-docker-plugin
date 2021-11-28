@@ -10,7 +10,6 @@ import org.gradle.api.tasks.TaskAction;
 
 import javax.inject.Inject;
 import java.util.HashMap;
-import java.util.Map;
 
 public class DockerVolumeCreateTask extends GenericDockerTask {
 
@@ -43,14 +42,5 @@ public class DockerVolumeCreateTask extends GenericDockerTask {
 
     response = getDockerClient().createVolume(new HashMap<>(getVolumeConfig().get()));
     return response;
-  }
-
-  /**
-   * @see #getVolumeConfig()
-   * @deprecated This setter will be removed, please use the Property instead.
-   */
-  @Deprecated
-  public void setVolumeConfig(Map<String, Object> volumeConfig) {
-    this.volumeConfig.set(volumeConfig);
   }
 }

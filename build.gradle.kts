@@ -18,7 +18,7 @@ val dependencyVersions = listOf(
 )
 
 val dependencyVersionsByGroup = mapOf(
-  "org.codehaus.groovy" to "3.0.8"
+  "org.codehaus.groovy" to "3.0.9"
 )
 
 subprojects {

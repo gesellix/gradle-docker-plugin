@@ -2,9 +2,11 @@ package de.gesellix.gradle.docker.tasks;
 
 import de.gesellix.docker.client.EnvFileParser;
 import de.gesellix.docker.engine.EngineResponse;
+import de.gesellix.docker.remote.api.ContainerCreateRequest;
+import de.gesellix.docker.remote.api.HostConfig;
+import de.gesellix.docker.remote.api.PortBinding;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.ListProperty;
-import org.gradle.api.provider.MapProperty;
 import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.Internal;
@@ -56,11 +58,11 @@ public class DockerCreateTask extends GenericDockerTask {
     return ports;
   }
 
-  private final MapProperty<String, Object> containerConfiguration;
+  private final Property<ContainerCreateRequest> containerConfiguration;
 
   @Input
   @Optional
-  public MapProperty<String, Object> getContainerConfiguration() {
+  public Property<ContainerCreateRequest> getContainerConfiguration() {
     return containerConfiguration;
   }
 
@@ -100,7 +102,8 @@ public class DockerCreateTask extends GenericDockerTask {
     containerName = objectFactory.property(String.class);
     containerName.convention("");
     ports = objectFactory.listProperty(String.class);
-    containerConfiguration = objectFactory.mapProperty(String.class, Object.class);
+    containerConfiguration = objectFactory.property(ContainerCreateRequest.class);
+    containerConfiguration.convention(new ContainerCreateRequest());
     env = objectFactory.listProperty(String.class);
     environmentFiles = objectFactory.listProperty(File.class);
   }
@@ -109,10 +112,8 @@ public class DockerCreateTask extends GenericDockerTask {
   public EngineResponse create() {
     getLogger().info("docker create");
 
-    Map<String, ?> containerConfig = getActualContainerConfig();
-    Map<String, String> query = new HashMap<>(1);
-    query.put("name", getContainerName().getOrElse(""));
-    result = getDockerClient().createContainer(containerConfig, query);
+    ContainerCreateRequest containerConfig = getActualContainerConfig();
+    result = getDockerClient().createContainer(containerConfig, getContainerName().getOrElse(""), getEncodedAuthConfig());
     return result;
   }
 
@@ -126,30 +127,40 @@ public class DockerCreateTask extends GenericDockerTask {
   }
 
   @Internal
-  public Map<String, Object> getActualContainerConfig() {
-    final Map<String, Object> containerConfig = new HashMap<>(getContainerConfiguration().getOrElse(new HashMap<>()));
-    containerConfig.put("Image", getImageNameWithTag());
-    containerConfig.putIfAbsent("HostConfig", new HashMap<>());
-    Map<String, Object> hostConfig = (Map<String, Object>) containerConfig.get("HostConfig");
+  public ContainerCreateRequest getActualContainerConfig() {
+    ContainerCreateRequest containerCreateRequest = getContainerConfiguration().getOrElse(new ContainerCreateRequest());
+    if (containerCreateRequest.getHostConfig() == null) {
+      containerCreateRequest.setHostConfig(new HostConfig());
+    }
+
+    containerCreateRequest.setImage(getImageNameWithTag());
     if (!getEnvironmentFiles().get().isEmpty()) {
-      containerConfig.putIfAbsent("Env", new ArrayList<>());
-      final List<String> env = (List<String>) containerConfig.get("Env");
+      if (containerCreateRequest.getEnv() == null) {
+        containerCreateRequest.setEnv(new ArrayList<>());
+      }
+      List<String> env = containerCreateRequest.getEnv();
       getEnvironmentFiles().get().forEach((File file) -> {
         List<String> parsedEnv = envFileParser.parse(file);
         env.addAll(parsedEnv);
       });
     }
     if (!getEnv().get().isEmpty()) {
-      containerConfig.putIfAbsent("Env", new ArrayList<>());
-      final List<String> env = (List<String>) containerConfig.get("Env");
+      if (containerCreateRequest.getEnv() == null) {
+        containerCreateRequest.setEnv(new ArrayList<>());
+      }
+      List<String> env = containerCreateRequest.getEnv();
       env.addAll(getEnv().get());
     }
 
     if (!getPorts().get().isEmpty()) {
-      containerConfig.putIfAbsent("ExposedPorts", new HashMap<>());
-      final Map<String, Object> exposedPorts = (Map<String, Object>) containerConfig.get("ExposedPorts");
-      hostConfig.putIfAbsent("PortBindings", new HashMap<>());
-      final Map<String, Object> portBindings = (Map<String, Object>) hostConfig.get("PortBindings");
+      if (containerCreateRequest.getExposedPorts() == null) {
+        containerCreateRequest.setExposedPorts(new HashMap<>());
+      }
+      final Map<String, Object> exposedPorts = containerCreateRequest.getExposedPorts();
+      if (containerCreateRequest.getHostConfig().getPortBindings() == null) {
+        containerCreateRequest.getHostConfig().setPortBindings(new HashMap<>());
+      }
+      final Map<String, List<PortBinding>> portBindings = containerCreateRequest.getHostConfig().getPortBindings();
       getPorts().get().forEach((String portMapping) -> {
         // format: ip:hostPort:containerPort | ip::containerPort | hostPort:containerPort | containerPort
         final String[] splittedPortMapping = portMapping.split(":");
@@ -160,77 +171,12 @@ public class DockerCreateTask extends GenericDockerTask {
         String containerPort = splittedPortMapping[1] + "/tcp";
         exposedPorts.put(containerPort, new HashMap<>());
 
-        Map<String, Object> hostBinding = new HashMap<>();
-        hostBinding.put("HostIp", "0.0.0.0");
-        hostBinding.put("HostPort", hostPort);
+        PortBinding hostBinding = new PortBinding("0.0.0.0", hostPort);
         portBindings.put(containerPort, Collections.singletonList(hostBinding));
       });
     }
 
-    getLogger().info("effective container config: " + containerConfig);
-    return containerConfig;
-  }
-
-  /**
-   * @see #getImageName()
-   * @deprecated This setter will be removed, please use the Property instead.
-   */
-  @Deprecated
-  public void setImageName(String imageName) {
-    this.imageName.set(imageName);
-  }
-
-  /**
-   * @see #getImageTag()
-   * @deprecated This setter will be removed, please use the Property instead.
-   */
-  @Deprecated
-  public void setTag(String tag) {
-    this.imageTag.set(tag);
-  }
-
-  /**
-   * @see #getContainerName()
-   * @deprecated This setter will be removed, please use the Property instead.
-   */
-  @Deprecated
-  public void setContainerName(String containerName) {
-    this.containerName.set(containerName);
-  }
-
-  /**
-   * @see #getPorts()
-   * @deprecated This setter will be removed, please use the Property instead.
-   */
-  @Deprecated
-  public void setPorts(List<String> ports) {
-    this.ports.set(ports);
-  }
-
-  /**
-   * @see #getContainerConfiguration()
-   * @deprecated This setter will be removed, please use the Property instead.
-   */
-  @Deprecated
-  public void setContainerConfiguration(Map<String, Object> containerConfiguration) {
-    this.containerConfiguration.set(containerConfiguration);
-  }
-
-  /**
-   * @see #getEnv()
-   * @deprecated This setter will be removed, please use the Property instead.
-   */
-  @Deprecated
-  public void setEnv(List<String> env) {
-    this.env.set(env);
-  }
-
-  /**
-   * @see #getEnvironmentFiles()
-   * @deprecated This setter will be removed, please use the Property instead.
-   */
-  @Deprecated
-  public void setEnvironmentFiles(List<File> environmentFiles) {
-    this.environmentFiles.set(environmentFiles);
+    getLogger().info("effective container config: " + containerCreateRequest);
+    return containerCreateRequest;
   }
 }

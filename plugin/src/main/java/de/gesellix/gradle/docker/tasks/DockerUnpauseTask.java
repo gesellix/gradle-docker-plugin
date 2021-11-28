@@ -18,13 +18,6 @@ public class DockerUnpauseTask extends GenericDockerTask {
     return containerId;
   }
 
-  private EngineResponse result;
-
-  @Internal
-  public EngineResponse getResult() {
-    return result;
-  }
-
   @Inject
   public DockerUnpauseTask(ObjectFactory objectFactory) {
     super(objectFactory);
@@ -34,18 +27,8 @@ public class DockerUnpauseTask extends GenericDockerTask {
   }
 
   @TaskAction
-  public EngineResponse unpause() {
+  public void unpause() {
     getLogger().info("docker unpause");
-    result = getDockerClient().unpause(getContainerId().get());
-    return result;
-  }
-
-  /**
-   * @see #getContainerId()
-   * @deprecated This setter will be removed, please use the Property instead.
-   */
-  @Deprecated
-  public void setContainerId(String containerId) {
-    this.containerId.set(containerId);
+    getDockerClient().unpause(getContainerId().get());
   }
 }

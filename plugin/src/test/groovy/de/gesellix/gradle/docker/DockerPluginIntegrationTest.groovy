@@ -3,6 +3,10 @@ package de.gesellix.gradle.docker
 import de.gesellix.docker.client.DockerClient
 import de.gesellix.docker.client.DockerClientImpl
 import de.gesellix.docker.client.LocalDocker
+import de.gesellix.docker.remote.api.ContainerCreateRequest
+import de.gesellix.docker.remote.api.HostConfig
+import de.gesellix.docker.remote.api.LocalNodeState
+import de.gesellix.docker.remote.api.core.ClientException
 import de.gesellix.gradle.docker.testutil.TestImage
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
@@ -38,7 +42,7 @@ class DockerPluginIntegrationTest extends Specification {
     buildFile << """
           task dockerInfo(type: de.gesellix.gradle.docker.tasks.DockerInfoTask) {
               doLast {
-                  logger.lifecycle("request succeeded: " + (info.status.code == 200))
+                  logger.lifecycle("request succeeded: " + (info.content instanceof de.gesellix.docker.remote.api.SystemInfo))
               }
           }
         """
@@ -60,7 +64,7 @@ class DockerPluginIntegrationTest extends Specification {
     buildFile << """
           task dockerPull(type: de.gesellix.gradle.docker.tasks.DockerPullTask) {
               imageName = '${testImage.imageName}'
-              tag = '${testImage.imageTag}'
+              imageTag = '${testImage.imageTag}'
               doLast {
                   logger.lifecycle("testimage id: " + imageId)
               }
@@ -75,7 +79,7 @@ class DockerPluginIntegrationTest extends Specification {
         .build()
 
     then:
-    result.output.contains("id: sha256:")
+    result.output.contains("id: ${testImage.imageWithTag}")
     result.task(':dockerPull').outcome == TaskOutcome.SUCCESS
   }
 
@@ -84,9 +88,9 @@ class DockerPluginIntegrationTest extends Specification {
     given:
     buildFile << """
           task dockerPullPrivate(type: de.gesellix.gradle.docker.tasks.DockerPullTask) {
-              authConfigPlain = dockerClient.readDefaultAuthConfig()
+              authConfig = dockerClient.readDefaultAuthConfig()
               imageName = 'gesellix/private-repo'
-              tag = 'latest'
+              imageTag = 'latest'
               doLast {
                   logger.lifecycle("testimage id: " + imageId)
               }
@@ -114,7 +118,7 @@ class DockerPluginIntegrationTest extends Specification {
           task dockerPush(type: de.gesellix.gradle.docker.tasks.DockerPushTask) {
               repositoryName = 'gesellix/example'
 
-              authConfig.set(new de.gesellix.docker.client.authentication.AuthConfig(
+              authConfig.set(new de.gesellix.docker.authentication.AuthConfig(
                     "username": "gesellix",
                     "password": "-yet-another-password-",
                     "email": "tobias@gesellix.de",
@@ -126,7 +130,7 @@ class DockerPluginIntegrationTest extends Specification {
               registry = 'example.com:5000'
 
               doLast {
-                  logger.lifecycle("request succeeded: " + (info.status.code == 200))
+                  logger.lifecycle("request succeeded")
               }
           }
         """
@@ -142,7 +146,7 @@ class DockerPluginIntegrationTest extends Specification {
     //pushResult.status ==~ "Pushing tag for rev \\[[a-z0-9]+\\] on \\{https://registry-1.docker.io/v1/repositories/gesellix/example/tags/latest\\}"
     //pushResult.error ==~ "Error: Status 401 trying to push repository gesellix/example: \"\""
     Exception exc = thrown(Exception)
-    exc.message.readLines().find { it.matches(".*error:Get \"?https://example.com:5000/v2/.*") }
+    exc.message.readLines().find { it.matches(".*error=Get \"?https://example.com:5000/v2/.*") }
 
     cleanup:
     dockerClient.rmi("gesellix/example")
@@ -153,13 +157,17 @@ class DockerPluginIntegrationTest extends Specification {
     given:
     buildFile << """
           task dockerRun(type: de.gesellix.gradle.docker.tasks.DockerRunTask) {
-              containerConfiguration = ["HostConfig": ["AutoRemove": true]]
+              containerConfiguration = new de.gesellix.docker.remote.api.ContainerCreateRequest().tap {
+                hostConfig = new de.gesellix.docker.remote.api.HostConfig().tap {
+                  autoRemove = true
+                }
+              }
               imageName = '${testImage.imageName}'
-              tag = '${testImage.imageTag}'
+              imageTag = '${testImage.imageTag}'
               containerName = "test-run"
               doLast {
-                  logger.lifecycle("container id: " + result.container.content.Id)
-                  logger.lifecycle("request successful: " + (result.status.status.code == 204))
+                  logger.lifecycle("container id: " + result.content.id)
+                  logger.lifecycle("request successful: " + (result.content instanceof de.gesellix.docker.remote.api.ContainerCreateResponse))
               }
           }
         """
@@ -177,25 +185,28 @@ class DockerPluginIntegrationTest extends Specification {
 
     cleanup:
     def dockerClient = new DockerClientImpl()
-    dockerClient.stop('test-run')
-    dockerClient.wait('test-run')
-    dockerClient.rm('test-run')
+    try { dockerClient.stop('test-run') } catch (ClientException ignored) {}
+    try { dockerClient.wait('test-run') } catch (ClientException ignored) {}
+    try { dockerClient.rm('test-run') } catch (ClientException ignored) {}
   }
 
   def "test stop"() {
     given:
     def dockerClient = new DockerClientImpl()
     def runResult = dockerClient.run(
-        testImage.imageName,
-        ["HostConfig": ["AutoRemove": true]],
-        testImage.imageTag,
+        new ContainerCreateRequest().tap {
+          image = testImage.imageWithTag
+          hostConfig = new HostConfig().tap {
+            autoRemove = true
+          }
+        },
         "test-stop")
 
     buildFile << """
           task dockerStop(type: de.gesellix.gradle.docker.tasks.DockerStopTask) {
-              containerId = '${runResult.container.content.Id}'
+              containerId = '${runResult.content.id}'
               doLast {
-                  logger.lifecycle("request successful: " + (result.status.code in [204, 304]))
+                  logger.lifecycle("request successful")
               }
           }
         """
@@ -208,24 +219,24 @@ class DockerPluginIntegrationTest extends Specification {
         .build()
 
     then:
-    result.output.contains("request successful: true")
+    result.output.contains("request successful")
     result.task(':dockerStop').outcome == TaskOutcome.SUCCESS
 
     cleanup:
-    dockerClient.stop('test-stop')
-    dockerClient.wait('test-stop')
-    dockerClient.rm('test-stop')
+    try { dockerClient.stop('test-stop') } catch (ClientException ignored) {}
+    try { dockerClient.wait('test-stop') } catch (ClientException ignored) {}
+    try { dockerClient.rm('test-stop') } catch (ClientException ignored) {}
   }
 
   def "test rm"() {
     given:
     def dockerClient = new DockerClientImpl()
     def runResult = dockerClient.run(
-        testImage.imageName,
-        [:],
-        testImage.imageTag,
+        new ContainerCreateRequest().tap {
+          image = testImage.imageWithTag
+        },
         "test-rm")
-    String runningContainerId = runResult.container.content.Id
+    String runningContainerId = runResult.content.id
     dockerClient.stop(runningContainerId)
     dockerClient.wait(runningContainerId)
 
@@ -233,7 +244,7 @@ class DockerPluginIntegrationTest extends Specification {
           task dockerRm(type: de.gesellix.gradle.docker.tasks.DockerRmTask) {
               containerId = '$runningContainerId'
               doLast {
-                  logger.lifecycle("request successful: " + (result.status.code == 204))
+                  logger.lifecycle("request successful")
               }
           }
         """
@@ -246,28 +257,32 @@ class DockerPluginIntegrationTest extends Specification {
         .build()
 
     then:
-    result.output.contains("request successful: true")
+    result.output.contains("request successful")
     result.task(':dockerRm').outcome == TaskOutcome.SUCCESS
 
     cleanup:
-    dockerClient.stop('test-rm')
-    dockerClient.wait('test-rm')
-    dockerClient.rm('test-rm')
+    try { dockerClient.stop('test-rm') } catch (ClientException ignored) {}
+    try { dockerClient.wait('test-rm') } catch (ClientException ignored) {}
+    try { dockerClient.rm('test-rm') } catch (ClientException ignored) {}
   }
 
   def "test start"() {
     given:
     def dockerClient = new DockerClientImpl()
-    def containerInfo = dockerClient.createContainer([
-        "Image"     : testImage.imageWithTag,
-        "Name"      : "test-start",
-        "HostConfig": ["AutoRemove": true]])
+    def containerInfo = dockerClient.createContainer(
+        new ContainerCreateRequest().tap {
+          image = testImage.imageWithTag
+          hostConfig = new HostConfig().tap {
+            autoRemove = true
+          }
+        },
+        "test-start")
 
     buildFile << """
           task dockerStart(type: de.gesellix.gradle.docker.tasks.DockerStartTask) {
-              containerId = '${containerInfo.content.Id}'
+              containerId = '${containerInfo.content.id}'
               doLast {
-                  logger.lifecycle("request successful: " + (result.status.code == 204))
+                  logger.lifecycle("request successful")
               }
           }
         """
@@ -280,28 +295,28 @@ class DockerPluginIntegrationTest extends Specification {
         .build()
 
     then:
-    result.output.contains("request successful: true")
+    result.output.contains("request successful")
     result.task(':dockerStart').outcome == TaskOutcome.SUCCESS
 
     cleanup:
     dockerClient.stop('test-start')
-    dockerClient.wait('test-start')
-    dockerClient.rm('test-start')
+    try { dockerClient.wait('test-start') } catch (ClientException ignored) {}
+    try { dockerClient.rm('test-start') } catch (ClientException ignored) {}
   }
 
   def "test ps"() {
     given:
     def dockerClient = new DockerClientImpl()
     dockerClient.run(
-        testImage.imageName,
-        [:],
-        testImage.imageTag,
+        new ContainerCreateRequest().tap {
+          image = testImage.imageWithTag
+        },
         "test-ps")
 
     buildFile << """
           task dockerPs(type: de.gesellix.gradle.docker.tasks.DockerPsTask) {
               doLast {
-                  logger.lifecycle("request successful: " + (containers.status.code == 200))
+                  logger.lifecycle("request successful: " + (containers.content instanceof java.util.List))
                   boolean found = containers.content.findAll {
                       it.Names.first() == '/test-ps'
                   }.size() == 1
@@ -335,7 +350,7 @@ class DockerPluginIntegrationTest extends Specification {
     buildFile << """
           task dockerImages(type: de.gesellix.gradle.docker.tasks.DockerImagesTask) {
               doLast {
-                  logger.lifecycle("request successful: " + (images.status.code == 200))
+                  logger.lifecycle("request successful: " + (images.content instanceof java.util.List<de.gesellix.docker.remote.api.ImageSummary>))
                   boolean found = images.content.findAll {
                       it.RepoTags?.contains "gesellix/images-list:latest"
                   }.size() == 1
@@ -368,26 +383,30 @@ class DockerPluginIntegrationTest extends Specification {
     dockerClient.tag(testImage.imageWithTag, "gesellix/run-with-data-volumes")
 
     dockerClient.createContainer(
-        [
-            "Image"     : "gesellix/run-with-data-volumes",
-            "HostConfig": [
-                "Binds"     : ["$hostDir:$containerDir".toString()],
-                "AutoRemove": true
-            ],
-        ], [
-            name: "the-data-example"
-        ])
+        new ContainerCreateRequest().tap {
+          image = "gesellix/run-with-data-volumes"
+          hostConfig = new HostConfig().tap {
+            autoRemove = true
+            binds = ["$hostDir:$containerDir".toString()]
+          }
+        },
+        "the-data-example")
 
     buildFile << """
           task dockerRun(type: de.gesellix.gradle.docker.tasks.DockerRunTask) {
-              containerConfiguration = ["HostConfig": ["VolumesFrom": ["the-data-example"],
-                                                       "AutoRemove" : true]]
-              imageName = 'gesellix/run-with-data-volumes'
-              tag = 'latest'
-              containerName = 'the-service-example'
+              containerConfiguration = new de.gesellix.docker.remote.api.ContainerCreateRequest().tap {
+//                image = "gesellix/run-with-data-volumes:latest"
+                hostConfig = new de.gesellix.docker.remote.api.HostConfig().tap {
+                  autoRemove = true
+                  volumesFrom = ["the-data-example"]
+                }
+              }
+              imageName = "gesellix/run-with-data-volumes"
+              imageTag.set("latest")
+              containerName = "the-service-example"
 
               doLast {
-                  logger.lifecycle("request successful: " + (result.status.status.success))
+                  logger.lifecycle("request successful: " + (result.content instanceof de.gesellix.docker.remote.api.ContainerCreateResponse))
               }
           }
         """
@@ -404,12 +423,12 @@ class DockerPluginIntegrationTest extends Specification {
     result.task(':dockerRun').outcome == TaskOutcome.SUCCESS
 
     cleanup:
-    dockerClient.stop("the-service-example")
-    dockerClient.wait("the-service-example")
-    dockerClient.rm("the-service-example")
-    dockerClient.stop("the-data-example")
-    dockerClient.wait("the-data-example")
-    dockerClient.rm("the-data-example")
+    try { dockerClient.stop("the-service-example") } catch (ClientException ignored) {}
+    try { dockerClient.wait("the-service-example") } catch (ClientException ignored) {}
+    try { dockerClient.rm("the-service-example") } catch (ClientException ignored) {}
+    try { dockerClient.stop("the-data-example") } catch (ClientException ignored) {}
+    try { dockerClient.wait("the-data-example") } catch (ClientException ignored) {}
+    try { dockerClient.rm("the-data-example") } catch (ClientException ignored) {}
     dockerClient.rmi("gesellix/run-with-data-volumes:latest")
   }
 
@@ -422,15 +441,14 @@ class DockerPluginIntegrationTest extends Specification {
     dockerClient.tag(testImage.imageWithTag, "gesellix/run-with-data-volumes")
 
     dockerClient.createContainer(
-        [
-            "Image"     : "gesellix/run-with-data-volumes",
-            "HostConfig": [
-                "Binds"     : ["$hostDir:$containerDir".toString()],
-                "AutoRemove": true
-            ],
-        ], [
-            name: "the-data-example"
-        ])
+        new ContainerCreateRequest().tap {
+          image = "gesellix/run-with-data-volumes"
+          hostConfig = new HostConfig().tap {
+            autoRemove = true
+            binds = ["$hostDir:$containerDir".toString()]
+          }
+        },
+        "the-data-example")
 
     buildFile << """
           task dockerVolumeCreate(type: de.gesellix.gradle.docker.tasks.DockerVolumeCreateTask) {
@@ -441,14 +459,14 @@ class DockerPluginIntegrationTest extends Specification {
               ]
 
               doLast {
-                  logger.lifecycle("task 1 successful: " + (response.status.code == 201))
+                  logger.lifecycle("task 1 successful: " + (response.content instanceof de.gesellix.docker.remote.api.Volume))
               }
           }
           task dockerVolumeRm(type: de.gesellix.gradle.docker.tasks.DockerVolumeRmTask) {
               volumeName = "my-volume"
 
               doLast {
-                  logger.lifecycle("task 2 successful: " + (response.status.code == 204))
+                  logger.lifecycle("task 2 successful: " + (true))
               }
           }
         """
@@ -495,43 +513,53 @@ class DockerPluginIntegrationTest extends Specification {
                 ]
             }
 
-            def config = [
-                "Name"        : "my-service",
-                "TaskTemplate": [
-                    "ContainerSpec": ["Image": "nginx"],
-                    "RestartPolicy": ["Condition": "on-failure"]
-                ],
-                "Mode"        : ["Replicated": ["Replicas": 2]],
-                "Networks"    : [["Target": "my-network"]],
-                "EndpointSpec": [
-                    "Ports": [
-                        [
-                            "Protocol"     : "tcp",
-                            "TargetPort"   : 80,
-                            "PublishedPort": 80
-                        ]
-                    ]
+            def config = new de.gesellix.docker.remote.api.ServiceSpec().tap {
+              name = "my-service"
+              taskTemplate = new de.gesellix.docker.remote.api.TaskSpec().tap {
+                containerSpec = new de.gesellix.docker.remote.api.TaskSpecContainerSpec().tap {
+                  image = "nginx"
+                }
+                restartPolicy = new de.gesellix.docker.remote.api.TaskSpecRestartPolicy().tap {
+                  condition = de.gesellix.docker.remote.api.TaskSpecRestartPolicy.Condition.OnMinusFailure
+                }
+              }
+              mode = new de.gesellix.docker.remote.api.ServiceSpecMode().tap {
+                replicated = new de.gesellix.docker.remote.api.ServiceSpecModeReplicated(2)
+              }
+              networks = [
+                  new de.gesellix.docker.remote.api.NetworkAttachmentConfig().tap {
+                    target = "my-network"
+                  }
+              ]
+              endpointSpec = new de.gesellix.docker.remote.api.EndpointSpec().tap {
+                ports = [
+                    new de.gesellix.docker.remote.api.EndpointPortConfig().tap {
+                      protocol = de.gesellix.docker.remote.api.EndpointPortConfig.Protocol.Tcp
+                      targetPort = 80
+                      publishedPort = 80
+                    }
                 ]
-            ]
+              }
+            }
             task createService(type: de.gesellix.gradle.docker.tasks.DockerServiceCreateTask) {
                 dependsOn createNetwork
                 serviceConfig = config
 
                 doLast {
-                    logger.lifecycle("request successful: " + (response.status.code == 201))
+                    logger.lifecycle("request successful: " + (response.content instanceof de.gesellix.docker.remote.api.ServiceCreateResponse))
                 }
             }
         """
 
     def swarmCreated = false
     def dockerInfo = dockerClient.info().content
-    if (dockerInfo.Swarm.LocalNodeState != "active") {
+    if (dockerInfo.swarm.localNodeState != LocalNodeState.Active) {
       buildFile << """
-                def swarmConfig = [
-                    "AdvertiseAddr"  : "127.0.0.1",
-                    "ListenAddr"     : "0.0.0.0",
-                    "ForceNewCluster": false
-                ]
+                def swarmConfig = new de.gesellix.docker.remote.api.SwarmInitRequest().tap {
+                  advertiseAddr = "127.0.0.1"
+                  listenAddr = "0.0.0.0"
+                  forceNewCluster = false
+                }
                 task initSwarm(type: de.gesellix.gradle.docker.tasks.DockerSwarmInitTask) {
                     swarmconfig = swarmConfig
                 }
@@ -555,7 +583,7 @@ class DockerPluginIntegrationTest extends Specification {
     dockerClient.rmService("my-service")
     dockerClient.rmNetwork("my-network")
     if (swarmCreated) {
-      dockerClient.leaveSwarm([force: true])
+      dockerClient.leaveSwarm(true)
     }
   }
 

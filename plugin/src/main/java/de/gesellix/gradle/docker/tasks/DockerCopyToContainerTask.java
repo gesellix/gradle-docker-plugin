@@ -1,6 +1,5 @@
 package de.gesellix.gradle.docker.tasks;
 
-import de.gesellix.docker.engine.EngineResponse;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.Input;
@@ -43,36 +42,8 @@ public class DockerCopyToContainerTask extends GenericDockerTask {
   }
 
   @TaskAction
-  public EngineResponse copyToContainer() {
+  public void copyToContainer() {
     getLogger().info("docker cp to container");
-
-    return getDockerClient().putArchive(getContainer().get(), getTargetPath().get(), getTarInputStream().get());
-  }
-
-  /**
-   * @see #getContainer()
-   * @deprecated This setter will be removed, please use the Property instead.
-   */
-  @Deprecated
-  public void setContainer(String container) {
-    this.container.set(container);
-  }
-
-  /**
-   * @see #getTarInputStream()
-   * @deprecated This setter will be removed, please use the Property instead.
-   */
-  @Deprecated
-  public void setTarInputStream(InputStream tarInputStream) {
-    this.tarInputStream.set(tarInputStream);
-  }
-
-  /**
-   * @see #getTargetPath()
-   * @deprecated This setter will be removed, please use the Property instead.
-   */
-  @Deprecated
-  public void setTargetPath(String targetPath) {
-    this.targetPath.set(targetPath);
+    getDockerClient().putArchive(getContainer().get(), getTargetPath().get(), getTarInputStream().get());
   }
 }

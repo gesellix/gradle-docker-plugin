@@ -1,6 +1,8 @@
 package de.gesellix.gradle.docker.tasks;
 
-import de.gesellix.docker.engine.EngineResponse;
+import de.gesellix.docker.remote.api.CreateImageInfo;
+import de.gesellix.docker.remote.api.core.StreamCallback;
+import org.gradle.api.GradleException;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.Input;
@@ -9,8 +11,12 @@ import org.gradle.api.tasks.Optional;
 import org.gradle.api.tasks.TaskAction;
 
 import javax.inject.Inject;
-import java.util.HashMap;
-import java.util.Map;
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 public class DockerPullTask extends GenericDockerTask {
 
@@ -44,6 +50,13 @@ public class DockerPullTask extends GenericDockerTask {
     return imageId;
   }
 
+  public Duration pullTimeout = Duration.of(10, ChronoUnit.MINUTES);
+
+  @Internal
+  public Duration getPullTimeout() {
+    return pullTimeout;
+  }
+
   @Inject
   public DockerPullTask(ObjectFactory objectFactory) {
     super(objectFactory);
@@ -58,51 +71,44 @@ public class DockerPullTask extends GenericDockerTask {
   public String pull() {
     getLogger().info("docker pull");
 
-    Map<String, Object> query = new HashMap<>(3);
-    query.put("fromImage", getImageName().get());
-    query.put("tag", getImageTag().getOrNull());
-    if (getRegistry().isPresent()) {
-      query.put("fromImage", getRegistry().get() + "/" + getImageName().get());
-    }
+    String imageName = getImageName()
+        .map(i -> getRegistry().map(r -> r + "/" + i).getOrElse(i)).get();
 
-    Map<String, Object> options = new HashMap<>(1);
-    options.put("EncodedRegistryAuth", getEncodedAuthConfig());
+    List<CreateImageInfo> infos = new ArrayList<>();
+    CountDownLatch pullFinished = new CountDownLatch(1);
 
-    EngineResponse response = getDockerClient().create(query, options);
-    if (response.getStatus().isSuccess()) {
-      imageId = getDockerClient().findImageId(query.get("fromImage"), query.get("tag"));
-    }
-    else {
-      imageId = null;
-    }
+    getDockerClient().pull(
+        new StreamCallback<CreateImageInfo>() {
+          @Override
+          public void onNext(CreateImageInfo element) {
+            if (element != null) {
+              getLogger().info(element.toString());
+            }
+            infos.add(element);
+          }
 
+          @Override
+          public void onFailed(Exception e) {
+            pullFinished.countDown();
+          }
+
+          @Override
+          public void onFinished() {
+            pullFinished.countDown();
+          }
+        },
+        pullTimeout,
+        imageName,
+        getImageTag().getOrNull(),
+        getEncodedAuthConfig()
+    );
+    try {
+      pullFinished.await(pullTimeout.toMillis(), TimeUnit.MILLISECONDS);
+    }
+    catch (InterruptedException e) {
+      throw new GradleException("Pull didn't finish before " + pullTimeout, e);
+    }
+    imageId = imageName + getImageTag().map(t -> ":" + t).getOrElse("");
     return imageId;
-  }
-
-  /**
-   * @see #getImageName()
-   * @deprecated This setter will be removed, please use the Property instead.
-   */
-  @Deprecated
-  public void setImageName(String imageName) {
-    this.imageName.set(imageName);
-  }
-
-  /**
-   * @see #getImageTag()
-   * @deprecated This setter will be removed, please use the Property instead.
-   */
-  @Deprecated
-  public void setTag(String tag) {
-    this.imageTag.set(tag);
-  }
-
-  /**
-   * @see #getRegistry()
-   * @deprecated This setter will be removed, please use the Property instead.
-   */
-  @Deprecated
-  public void setRegistry(String registry) {
-    this.registry.set(registry);
   }
 }

@@ -23,7 +23,7 @@ class DockerCommitTaskSpec extends Specification {
     task.containerId = "a-container"
     task.author = "Tue Dissing <tue@somersault.dk>"
     task.comment = "a test"
-    task.changes "change description"
+    task.changes.set("change description")
     task.pauseContainer = true
 
     when:

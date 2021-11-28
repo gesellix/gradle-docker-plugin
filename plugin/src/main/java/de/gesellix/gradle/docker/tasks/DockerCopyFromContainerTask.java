@@ -44,25 +44,6 @@ public class DockerCopyFromContainerTask extends GenericDockerTask {
   @TaskAction
   public EngineResponse copyFromContainer() {
     getLogger().info("docker cp from container");
-
     return content = getDockerClient().getArchive(getContainer().get(), getSourcePath().get());
-  }
-
-  /**
-   * @see #getContainer()
-   * @deprecated This setter will be removed, please use the Property instead.
-   */
-  @Deprecated
-  public void setContainer(String container) {
-    this.container.set(container);
-  }
-
-  /**
-   * @see #getSourcePath()
-   * @deprecated This setter will be removed, please use the Property instead.
-   */
-  @Deprecated
-  public void setSourcePath(String sourcePath) {
-    this.sourcePath.set(sourcePath);
   }
 }

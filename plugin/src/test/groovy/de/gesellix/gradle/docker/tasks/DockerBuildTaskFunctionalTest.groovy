@@ -39,7 +39,7 @@ class DockerBuildTaskFunctionalTest extends Specification {
 
     buildFile << """
           task dockerBuild(type: de.gesellix.gradle.docker.tasks.DockerBuildTask) {
-              buildContextDirectory = '$baseDir'
+              buildContextDirectory.set(new File('$baseDir'))
               imageName = '$imageName'
               doLast {
                   logger.lifecycle("Resulting image id: \${imageId}")
@@ -63,7 +63,7 @@ class DockerBuildTaskFunctionalTest extends Specification {
     new DockerClientImpl().rmi("test:build-base")
   }
 
-  def "can perform a build configured via task property setter"() {
+  def "can perform a build configured via task property"() {
     given:
     new DockerClientImpl().tag(testImage.imageWithTag, "test:build-base")
     URL dockerfile = getClass().getResource('/docker/Dockerfile')
@@ -80,7 +80,7 @@ class DockerBuildTaskFunctionalTest extends Specification {
                   logger.lifecycle("Resulting image id: \${imageId}")
               }
           }
-          dockerBuild.setBuildContextDirectory('$baseDir')
+          dockerBuild.buildContextDirectory.set(new File('$baseDir'))
         """
 
     when:
@@ -128,7 +128,7 @@ class DockerBuildTaskFunctionalTest extends Specification {
     given:
     buildFile << """
           task dockerBuild(type: de.gesellix.gradle.docker.tasks.DockerBuildTask) {
-              buildContextDirectory = '$baseDir'
+              buildContextDirectory.set(new File('$baseDir'))
               buildContext = new FileInputStream(File.createTempFile("docker", "test"))
           }
         """

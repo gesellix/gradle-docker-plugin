@@ -1,7 +1,11 @@
 package de.gesellix.gradle.docker.tasks;
 
-import de.gesellix.docker.client.authentication.AuthConfig;
-import de.gesellix.docker.client.image.BuildConfig;
+import de.gesellix.docker.authentication.AuthConfig;
+import de.gesellix.docker.remote.api.BuildInfo;
+import de.gesellix.docker.remote.api.ImageID;
+import de.gesellix.docker.remote.api.client.BuildInfoExtensionsKt;
+import de.gesellix.docker.remote.api.core.Cancellable;
+import de.gesellix.docker.remote.api.core.StreamCallback;
 import de.gesellix.gradle.docker.worker.BuildcontextArchiver;
 import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.model.ObjectFactory;
@@ -19,9 +23,15 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 public class DockerBuildTask extends GenericDockerTask {
 
@@ -96,6 +106,13 @@ public class DockerBuildTask extends GenericDockerTask {
     return imageId;
   }
 
+  public Duration buildTimeout = Duration.of(10, ChronoUnit.MINUTES);
+
+  @Internal
+  public Duration getBuildTimeout() {
+    return buildTimeout;
+  }
+
   WorkerExecutor workerExecutor;
   File targetFile;
 
@@ -147,39 +164,83 @@ public class DockerBuildTask extends GenericDockerTask {
       throw new IllegalStateException("neither buildContext nor buildContextDirectory found");
     }
 
-    // Add tag to build params
-    Map<String, Object> buildParams = new HashMap<>(getBuildParams().getOrElse(new HashMap<>()));
-    buildParams.putIfAbsent("rm", true);
-    if (getImageName().isPresent()) {
-      if (buildParams.containsKey("t")) {
-        getLogger().warn("Overriding build parameter \"t\" with imageName, because both were given");
-      }
-
-      buildParams.put("t", getImageName().get());
-    }
-
     if (getAuthConfig().isPresent()) {
       getLogger().info("Docker Build requires a Map of AuthConfig by registry name. The configured 'authConfig' will be ignored." +
                        " Please use the 'authConfigs' (plural form) task parameter if you need to override the DockerClient's default behaviour.");
     }
 
-    Map<String, Object> buildOptions = new HashMap<>(getBuildOptions().get());
-    if (!buildOptions.containsKey("EncodedRegistryConfig") && !getAuthConfigs().get().isEmpty()) {
-      buildOptions.put("EncodedRegistryConfig", getDockerClient().encodeAuthConfigs(getAuthConfigs().get()));
+    String encodedRegistryConfig = (String) getBuildOptions().getting("EncodedRegistryConfig").getOrNull();
+    if (encodedRegistryConfig == null && !getAuthConfigs().get().isEmpty()) {
+      encodedRegistryConfig = getDockerClient().encodeAuthConfigs(getAuthConfigs().get());
     }
 
-    BuildConfig config = new BuildConfig();
-    config.setQuery(buildParams);
-    config.setOptions(buildOptions);
-    // TODO this one needs some beautification
-    if (getEnableBuildLog().getOrElse(false)) {
-      imageId = getDockerClient().buildWithLogs(actualBuildContext, config).getImageId();
-    }
-    else {
-      imageId = getDockerClient().build(actualBuildContext, config).getImageId();
+    Map<String, Object> buildParams = new HashMap<>(getBuildParams().getOrElse(new HashMap<>()));
+    String tag = (String) buildParams.getOrDefault("t", null);
+    if (getImageName().isPresent()) {
+      if (tag != null) {
+        getLogger().warn("Overriding build parameter \"t\" with imageName, because both were given");
+      }
+      tag = getImageName().get();
     }
 
-    return imageId;
+    List<BuildInfo> infos = new ArrayList<>();
+    CountDownLatch buildFinished = new CountDownLatch(1);
+    StreamCallback<BuildInfo> callback = new StreamCallback<BuildInfo>() {
+      Cancellable cancellable;
+
+      @Override
+      public void onStarting(Cancellable cancellable) {
+        this.cancellable = cancellable;
+      }
+
+      @Override
+      public void onNext(BuildInfo element) {
+        if (element != null) {
+          if (getEnableBuildLog().getOrElse(false)) {
+            getLogger().info(element.toString());
+          }
+        }
+        infos.add(element);
+      }
+
+      @Override
+      public void onFailed(Exception e) {
+        getLogger().error("Build failed", e);
+        buildFinished.countDown();
+        cancellable.cancel();
+      }
+
+      @Override
+      public void onFinished() {
+        getLogger().info("Build finished");
+        buildFinished.countDown();
+      }
+    };
+
+    getDockerClient().build(
+        callback,
+        buildTimeout,
+        (String) buildParams.getOrDefault("dockerfile", null),
+        tag,
+        null,
+        null,
+        null,
+        (boolean) buildParams.getOrDefault("rm", true),
+        null,
+        null,
+        encodedRegistryConfig,
+        null,
+        actualBuildContext);
+    try {
+      getLogger().debug("Waiting " + buildTimeout + " for the build to finish...");
+      buildFinished.await(buildTimeout.toMillis(), TimeUnit.MILLISECONDS);
+    }
+    catch (InterruptedException e) {
+      getLogger().error("Build didn't finish before timeout of " + buildTimeout, e);
+    }
+    ImageID imageId = BuildInfoExtensionsKt.getImageId(infos);
+    this.imageId = imageId == null ? null : imageId.getID();
+    return this.imageId;
   }
 
   @Internal
@@ -208,77 +269,5 @@ public class DockerBuildTask extends GenericDockerTask {
     catch (FileNotFoundException e) {
       throw new RuntimeException("targetFile not found", e);
     }
-  }
-
-  /**
-   * @see #getImageName()
-   * @deprecated This setter will be removed, please use the Property instead.
-   */
-  @Deprecated
-  public void setImageName(String imageName) {
-    this.imageName.set(imageName);
-  }
-
-  /**
-   * @see #getBuildContextDirectory()
-   * @deprecated This setter will be removed, please use the Property instead.
-   */
-  @Deprecated
-  public void setBuildContextDirectory(File buildContextDirectory) {
-    this.buildContextDirectory.set(buildContextDirectory);
-  }
-
-  /**
-   * @see #getBuildContextDirectory()
-   * @deprecated This setter will be removed, please use the Property instead.
-   */
-  @Deprecated
-  public void setBuildContextDirectory(String buildContextDirectory) {
-    this.buildContextDirectory.set(getProject().file(buildContextDirectory));
-  }
-
-  /**
-   * @see #getBuildContext()
-   * @deprecated This setter will be removed, please use the Property instead.
-   */
-  @Deprecated
-  public void setBuildContext(InputStream buildContext) {
-    this.buildContext.set(buildContext);
-  }
-
-  /**
-   * @see #getBuildParams()
-   * @deprecated This setter will be removed, please use the Property instead.
-   */
-  @Deprecated
-  public void setBuildParams(Map<String, Object> buildParams) {
-    this.buildParams.set(buildParams);
-  }
-
-  /**
-   * @see #getBuildOptions()
-   * @deprecated This setter will be removed, please use the Property instead.
-   */
-  @Deprecated
-  public void setBuildOptions(Map<String, Object> buildOptions) {
-    this.buildOptions.set(buildOptions);
-  }
-
-  /**
-   * @see #getAuthConfigs()
-   * @deprecated This setter will be removed, please use the Property instead.
-   */
-  @Deprecated
-  public void setAuthConfigs(Map<String, AuthConfig> authConfigs) {
-    this.authConfigs.set(authConfigs);
-  }
-
-  /**
-   * @see #getEnableBuildLog()
-   * @deprecated This setter will be removed, please use the Property instead.
-   */
-  @Deprecated
-  public void setEnableBuildLog(boolean enableBuildLog) {
-    this.enableBuildLog.set(enableBuildLog);
   }
 }

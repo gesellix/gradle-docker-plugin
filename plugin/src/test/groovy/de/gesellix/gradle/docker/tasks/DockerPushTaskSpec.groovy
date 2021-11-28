@@ -1,10 +1,13 @@
 package de.gesellix.gradle.docker.tasks
 
+import de.gesellix.docker.authentication.AuthConfig
 import de.gesellix.docker.client.DockerClient
-import de.gesellix.docker.client.authentication.AuthConfig
 import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.Specification
 import spock.lang.Unroll
+
+import java.time.Duration
+import java.time.temporal.ChronoUnit
 
 class DockerPushTaskSpec extends Specification {
 
@@ -16,6 +19,7 @@ class DockerPushTaskSpec extends Specification {
     project = ProjectBuilder.builder().build()
     task = project.task('dockerPush', type: DockerPushTask)
     task.dockerClient = dockerClient
+    task.pushTimeout = Duration.of(1, ChronoUnit.SECONDS)
   }
 
   @Unroll
@@ -27,7 +31,7 @@ class DockerPushTaskSpec extends Specification {
                                      "serveraddress": "https://index.docker.io/v1/")
     task.repositoryName = "repositoryName"
     task.registry = registry
-    task.authConfigPlain = authDetails
+    task.authConfig = authDetails
 //    task.authConfigEncoded = "--auth.base64--"
 
     when:
@@ -37,7 +41,7 @@ class DockerPushTaskSpec extends Specification {
     1 * dockerClient.encodeAuthConfig(authDetails) >> "--auth.base64--"
 
     then:
-    1 * dockerClient.push("repositoryName", "--auth.base64--", registry)
+    1 * dockerClient.push(_, _, "repositoryName", "--auth.base64--", registry)
 
     where:
     registry << [null, "registry.docker.io"]
