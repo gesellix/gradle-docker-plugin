@@ -39,13 +39,4 @@ public class DockerWaitTask extends GenericDockerTask {
     result = getDockerClient().wait(getContainerId().get());
     return result;
   }
-
-  /**
-   * @see #getContainerId()
-   * @deprecated This setter will be removed, please use the Property instead.
-   */
-  @Deprecated
-  public void setContainerId(String containerId) {
-    this.containerId.set(containerId);
-  }
 }

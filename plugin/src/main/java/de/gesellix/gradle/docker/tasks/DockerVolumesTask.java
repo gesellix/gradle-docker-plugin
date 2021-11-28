@@ -10,7 +10,6 @@ import org.gradle.api.tasks.TaskAction;
 
 import javax.inject.Inject;
 import java.util.HashMap;
-import java.util.Map;
 
 public class DockerVolumesTask extends GenericDockerTask {
 
@@ -41,14 +40,5 @@ public class DockerVolumesTask extends GenericDockerTask {
   public void volumes() {
     getLogger().info("docker volume ls");
     volumes = getDockerClient().volumes(new HashMap<>(getQuery().get()));
-  }
-
-  /**
-   * @see #getQuery()
-   * @deprecated This setter will be removed, please use the Property instead.
-   */
-  @Deprecated
-  public void setQuery(Map<String, Object> query) {
-    this.query.set(query);
   }
 }

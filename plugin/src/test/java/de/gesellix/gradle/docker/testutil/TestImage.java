@@ -2,7 +2,6 @@ package de.gesellix.gradle.docker.testutil;
 
 import de.gesellix.docker.client.DockerClient;
 
-import java.util.Map;
 import java.util.Objects;
 
 public class TestImage {
@@ -15,7 +14,7 @@ public class TestImage {
   public TestImage(DockerClient dockerClient) {
     this.dockerClient = dockerClient;
 
-    this.isWindows = Objects.requireNonNull(((Map) dockerClient.version().getContent()).get("Os").toString()).equalsIgnoreCase("windows");
+    this.isWindows = Objects.requireNonNull(dockerClient.version().getContent().getOs()).equalsIgnoreCase("windows");
     this.repository = "gesellix/echo-server";
     this.tag = isWindows ? "os-windows" : "os-linux";
 
@@ -24,7 +23,7 @@ public class TestImage {
   }
 
   public void prepare() {
-    dockerClient.pull(getImageName(), getImageTag());
+    dockerClient.pull(null, null, getImageName(), getImageTag());
   }
 
   public boolean isWindows() {

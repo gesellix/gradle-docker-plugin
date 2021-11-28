@@ -1,9 +1,8 @@
 package de.gesellix.gradle.docker.tasks
 
 import de.gesellix.docker.client.DockerClient
-import de.gesellix.docker.client.DockerClientException
-import de.gesellix.docker.engine.EngineResponse
-import de.gesellix.docker.engine.EngineResponseStatus
+import de.gesellix.docker.remote.api.ContainerInspectResponse
+import de.gesellix.docker.remote.api.core.ClientException
 import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.Specification
 
@@ -22,6 +21,7 @@ class DockerDisposeContainerTaskSpec extends Specification {
   def "delegates to dockerClient (w/o removing the parent image)"() {
     given:
     task.containerId = "4712"
+    dockerClient.inspectContainer("4712") >> [content: new ContainerInspectResponse()]
 
     when:
     task.dispose()
@@ -40,7 +40,7 @@ class DockerDisposeContainerTaskSpec extends Specification {
     given:
     task.containerId = "4712"
     task.rmiParentImage = true
-    dockerClient.inspectContainer("4712") >> [content: [Image: "an-image-id"]]
+    dockerClient.inspectContainer("4712") >> [content: new ContainerInspectResponse().tap { image = "an-image-id" }]
 
     when:
     task.dispose()
@@ -64,7 +64,7 @@ class DockerDisposeContainerTaskSpec extends Specification {
 
     then:
     1 * dockerClient.inspectContainer("4711") >> {
-      throw new DockerClientException(new IllegalArgumentException("foo"), new EngineResponse(status: new EngineResponseStatus(code: 404)))
+      throw new ClientException("foo", 404, null)
     }
     then:
     0 * dockerClient._
@@ -74,6 +74,7 @@ class DockerDisposeContainerTaskSpec extends Specification {
     given:
     task.containerId = "4712"
     task.removeVolumes = true
+    dockerClient.inspectContainer("4712") >> [content: new ContainerInspectResponse()]
 
     when:
     task.dispose()
@@ -85,6 +86,7 @@ class DockerDisposeContainerTaskSpec extends Specification {
   def "does not remove Volumes by default"() {
     given:
     task.containerId = "4712"
+    dockerClient.inspectContainer("4712") >> [content: new ContainerInspectResponse()]
 
     when:
     task.dispose()

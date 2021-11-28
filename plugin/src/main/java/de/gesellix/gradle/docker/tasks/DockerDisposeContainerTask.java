@@ -1,8 +1,7 @@
 package de.gesellix.gradle.docker.tasks;
 
-import de.gesellix.docker.client.DockerClientException;
-import de.gesellix.docker.engine.EngineResponse;
-import de.gesellix.docker.engine.EngineResponseStatus;
+import de.gesellix.docker.remote.api.ContainerInspectResponse;
+import de.gesellix.docker.remote.api.core.ClientException;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.Input;
@@ -10,6 +9,7 @@ import org.gradle.api.tasks.Optional;
 import org.gradle.api.tasks.TaskAction;
 
 import javax.inject.Inject;
+import java.net.HttpURLConnection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -55,56 +55,25 @@ public class DockerDisposeContainerTask extends GenericDockerTask {
     getLogger().info("docker dispose");
 
     String containerId = getContainerId().get();
-    EngineResponse containerDetails;
+    ContainerInspectResponse containerDetails;
     try {
-      containerDetails = getDockerClient().inspectContainer(containerId);
+      containerDetails = getDockerClient().inspectContainer(containerId).getContent();
     }
-    catch (DockerClientException e) {
-      if (e.getDetail() instanceof EngineResponse) {
-        final EngineResponse detail = (EngineResponse) e.getDetail();
-        final EngineResponseStatus status = (detail == null ? null : detail.getStatus());
-        if (status != null && status.getCode() == 404) {
-          getLogger().info("couldn't dispose container because it doesn't exists");
-          return;
-        }
+    catch (ClientException e) {
+      if (e.getStatusCode() == HttpURLConnection.HTTP_NOT_FOUND) {
+        getLogger().info("couldn't dispose container because it doesn't exist");
+        return;
       }
       throw e;
     }
 
     getDockerClient().stop(containerId);
     getDockerClient().wait(containerId);
-    Map<String, Integer> query = new HashMap<>(1);
+    Map<String, Object> query = new HashMap<>(1);
     query.put("v", getRemoveVolumes().getOrElse(false) ? 1 : 0);
     getDockerClient().rm(containerId, query);
     if (getRmiParentImage().getOrElse(false)) {
-      getDockerClient().rmi((String) ((Map<String, Object>) containerDetails.getContent()).get("Image"));
+      getDockerClient().rmi(containerDetails.getImage());
     }
-  }
-
-  /**
-   * @see #getContainerId()
-   * @deprecated This setter will be removed, please use the Property instead.
-   */
-  @Deprecated
-  public void setContainerId(String containerId) {
-    this.containerId.set(containerId);
-  }
-
-  /**
-   * @see #getRmiParentImage()
-   * @deprecated This setter will be removed, please use the Property instead.
-   */
-  @Deprecated
-  public void setRmiParentImage(boolean rmiParentImage) {
-    this.rmiParentImage.set(rmiParentImage);
-  }
-
-  /**
-   * @see #getRemoveVolumes()
-   * @deprecated This setter will be removed, please use the Property instead.
-   */
-  @Deprecated
-  public void setRemoveVolumes(boolean removeVolumes) {
-    this.removeVolumes.set(removeVolumes);
   }
 }

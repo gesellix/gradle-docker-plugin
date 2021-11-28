@@ -1,6 +1,6 @@
 package de.gesellix.gradle.docker
 
-import de.gesellix.docker.client.authentication.AuthConfig
+import de.gesellix.docker.authentication.AuthConfig
 import de.gesellix.gradle.docker.tasks.TestTask
 import org.gradle.api.Project
 import org.gradle.testfixtures.ProjectBuilder
@@ -32,7 +32,7 @@ class DockerPluginSpec extends Specification {
     def task = project.tasks.create("testTask", TestTask)
 
     then:
-    task.dockerHost.get() =="http://example.org:2375"
+    task.dockerHost.get() == "http://example.org:2375"
     task.certPath.get() == project.file('foo').absolutePath
     task.authConfig.get().username == "plain example"
   }

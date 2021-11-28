@@ -1,8 +1,8 @@
 package de.gesellix.gradle.docker.tasks;
 
+import de.gesellix.docker.authentication.AuthConfig;
 import de.gesellix.docker.client.DockerClient;
 import de.gesellix.docker.client.DockerClientImpl;
-import de.gesellix.docker.client.authentication.AuthConfig;
 import de.gesellix.docker.engine.DockerEnv;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.model.ObjectFactory;
@@ -24,15 +24,6 @@ public class GenericDockerTask extends DefaultTask {
   @Optional
   public Property<String> getDockerHost() {
     return dockerHost;
-  }
-
-  /**
-   * @deprecated This setter will be removed, please use the Property instead.
-   * @see #getDockerHost()
-   */
-  @Deprecated
-  public void setDockerHost(String dockerHost) {
-    this.dockerHost.set(dockerHost);
   }
 
   Property<String> certPath;
@@ -62,24 +53,6 @@ public class GenericDockerTask extends DefaultTask {
   @Internal
   public String getEncodedAuthConfig() {
     return authConfig.map((AuthConfig a) -> getDockerClient().encodeAuthConfig(a)).getOrElse("");
-  }
-
-  /**
-   * @deprecated This setter will be removed, please use the Property instead.
-   * @see #authConfig
-   */
-  @Deprecated
-  public void setAuthConfigPlain(AuthConfig authConfig) {
-    this.authConfig.set(authConfig);
-  }
-
-  /**
-   * @deprecated This setter will be removed, please use the Property instead.
-   * @see #authConfig
-   */
-  @Deprecated
-  public void setAuthConfigEncoded(String ignored) {
-    throw new UnsupportedOperationException("please use the authConfig method instead");
   }
 
   private DockerClient dockerClient;

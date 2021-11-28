@@ -36,16 +36,6 @@ public class DockerInspectImageTask extends GenericDockerTask {
   @TaskAction
   public void inspect() {
     getLogger().info("docker inspect");
-
     imageInfo = getDockerClient().inspectImage(getImageId().get());
-  }
-
-  /**
-   * @see #getImageId()
-   * @deprecated This setter will be removed, please use the Property instead.
-   */
-  @Deprecated
-  public void setImageId(String imageId) {
-    this.imageId.set(imageId);
   }
 }

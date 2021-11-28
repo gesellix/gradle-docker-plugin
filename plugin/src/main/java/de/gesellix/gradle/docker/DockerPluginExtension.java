@@ -1,6 +1,6 @@
 package de.gesellix.gradle.docker;
 
-import de.gesellix.docker.client.authentication.AuthConfig;
+import de.gesellix.docker.authentication.AuthConfig;
 import org.gradle.api.Project;
 
 import java.net.Proxy;
@@ -28,25 +28,6 @@ public class DockerPluginExtension {
     this.project = project;
     dockerHost = System.getProperty("docker.host", System.getenv("DOCKER_HOST"));
     certPath = System.getProperty("docker.cert.path", System.getenv("DOCKER_CERT_PATH"));
-  }
-
-  /**
-   * @see #authConfig
-   * @deprecated The authConfigPlain property will be removed. Please use authConfig instead.
-   */
-  @Deprecated
-  public void setAuthConfigPlain(AuthConfig authConfigPlain) {
-    project.getLogger().warn("The authConfigPlain property will be removed soon. Please use authConfig instead.");
-    this.authConfig = authConfigPlain;
-  }
-
-  /**
-   * @see #authConfig
-   * @deprecated The authConfigEncoded property is not supported anymore. Please use authConfig instead.
-   */
-  @Deprecated
-  public void setAuthConfigEncoded(String ignored) {
-    throw new UnsupportedOperationException("The authConfigEncoded property is not supported anymore. Please use authConfig instead.");
   }
 
   /**
