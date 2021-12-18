@@ -120,7 +120,7 @@ pluginBundle {
   website = "https://github.com/gesellix/gradle-docker-plugin"
   vcsUrl = "https://github.com/gesellix/gradle-docker-plugin.git"
   description = "A Docker plugin for Gradle"
-  tags = listOf("docker", "gradle", "remote api", "plugin")
+  tags = listOf("docker", "remote api", "client")
 
   plugins {
     register(publicationName) {
