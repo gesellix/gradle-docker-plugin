@@ -2,7 +2,7 @@ import de.gesellix.docker.client.DockerClientImpl
 
 buildscript {
   repositories {
-    //  mavenLocal()
+//    mavenLocal()
 //    fun findProperty(s: String) = project.findProperty(s) as String?
 //    listOf(
 //      "docker-client/*",
@@ -21,7 +21,7 @@ buildscript {
   }
 
   dependencies {
-    classpath("de.gesellix:docker-client:2021-12-18T23-17-00")
+    classpath("de.gesellix:docker-client:2022-01-27T20-25-00")
   }
 }
 
