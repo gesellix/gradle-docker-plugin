@@ -1,5 +1,6 @@
 package de.gesellix.gradle.docker.tasks;
 
+import com.squareup.moshi.Moshi;
 import de.gesellix.docker.authentication.AuthConfig;
 import de.gesellix.docker.remote.api.BuildInfo;
 import de.gesellix.docker.remote.api.ImageID;
@@ -217,16 +218,22 @@ public class DockerBuildTask extends GenericDockerTask {
       }
     };
 
+    // https://docs.docker.com/engine/api/v1.41/#operation/ImageBuild
+    Object buildargs = buildParams.getOrDefault("buildargs", null);
+    if (buildargs instanceof Map) {
+      buildargs = new Moshi.Builder().build().adapter(Map.class).toJson((Map) buildargs);
+    }
+
     getDockerClient().build(
         callback,
         buildTimeout,
         (String) buildParams.getOrDefault("dockerfile", null),
         tag,
-        null,
-        null,
-        null,
+        (Boolean) buildParams.getOrDefault("quiet", null),
+        (Boolean) buildParams.getOrDefault("nocache", null),
+        (String) buildParams.getOrDefault("pull", null),
         (boolean) buildParams.getOrDefault("rm", true),
-        null,
+        (String) buildargs,
         null,
         encodedRegistryConfig,
         null,

@@ -76,7 +76,14 @@ class DockerBuildTaskSpec extends Specification {
 
     given:
     task.buildContext = inputStream
-    task.buildParams = [rm: true, dockerfile: './custom.Dockerfile']
+    task.buildParams = [
+        buildargs : [AN_ARGUMENT: "a value"],
+        dockerfile: './custom.Dockerfile',
+        nocache   : true,
+        pull      : "true",
+        quiet     : true,
+        rm        : false,
+    ]
     task.imageName = "imageName"
 
     when:
@@ -84,10 +91,17 @@ class DockerBuildTaskSpec extends Specification {
 
     then:
     1 * dockerClient.build(_, _,
-                           "./custom.Dockerfile", "imageName",
-                           null, null, null, true,
-                           null, null, null,
-                           null, inputStream)
+                           "./custom.Dockerfile",
+                           "imageName",
+                           true,
+                           true,
+                           "true",
+                           false,
+                           '{"AN_ARGUMENT":"a value"}',
+                           null,
+                           null,
+                           null,
+                           inputStream)
 
     and:
     task.outputs.files.isEmpty()
