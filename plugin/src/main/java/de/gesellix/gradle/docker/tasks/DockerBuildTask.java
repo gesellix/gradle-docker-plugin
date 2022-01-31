@@ -223,6 +223,10 @@ public class DockerBuildTask extends GenericDockerTask {
     if (buildargs instanceof Map) {
       buildargs = new Moshi.Builder().build().adapter(Map.class).toJson((Map) buildargs);
     }
+    Object pull = buildParams.getOrDefault("pull", null);
+    if (pull instanceof Boolean) {
+      pull = Boolean.toString((Boolean) pull);
+    }
 
     getDockerClient().build(
         callback,
@@ -231,7 +235,7 @@ public class DockerBuildTask extends GenericDockerTask {
         tag,
         (Boolean) buildParams.getOrDefault("quiet", null),
         (Boolean) buildParams.getOrDefault("nocache", null),
-        (String) buildParams.getOrDefault("pull", null),
+        (String) pull,
         (boolean) buildParams.getOrDefault("rm", true),
         (String) buildargs,
         null,

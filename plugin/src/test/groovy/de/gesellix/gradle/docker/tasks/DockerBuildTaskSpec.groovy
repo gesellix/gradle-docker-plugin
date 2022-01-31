@@ -7,6 +7,7 @@ import org.gradle.testfixtures.ProjectBuilder
 import org.gradle.workers.WorkQueue
 import org.gradle.workers.WorkerExecutor
 import spock.lang.Specification
+import spock.lang.Unroll
 
 import java.time.Duration
 import java.time.temporal.ChronoUnit
@@ -149,6 +150,32 @@ class DockerBuildTaskSpec extends Specification {
 
     and:
     task.outputs.files.isEmpty()
+  }
+
+  @Unroll
+  def "should accept boolean for 'pull' build param"() {
+    def inputStream = new FileInputStream(File.createTempFile("docker", "test"))
+
+    given:
+    task.buildContext = inputStream
+    task.buildParams = [rm: false, pull: pull, dockerfile: './custom.Dockerfile']
+    task.imageName = "imageName"
+
+    when:
+    task.build()
+
+    then:
+    1 * dockerClient.build(_, _,
+                           "./custom.Dockerfile", "imageName",
+                           null, null, pull.toString(), false,
+                           null, null, null,
+                           null, inputStream)
+
+    and:
+    task.outputs.files.isEmpty()
+
+    where:
+    pull << [true, false]
   }
 
   def "uses auth configs if not overridden via build options"() {
