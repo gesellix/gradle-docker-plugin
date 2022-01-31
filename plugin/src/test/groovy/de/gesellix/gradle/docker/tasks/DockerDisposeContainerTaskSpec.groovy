@@ -1,6 +1,7 @@
 package de.gesellix.gradle.docker.tasks
 
 import de.gesellix.docker.client.DockerClient
+import de.gesellix.docker.client.EngineResponseContent
 import de.gesellix.docker.remote.api.ContainerInspectResponse
 import de.gesellix.docker.remote.api.core.ClientException
 import org.gradle.testfixtures.ProjectBuilder
@@ -21,7 +22,7 @@ class DockerDisposeContainerTaskSpec extends Specification {
   def "delegates to dockerClient (w/o removing the parent image)"() {
     given:
     task.containerId = "4712"
-    dockerClient.inspectContainer("4712") >> [content: new ContainerInspectResponse()]
+    dockerClient.inspectContainer("4712") >> new EngineResponseContent<>(new ContainerInspectResponse())
 
     when:
     task.dispose()
@@ -40,7 +41,7 @@ class DockerDisposeContainerTaskSpec extends Specification {
     given:
     task.containerId = "4712"
     task.rmiParentImage = true
-    dockerClient.inspectContainer("4712") >> [content: new ContainerInspectResponse().tap { image = "an-image-id" }]
+    dockerClient.inspectContainer("4712") >> new EngineResponseContent<>(new ContainerInspectResponse().tap { image = "an-image-id" })
 
     when:
     task.dispose()
@@ -74,7 +75,7 @@ class DockerDisposeContainerTaskSpec extends Specification {
     given:
     task.containerId = "4712"
     task.removeVolumes = true
-    dockerClient.inspectContainer("4712") >> [content: new ContainerInspectResponse()]
+    dockerClient.inspectContainer("4712") >> new EngineResponseContent<>(new ContainerInspectResponse())
 
     when:
     task.dispose()
@@ -86,7 +87,7 @@ class DockerDisposeContainerTaskSpec extends Specification {
   def "does not remove Volumes by default"() {
     given:
     task.containerId = "4712"
-    dockerClient.inspectContainer("4712") >> [content: new ContainerInspectResponse()]
+    dockerClient.inspectContainer("4712") >> new EngineResponseContent<>(new ContainerInspectResponse())
 
     when:
     task.dispose()
