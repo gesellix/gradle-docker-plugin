@@ -8,6 +8,7 @@ import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.TaskAction;
 
 import javax.inject.Inject;
+import java.io.InputStream;
 
 public class DockerCopyFromContainerTask extends GenericDockerTask {
 
@@ -25,10 +26,10 @@ public class DockerCopyFromContainerTask extends GenericDockerTask {
     return sourcePath;
   }
 
-  private EngineResponse content;
+  private EngineResponse<InputStream> content;
 
   @Internal
-  public EngineResponse getContent() {
+  public EngineResponse<InputStream> getContent() {
     return content;
   }
 
@@ -42,7 +43,7 @@ public class DockerCopyFromContainerTask extends GenericDockerTask {
   }
 
   @TaskAction
-  public EngineResponse copyFromContainer() {
+  public EngineResponse<InputStream> copyFromContainer() {
     getLogger().info("docker cp from container");
     return content = getDockerClient().getArchive(getContainer().get(), getSourcePath().get());
   }
