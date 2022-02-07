@@ -244,14 +244,26 @@ public class DockerBuildTask extends GenericDockerTask {
         actualBuildContext);
     try {
       getLogger().debug("Waiting " + buildTimeout + " for the build to finish...");
-      buildFinished.await(buildTimeout.toMillis(), TimeUnit.MILLISECONDS);
+      boolean finished = buildFinished.await(buildTimeout.toMillis(), TimeUnit.MILLISECONDS);
+      if (!finished) {
+        getLogger().error("Build didn't finish before timeout of " + buildTimeout);
+        return null;
+      }
+
+      if (BuildInfoExtensionsKt.hasError(infos)) {
+        BuildInfo error = BuildInfoExtensionsKt.getError(infos);
+        getLogger().error("Build failed. {}", error != null ? error.getErrorDetail() : null);
+        return null;
+      }
+
+      ImageID imageId = BuildInfoExtensionsKt.getImageId(infos);
+      this.imageId = imageId == null ? null : imageId.getID();
+      return this.imageId;
     }
     catch (InterruptedException e) {
-      getLogger().error("Build didn't finish before timeout of " + buildTimeout, e);
+      getLogger().error("Build interrupted before timeout of " + buildTimeout, e);
+      return null;
     }
-    ImageID imageId = BuildInfoExtensionsKt.getImageId(infos);
-    this.imageId = imageId == null ? null : imageId.getID();
-    return this.imageId;
   }
 
   @Internal
