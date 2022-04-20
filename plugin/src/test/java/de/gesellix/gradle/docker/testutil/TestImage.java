@@ -16,7 +16,7 @@ public class TestImage {
 
     this.isWindows = Objects.requireNonNull(dockerClient.version().getContent().getOs()).equalsIgnoreCase("windows");
     this.repository = "gesellix/echo-server";
-    this.tag = isWindows ? "os-windows" : "os-linux";
+    this.tag = "2022-04-08T22-27-00";
 
     // TODO consider NOT calling prepare inside the constructor
     prepare();
