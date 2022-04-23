@@ -1,6 +1,7 @@
 package de.gesellix.gradle.docker.tasks;
 
-import de.gesellix.docker.engine.EngineResponse;
+import de.gesellix.docker.client.EngineResponseContent;
+import de.gesellix.docker.remote.api.ContainerInspectResponse;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.Input;
@@ -18,10 +19,10 @@ public class DockerInspectContainerTask extends GenericDockerTask {
     return containerId;
   }
 
-  private EngineResponse containerInfo;
+  private EngineResponseContent<ContainerInspectResponse> containerInfo;
 
   @Internal
-  public EngineResponse getContainerInfo() {
+  public EngineResponseContent<ContainerInspectResponse> getContainerInfo() {
     return containerInfo;
   }
 

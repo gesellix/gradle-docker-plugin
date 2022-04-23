@@ -1,7 +1,8 @@
 package de.gesellix.gradle.docker.tasks
 
 import de.gesellix.docker.client.DockerClient
-import de.gesellix.docker.engine.EngineResponse
+import de.gesellix.docker.client.EngineResponseContent
+import de.gesellix.docker.remote.api.ImageSummary
 import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.Specification
 
@@ -22,9 +23,11 @@ class DockerImagesTaskSpec extends Specification {
     task.images()
 
     then:
-    1 * dockerClient.images() >> new EngineResponse(content: ["image"])
+    1 * dockerClient.images() >> new EngineResponseContent([new ImageSummary(
+        "image", "parent", null, null, -1, BigDecimal.ONE, BigDecimal.TEN, BigDecimal.ZERO, null, 0
+    )])
 
     and:
-    task.images.content == ["image"]
+    task.images.content.id == ["image"]
   }
 }

@@ -1,7 +1,7 @@
 package de.gesellix.gradle.docker.tasks
 
 import de.gesellix.docker.client.DockerClient
-import de.gesellix.docker.engine.EngineResponse
+import de.gesellix.docker.client.EngineResponseContent
 import de.gesellix.docker.remote.api.ExecConfig
 import de.gesellix.docker.remote.api.ExecStartConfig
 import de.gesellix.docker.remote.api.IdResponse
@@ -40,7 +40,7 @@ class DockerExecTaskSpec extends Specification {
     task.exec()
 
     then:
-    1 * dockerClient.createExec(containerId, execConfig) >> new EngineResponse(content: new IdResponse("exec-id"))
+    1 * dockerClient.createExec(containerId, execConfig) >> new EngineResponseContent(new IdResponse("exec-id"))
     1 * dockerClient.startExec("exec-id", new ExecStartConfig(false, false), null, null)
   }
 
@@ -64,7 +64,7 @@ class DockerExecTaskSpec extends Specification {
     task.exec()
 
     then:
-    1 * dockerClient.createExec(containerId, execConfig) >> new EngineResponse(content: new IdResponse("exec-id"))
+    1 * dockerClient.createExec(containerId, execConfig) >> new EngineResponseContent(new IdResponse("exec-id"))
     1 * dockerClient.startExec("exec-id", new ExecStartConfig(false, false), null, null)
   }
 }

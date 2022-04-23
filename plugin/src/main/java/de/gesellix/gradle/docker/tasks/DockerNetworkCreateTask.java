@@ -1,6 +1,7 @@
 package de.gesellix.gradle.docker.tasks;
 
-import de.gesellix.docker.engine.EngineResponse;
+import de.gesellix.docker.client.EngineResponseContent;
+import de.gesellix.docker.remote.api.NetworkCreateResponse;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.MapProperty;
 import org.gradle.api.provider.Property;
@@ -27,10 +28,10 @@ public class DockerNetworkCreateTask extends GenericDockerTask {
     return networkConfig;
   }
 
-  private EngineResponse response;
+  private EngineResponseContent<NetworkCreateResponse> response;
 
   @Internal
-  public EngineResponse getResponse() {
+  public EngineResponseContent<NetworkCreateResponse> getResponse() {
     return response;
   }
 

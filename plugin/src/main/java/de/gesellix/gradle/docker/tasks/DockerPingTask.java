@@ -1,6 +1,6 @@
 package de.gesellix.gradle.docker.tasks;
 
-import de.gesellix.docker.engine.EngineResponse;
+import de.gesellix.docker.client.EngineResponseContent;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.TaskAction;
@@ -9,10 +9,10 @@ import javax.inject.Inject;
 
 public class DockerPingTask extends GenericDockerTask {
 
-  private EngineResponse result;
+  private EngineResponseContent<String> result;
 
   @Internal
-  public EngineResponse getResult() {
+  public EngineResponseContent<String> getResult() {
     return result;
   }
 
@@ -23,7 +23,7 @@ public class DockerPingTask extends GenericDockerTask {
   }
 
   @TaskAction
-  public EngineResponse ping() {
+  public EngineResponseContent<String> ping() {
     getLogger().info("docker ping");
     return result = getDockerClient().ping();
   }

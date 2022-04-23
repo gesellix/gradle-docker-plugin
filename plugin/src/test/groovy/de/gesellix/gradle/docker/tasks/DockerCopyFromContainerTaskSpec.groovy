@@ -1,7 +1,7 @@
 package de.gesellix.gradle.docker.tasks
 
 import de.gesellix.docker.client.DockerClient
-import de.gesellix.docker.engine.EngineResponse
+import de.gesellix.docker.client.EngineResponseContent
 import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.Specification
 
@@ -21,7 +21,7 @@ class DockerCopyFromContainerTaskSpec extends Specification {
     given:
     task.container = "4711"
     task.sourcePath = "/file.txt"
-    def expectedResponse = new EngineResponse(content: "file-content")
+    def expectedResponse = new EngineResponseContent("file-content")
 
     when:
     task.copyFromContainer()

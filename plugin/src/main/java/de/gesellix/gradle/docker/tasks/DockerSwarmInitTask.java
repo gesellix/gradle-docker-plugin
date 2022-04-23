@@ -1,6 +1,6 @@
 package de.gesellix.gradle.docker.tasks;
 
-import de.gesellix.docker.engine.EngineResponse;
+import de.gesellix.docker.client.EngineResponseContent;
 import de.gesellix.docker.remote.api.SwarmInitRequest;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Property;
@@ -19,10 +19,10 @@ public class DockerSwarmInitTask extends GenericDockerTask {
     return swarmconfig;
   }
 
-  private EngineResponse response;
+  private EngineResponseContent<String> response;
 
   @Internal
-  public EngineResponse getResponse() {
+  public EngineResponseContent<String> getResponse() {
     return response;
   }
 
@@ -35,7 +35,7 @@ public class DockerSwarmInitTask extends GenericDockerTask {
   }
 
   @TaskAction
-  public EngineResponse initSwarm() {
+  public EngineResponseContent<String> initSwarm() {
     getLogger().info("docker swarm init");
     response = getDockerClient().initSwarm(getSwarmconfig().get());
     return response;

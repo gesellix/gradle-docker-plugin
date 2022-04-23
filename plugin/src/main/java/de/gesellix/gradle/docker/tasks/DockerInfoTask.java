@@ -1,6 +1,7 @@
 package de.gesellix.gradle.docker.tasks;
 
-import de.gesellix.docker.engine.EngineResponse;
+import de.gesellix.docker.client.EngineResponseContent;
+import de.gesellix.docker.remote.api.SystemInfo;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.TaskAction;
@@ -9,10 +10,10 @@ import javax.inject.Inject;
 
 public class DockerInfoTask extends GenericDockerTask {
 
-  private EngineResponse info;
+  private EngineResponseContent<SystemInfo> info;
 
   @Internal
-  public EngineResponse getInfo() {
+  public EngineResponseContent<SystemInfo> getInfo() {
     return info;
   }
 
@@ -23,7 +24,7 @@ public class DockerInfoTask extends GenericDockerTask {
   }
 
   @TaskAction
-  public EngineResponse info() {
+  public EngineResponseContent<SystemInfo> info() {
     getLogger().info("docker info");
     return info = getDockerClient().info();
   }

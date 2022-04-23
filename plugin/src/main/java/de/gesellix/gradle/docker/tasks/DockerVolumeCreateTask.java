@@ -1,6 +1,7 @@
 package de.gesellix.gradle.docker.tasks;
 
-import de.gesellix.docker.engine.EngineResponse;
+import de.gesellix.docker.client.EngineResponseContent;
+import de.gesellix.docker.remote.api.Volume;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.MapProperty;
 import org.gradle.api.tasks.Input;
@@ -21,10 +22,10 @@ public class DockerVolumeCreateTask extends GenericDockerTask {
     return volumeConfig;
   }
 
-  private EngineResponse response;
+  private EngineResponseContent<Volume> response;
 
   @Internal
-  public EngineResponse getResponse() {
+  public EngineResponseContent<Volume> getResponse() {
     return response;
   }
 
@@ -37,7 +38,7 @@ public class DockerVolumeCreateTask extends GenericDockerTask {
   }
 
   @TaskAction
-  public EngineResponse createVolume() {
+  public EngineResponseContent<Volume> createVolume() {
     getLogger().info("docker volume create");
 
     response = getDockerClient().createVolume(new HashMap<>(getVolumeConfig().get()));

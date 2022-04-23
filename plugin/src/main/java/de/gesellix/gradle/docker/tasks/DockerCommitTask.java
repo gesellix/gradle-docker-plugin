@@ -1,6 +1,7 @@
 package de.gesellix.gradle.docker.tasks;
 
-import de.gesellix.docker.engine.EngineResponse;
+import de.gesellix.docker.client.EngineResponseContent;
+import de.gesellix.docker.remote.api.IdResponse;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.Input;
@@ -83,7 +84,7 @@ public class DockerCommitTask extends GenericDockerTask {
   }
 
   @TaskAction
-  public EngineResponse commit() {
+  public EngineResponseContent<IdResponse> commit() {
     getLogger().info("docker commit");
     Map<String, Object> map = new HashMap<>(6);
     map.put("repo", getRepo().get());
