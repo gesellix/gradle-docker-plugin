@@ -24,7 +24,7 @@ class DockerPluginSpec extends Specification {
   def "configuration is passed to tasks"() {
     given:
     project.apply plugin: 'de.gesellix.docker'
-    project.docker.dockerHost = "http://example.org:2375"
+    project.docker.dockerHost = "https://example.org:2376"
     project.docker.certPath = 'foo'
     project.docker.authConfig = new AuthConfig(username: "plain example")
 
@@ -32,7 +32,7 @@ class DockerPluginSpec extends Specification {
     def task = project.tasks.create("testTask", TestTask)
 
     then:
-    task.dockerHost.get() == "http://example.org:2375"
+    task.dockerHost.get() == "https://example.org:2376"
     task.certPath.get() == project.file('foo').absolutePath
     task.authConfig.get().username == "plain example"
   }
