@@ -1,6 +1,6 @@
 package de.gesellix.gradle.docker.tasks;
 
-import de.gesellix.docker.engine.EngineResponse;
+import de.gesellix.docker.client.EngineResponseContent;
 import de.gesellix.docker.remote.api.ContainerWaitResponse;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Property;
@@ -28,10 +28,10 @@ public class DockerWaitTask extends GenericDockerTask {
     return ignoreError;
   }
 
-  private EngineResponse<ContainerWaitResponse> result;
+  private EngineResponseContent<ContainerWaitResponse> result;
 
   @Internal
-  public EngineResponse<ContainerWaitResponse> getResult() {
+  public EngineResponseContent<ContainerWaitResponse> getResult() {
     return result;
   }
 
@@ -46,7 +46,7 @@ public class DockerWaitTask extends GenericDockerTask {
   }
 
   @TaskAction
-  public EngineResponse<ContainerWaitResponse> awaitStop() {
+  public EngineResponseContent<ContainerWaitResponse> awaitStop() {
     getLogger().info("docker wait");
 
     try {

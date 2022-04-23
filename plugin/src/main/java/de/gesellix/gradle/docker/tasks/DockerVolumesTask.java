@@ -1,6 +1,7 @@
 package de.gesellix.gradle.docker.tasks;
 
-import de.gesellix.docker.engine.EngineResponse;
+import de.gesellix.docker.client.EngineResponseContent;
+import de.gesellix.docker.remote.api.VolumeListResponse;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.MapProperty;
 import org.gradle.api.tasks.Input;
@@ -21,10 +22,10 @@ public class DockerVolumesTask extends GenericDockerTask {
     return query;
   }
 
-  private EngineResponse volumes;
+  private EngineResponseContent<VolumeListResponse> volumes;
 
   @Internal
-  public EngineResponse getVolumes() {
+  public EngineResponseContent<VolumeListResponse> getVolumes() {
     return volumes;
   }
 

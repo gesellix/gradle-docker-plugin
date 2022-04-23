@@ -1,7 +1,8 @@
 package de.gesellix.gradle.docker.tasks
 
 import de.gesellix.docker.client.DockerClient
-import de.gesellix.docker.engine.EngineResponse
+import de.gesellix.docker.client.EngineResponseContent
+import de.gesellix.docker.remote.api.SystemVersion
 import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.Specification
 
@@ -19,7 +20,7 @@ class DockerVersionTaskSpec extends Specification {
 
   def "delegates to dockerClient and saves result"() {
     given:
-    def response = new EngineResponse()
+    def response = new EngineResponseContent(new SystemVersion())
 
     when:
     task.version()

@@ -2,8 +2,6 @@ package de.gesellix.gradle.docker.tasks
 
 import de.gesellix.docker.authentication.AuthConfig
 import de.gesellix.docker.client.DockerClient
-import de.gesellix.docker.engine.EngineResponse
-import de.gesellix.docker.engine.EngineResponseStatus
 import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.Specification
 
@@ -29,8 +27,6 @@ class DockerPullTaskSpec extends Specification {
     task.imageName = "imageName"
     task.imageTag = "latest"
     task.registry = "registry.example.com:4711"
-    def response = Mock(EngineResponse)
-    response.status >> Mock(EngineResponseStatus)
 
     when:
     task.pull()

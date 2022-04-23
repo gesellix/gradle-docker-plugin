@@ -1,7 +1,8 @@
 package de.gesellix.gradle.docker.tasks
 
 import de.gesellix.docker.client.DockerClient
-import de.gesellix.docker.engine.EngineResponse
+import de.gesellix.docker.client.EngineResponseContent
+import de.gesellix.docker.remote.api.Volume
 import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.Specification
 
@@ -23,7 +24,9 @@ class DockerVolumeCreateTaskSpec extends Specification {
     task.configure {
       volumeConfig = config
     }
-    def expectedResult = new EngineResponse(status: [code: 201])
+    def expectedResult = new EngineResponseContent(new Volume(
+        "foo", "overlay", "", null, null, null, null, null, null
+    ))
 
     when:
     task.createVolume()

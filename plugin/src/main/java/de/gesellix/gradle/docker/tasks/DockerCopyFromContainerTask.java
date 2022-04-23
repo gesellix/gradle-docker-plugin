@@ -1,6 +1,6 @@
 package de.gesellix.gradle.docker.tasks;
 
-import de.gesellix.docker.engine.EngineResponse;
+import de.gesellix.docker.client.EngineResponseContent;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.Input;
@@ -26,10 +26,10 @@ public class DockerCopyFromContainerTask extends GenericDockerTask {
     return sourcePath;
   }
 
-  private EngineResponse<InputStream> content;
+  private EngineResponseContent<InputStream> content;
 
   @Internal
-  public EngineResponse<InputStream> getContent() {
+  public EngineResponseContent<InputStream> getContent() {
     return content;
   }
 
@@ -43,7 +43,7 @@ public class DockerCopyFromContainerTask extends GenericDockerTask {
   }
 
   @TaskAction
-  public EngineResponse<InputStream> copyFromContainer() {
+  public EngineResponseContent<InputStream> copyFromContainer() {
     getLogger().info("docker cp from container");
     return content = getDockerClient().getArchive(getContainer().get(), getSourcePath().get());
   }

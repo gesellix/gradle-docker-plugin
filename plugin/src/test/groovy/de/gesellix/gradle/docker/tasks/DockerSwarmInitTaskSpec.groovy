@@ -1,6 +1,7 @@
 package de.gesellix.gradle.docker.tasks
 
 import de.gesellix.docker.client.DockerClient
+import de.gesellix.docker.client.EngineResponseContent
 import de.gesellix.docker.remote.api.SwarmInitRequest
 import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.Specification
@@ -28,7 +29,7 @@ class DockerSwarmInitTaskSpec extends Specification {
     task.initSwarm()
 
     then:
-    1 * dockerClient.initSwarm(swarmConfig) >> [content: "swarm-result"]
+    1 * dockerClient.initSwarm(swarmConfig) >> new EngineResponseContent("swarm-result")
 
     and:
     task.response.content == "swarm-result"

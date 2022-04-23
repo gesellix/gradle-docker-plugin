@@ -1,6 +1,7 @@
 package de.gesellix.gradle.docker.tasks;
 
-import de.gesellix.docker.engine.EngineResponse;
+import de.gesellix.docker.client.EngineResponseContent;
+import de.gesellix.docker.remote.api.ServiceCreateResponse;
 import de.gesellix.docker.remote.api.ServiceSpec;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Property;
@@ -19,10 +20,10 @@ public class DockerServiceCreateTask extends GenericDockerTask {
     return serviceConfig;
   }
 
-  private EngineResponse response;
+  private EngineResponseContent<ServiceCreateResponse> response;
 
   @Internal
-  public EngineResponse getResponse() {
+  public EngineResponseContent<ServiceCreateResponse> getResponse() {
     return response;
   }
 

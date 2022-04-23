@@ -1,8 +1,9 @@
 package de.gesellix.gradle.docker.tasks;
 
+import de.gesellix.docker.client.EngineResponseContent;
 import de.gesellix.docker.client.EnvFileParser;
-import de.gesellix.docker.engine.EngineResponse;
 import de.gesellix.docker.remote.api.ContainerCreateRequest;
+import de.gesellix.docker.remote.api.ContainerCreateResponse;
 import de.gesellix.docker.remote.api.HostConfig;
 import de.gesellix.docker.remote.api.PortBinding;
 import org.gradle.api.model.ObjectFactory;
@@ -82,10 +83,10 @@ public class DockerCreateTask extends GenericDockerTask {
     return environmentFiles;
   }
 
-  private EngineResponse result;
+  private EngineResponseContent<ContainerCreateResponse> result;
 
   @Internal
-  public EngineResponse getResult() {
+  public EngineResponseContent<ContainerCreateResponse> getResult() {
     return result;
   }
 
@@ -109,7 +110,7 @@ public class DockerCreateTask extends GenericDockerTask {
   }
 
   @TaskAction
-  public EngineResponse create() {
+  public EngineResponseContent<ContainerCreateResponse> create() {
     getLogger().info("docker create");
 
     ContainerCreateRequest containerConfig = getActualContainerConfig();

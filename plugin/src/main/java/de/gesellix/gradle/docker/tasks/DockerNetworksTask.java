@@ -1,18 +1,20 @@
 package de.gesellix.gradle.docker.tasks;
 
-import de.gesellix.docker.engine.EngineResponse;
+import de.gesellix.docker.client.EngineResponseContent;
+import de.gesellix.docker.remote.api.Network;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.TaskAction;
 
 import javax.inject.Inject;
+import java.util.List;
 
 public class DockerNetworksTask extends GenericDockerTask {
 
-  private EngineResponse networks;
+  private EngineResponseContent<List<Network>> networks;
 
   @Internal
-  public EngineResponse getNetworks() {
+  public EngineResponseContent<List<Network>> getNetworks() {
     return networks;
   }
 

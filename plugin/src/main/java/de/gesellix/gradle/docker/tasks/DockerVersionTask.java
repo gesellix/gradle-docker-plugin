@@ -1,6 +1,7 @@
 package de.gesellix.gradle.docker.tasks;
 
-import de.gesellix.docker.engine.EngineResponse;
+import de.gesellix.docker.client.EngineResponseContent;
+import de.gesellix.docker.remote.api.SystemVersion;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.TaskAction;
@@ -9,10 +10,10 @@ import javax.inject.Inject;
 
 public class DockerVersionTask extends GenericDockerTask {
 
-  private EngineResponse version;
+  private EngineResponseContent<SystemVersion> version;
 
   @Internal
-  public EngineResponse getVersion() {
+  public EngineResponseContent<SystemVersion> getVersion() {
     return version;
   }
 

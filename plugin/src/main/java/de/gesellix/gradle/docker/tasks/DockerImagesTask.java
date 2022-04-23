@@ -1,18 +1,20 @@
 package de.gesellix.gradle.docker.tasks;
 
-import de.gesellix.docker.engine.EngineResponse;
+import de.gesellix.docker.client.EngineResponseContent;
+import de.gesellix.docker.remote.api.ImageSummary;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.TaskAction;
 
 import javax.inject.Inject;
+import java.util.List;
 
 public class DockerImagesTask extends GenericDockerTask {
 
-  private EngineResponse images;
+  private EngineResponseContent<List<ImageSummary>> images;
 
   @Internal
-  public EngineResponse getImages() {
+  public EngineResponseContent<List<ImageSummary>> getImages() {
     return images;
   }
 
@@ -23,7 +25,7 @@ public class DockerImagesTask extends GenericDockerTask {
   }
 
   @TaskAction
-  public EngineResponse images() {
+  public EngineResponseContent<List<ImageSummary>> images() {
     getLogger().info("docker images");
     return images = getDockerClient().images();
   }
