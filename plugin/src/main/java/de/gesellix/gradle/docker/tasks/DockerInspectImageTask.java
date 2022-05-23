@@ -1,7 +1,7 @@
 package de.gesellix.gradle.docker.tasks;
 
 import de.gesellix.docker.client.EngineResponseContent;
-import de.gesellix.docker.remote.api.Image;
+import de.gesellix.docker.remote.api.ImageInspect;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.Input;
@@ -19,10 +19,10 @@ public class DockerInspectImageTask extends GenericDockerTask {
     return imageId;
   }
 
-  private EngineResponseContent<Image> imageInfo;
+  private EngineResponseContent<ImageInspect> imageInfo;
 
   @Internal
-  public EngineResponseContent<Image> getImageInfo() {
+  public EngineResponseContent<ImageInspect> getImageInfo() {
     return imageInfo;
   }
 
