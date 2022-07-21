@@ -134,20 +134,17 @@ signing {
 pluginBundle {
   website = "https://github.com/gesellix/gradle-docker-plugin"
   vcsUrl = "https://github.com/gesellix/gradle-docker-plugin.git"
-  description = "A Docker plugin for Gradle"
   tags = listOf("docker", "remote api", "client")
+}
 
+gradlePlugin {
   plugins {
     register(publicationName) {
       id = "de.gesellix.docker"
       displayName = "Gradle Docker plugin"
+      description = "A Docker plugin for Gradle"
+      implementationClass = "de.gesellix.gradle.docker.DockerPlugin"
       version = artifactVersion
     }
-  }
-
-  mavenCoordinates {
-    groupId = "de.gesellix"
-    artifactId = "gradle-docker-plugin"
-    version = artifactVersion
   }
 }
