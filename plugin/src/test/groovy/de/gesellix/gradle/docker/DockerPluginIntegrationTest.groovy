@@ -1,6 +1,5 @@
 package de.gesellix.gradle.docker
 
-import de.gesellix.docker.client.DockerClient
 import de.gesellix.docker.client.DockerClientImpl
 import de.gesellix.docker.client.LocalDocker
 import de.gesellix.docker.remote.api.ContainerCreateRequest
@@ -10,7 +9,6 @@ import de.gesellix.docker.remote.api.core.ClientException
 import de.gesellix.gradle.docker.testutil.TestImage
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
-import org.spockframework.util.Assert
 import spock.lang.Ignore
 import spock.lang.Requires
 import spock.lang.Specification
@@ -612,21 +610,5 @@ class DockerPluginIntegrationTest extends Specification {
     then:
     result.output.contains("same version: true")
     result.task(':testTask').outcome == TaskOutcome.SUCCESS
-  }
-
-  void pull(DockerClient dockerClient, String image, String tag) {
-    def createResponse = dockerClient.create([fromImage: image, tag: tag], [:])
-    if (!createResponse.status.success) {
-      println "create: ${createResponse}"
-      Assert.fail("`docker pull $image:$tag` failed")
-    }
-  }
-
-  void tag(DockerClient dockerClient, String from, String to) {
-    def tagResponse = dockerClient.tag(from, to)
-    if (!tagResponse.status.success) {
-      println "tag: ${tagResponse}"
-      Assert.fail("`docker tag $from $to` failed")
-    }
   }
 }
