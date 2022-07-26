@@ -511,7 +511,7 @@ class DockerPluginIntegrationTest extends Specification {
                 ]
             }
 
-            def config = new de.gesellix.docker.remote.api.ServiceSpec().tap {
+            def config = new de.gesellix.docker.remote.api.ServiceCreateRequest().tap {
               name = "my-service"
               taskTemplate = new de.gesellix.docker.remote.api.TaskSpec().tap {
                 containerSpec = new de.gesellix.docker.remote.api.TaskSpecContainerSpec().tap {

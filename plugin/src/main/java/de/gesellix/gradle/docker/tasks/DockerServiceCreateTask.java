@@ -1,8 +1,8 @@
 package de.gesellix.gradle.docker.tasks;
 
 import de.gesellix.docker.client.EngineResponseContent;
+import de.gesellix.docker.remote.api.ServiceCreateRequest;
 import de.gesellix.docker.remote.api.ServiceCreateResponse;
-import de.gesellix.docker.remote.api.ServiceSpec;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.Input;
@@ -13,10 +13,10 @@ import javax.inject.Inject;
 
 public class DockerServiceCreateTask extends GenericDockerTask {
 
-  private final Property<ServiceSpec> serviceConfig;
+  private final Property<ServiceCreateRequest> serviceConfig;
 
   @Input
-  public Property<ServiceSpec> getServiceConfig() {
+  public Property<ServiceCreateRequest> getServiceConfig() {
     return serviceConfig;
   }
 
@@ -32,7 +32,7 @@ public class DockerServiceCreateTask extends GenericDockerTask {
     super(objectFactory);
     setDescription("Create a service");
 
-    serviceConfig = objectFactory.property(ServiceSpec.class);
+    serviceConfig = objectFactory.property(ServiceCreateRequest.class);
   }
 
   @TaskAction

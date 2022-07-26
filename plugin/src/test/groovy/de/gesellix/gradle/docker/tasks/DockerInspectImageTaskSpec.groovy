@@ -25,7 +25,7 @@ class DockerInspectImageTaskSpec extends Specification {
     task.imageId = "my.image:dev"
     def expectedResponse = new EngineResponseContent(new ImageInspect(
         "sha256:1234", null, null, "parent", "", "", "",
-        null, "", "", null, "", "", "",
+        null, "", "", null, "", "", "", "",
         0, 0, new GraphDriverData("", [:]),
         new ImageInspectRootFS("", [], ""),
         null
