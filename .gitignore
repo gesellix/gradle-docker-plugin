@@ -8,4 +8,4 @@ out/
 .classpath
 .settings
 bin
-
+local-plugins
