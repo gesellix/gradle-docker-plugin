@@ -24,7 +24,7 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: build publish
-        run: ./gradlew clean build publish -x publishPluginMavenPublicationToGitHubPackagesRepository --info --stacktrace
+        run: ./gradlew clean build publishToGitHubPackages --info --stacktrace
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ORG_GRADLE_PROJECT_signingKey: ${{ secrets.GPG_SIGNING_KEY }}

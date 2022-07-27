@@ -160,3 +160,19 @@ tasks.withType<ValidateMavenPom>().configureEach {
       || name.contains("For${publicationName.capitalize()}PluginMarkerMaven")
       || name.contains("ForPluginMavenPublication")
 }
+
+tasks.register("publishTo${localRepositoryName}") {
+  group = "publishing"
+  description = "Publishes all Maven publications to the $localRepositoryName Maven repository."
+  dependsOn(tasks.withType<PublishToMavenRepository>().matching {
+    it.repository == publishing.repositories[localRepositoryName]
+  })
+}
+
+tasks.register("publishTo${gitHubPackagesRepositoryName}") {
+  group = "publishing"
+  description = "Publishes all Maven publications to the $gitHubPackagesRepositoryName Maven repository."
+  dependsOn(tasks.withType<PublishToMavenRepository>().matching {
+    it.repository == publishing.repositories[gitHubPackagesRepositoryName]
+  })
+}
