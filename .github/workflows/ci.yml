@@ -38,7 +38,7 @@ jobs:
       - name: Debug
         run: ./gradlew checkDockerAvailability --info --stacktrace
       - name: clean build
-        run: ./gradlew clean build -x validatePomFileForGradleDockerPluginPluginMarkerMavenPublication -x validatePomFileForGradleDockerPluginPublication -x validatePomFileForPluginMavenPublication --no-daemon --info --stacktrace
+        run: ./gradlew clean build --no-daemon --info --stacktrace
       - name: Publish Test Report
         if: ${{ always() }}
         uses: scacap/action-surefire-report@v1
