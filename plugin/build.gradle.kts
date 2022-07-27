@@ -1,3 +1,4 @@
+import io.freefair.gradle.plugins.maven.central.ValidateMavenPom
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -9,8 +10,6 @@ plugins {
   id("com.github.ben-manes.versions")
   id("net.ossindex.audit")
   id("com.gradle.plugin-publish")
-  // TODO Validation fails for the java-gradle-plugin "PluginMaven" publication
-  // Validation is disabled in the ci/cd workflows (`-x validatePomFileForPluginMavenPublication`)
   id("io.freefair.maven-central.validate-poms")
 }
 
@@ -76,13 +75,19 @@ artifacts {
 
 fun findProperty(s: String) = project.findProperty(s) as String?
 
+val localRepositoryName = "LocalPackages"
+val gitHubPackagesRepositoryName = "GitHubPackages"
 val isSnapshot = project.version == "unspecified"
 val artifactVersion = if (!isSnapshot) project.version as String else SimpleDateFormat("yyyy-MM-dd\'T\'HH-mm-ss").format(Date())!!
 val publicationName = "gradleDockerPlugin"
 publishing {
   repositories {
     maven {
-      name = "GitHubPackages"
+      name = localRepositoryName
+      url = uri("../local-plugins")
+    }
+    maven {
+      name = gitHubPackagesRepositoryName
       url = uri("https://maven.pkg.github.com/${property("github.package-registry.owner")}/${property("github.package-registry.repository")}")
       credentials {
         username = System.getenv("GITHUB_ACTOR") ?: findProperty("github.package-registry.username")
@@ -91,7 +96,7 @@ publishing {
     }
   }
   publications {
-    register(publicationName, MavenPublication::class) {
+    register<MavenPublication>(publicationName) {
       pom {
         name.set("gradle-docker-plugin")
         description.set("A Docker plugin for Gradle")
@@ -148,4 +153,10 @@ gradlePlugin {
       version = artifactVersion
     }
   }
+}
+
+tasks.withType<ValidateMavenPom>().configureEach {
+  ignoreFailures = System.getenv()["IGNORE_INVALID_POMS"] == "true"
+      || name.contains("For${publicationName.capitalize()}PluginMarkerMaven")
+      || name.contains("ForPluginMavenPublication")
 }
