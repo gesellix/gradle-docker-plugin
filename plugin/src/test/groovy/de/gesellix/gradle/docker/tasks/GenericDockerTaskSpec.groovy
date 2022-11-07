@@ -33,7 +33,7 @@ class GenericDockerTaskSpec extends Specification {
     DockerClientImpl dockerClient = task.dockerClient
 
     then:
-    dockerClient.env.dockerHost == DockerEnv.dockerHostOrDefault
+    dockerClient.env.dockerHost == DockerEnv.getDefaultDockerHost()
   }
 
   def "delegates to dockerClient with configured dockerHost"() {
