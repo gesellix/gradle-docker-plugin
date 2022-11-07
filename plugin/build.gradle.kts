@@ -38,7 +38,7 @@ dependencies {
   api("de.gesellix:docker-client:2022-11-07T20-55-00")
 
   testImplementation(localGroovy())
-  testImplementation("org.spockframework:spock-core:2.1-groovy-3.0")
+  testImplementation("org.spockframework:spock-core:2.3-groovy-3.0")
   testImplementation("cglib:cglib-nodep:3.3.0")
 
   // see https://docs.gradle.org/current/userguide/test_kit.html
@@ -198,3 +198,13 @@ tasks.withType<PublishToMavenRepository>().configureEach {
         || isGradlePluginPublish(repository, publication)
   }
 }
+
+//afterEvaluate {
+//  publishing.publications.forEach { p ->
+//    if (p is MavenPublication){
+//      p.artifacts.forEach {a->
+//        println("${p.name} -> ${a.extension}/${a.classifier} -> ${a.file}")
+//      }
+//    }
+//  }
+//}
