@@ -13,7 +13,7 @@ class DockerPingTaskSpec extends Specification {
 
   def setup() {
     project = ProjectBuilder.builder().build()
-    task = project.task('dockerPing', type: DockerPingTask)
+    task = project.tasks.register('dockerPing', DockerPingTask).get()
     task.dockerClient = dockerClient
   }
 

@@ -12,7 +12,7 @@ class DockerRmTaskSpec extends Specification {
 
   def setup() {
     project = ProjectBuilder.builder().build()
-    task = project.task('dockerRm', type: DockerRmTask)
+    task = project.tasks.register('dockerRm', DockerRmTask).get()
     task.dockerClient = dockerClient
   }
 

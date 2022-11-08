@@ -13,7 +13,7 @@ class GenericDockerTaskSpec extends Specification {
 
   def setup() {
     def project = ProjectBuilder.builder().build()
-    task = project.task('dockerTask', type: TestTask)
+    task = project.tasks.register('dockerTask', TestTask).get()
   }
 
   def "creates dockerClient only once"() {

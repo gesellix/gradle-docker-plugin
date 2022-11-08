@@ -12,7 +12,7 @@ class DockerRestartTaskSpec extends Specification {
 
   def setup() {
     project = ProjectBuilder.builder().build()
-    task = project.task('dockerRestart', type: DockerRestartTask)
+    task = project.tasks.register('dockerRestart', DockerRestartTask).get()
     task.dockerClient = dockerClient
   }
 

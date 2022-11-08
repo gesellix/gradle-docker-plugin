@@ -12,7 +12,7 @@ class DockerNetworkConnectTaskSpec extends Specification {
 
   def setup() {
     project = ProjectBuilder.builder().build()
-    task = project.task('connectNetwork', type: DockerNetworkConnectTask)
+    task = project.tasks.register('connectNetwork', DockerNetworkConnectTask).get()
     task.dockerClient = dockerClient
   }
 

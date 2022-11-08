@@ -13,7 +13,7 @@ class DockerNetworkRmTaskSpec extends Specification {
 
   def setup() {
     project = ProjectBuilder.builder().build()
-    task = project.task('rmNetwork', type: DockerNetworkRmTask)
+    task = project.tasks.register('rmNetwork', DockerNetworkRmTask).get()
     task.dockerClient = dockerClient
   }
 

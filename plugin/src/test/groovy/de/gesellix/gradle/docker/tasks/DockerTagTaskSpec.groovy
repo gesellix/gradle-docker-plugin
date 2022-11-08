@@ -12,7 +12,7 @@ class DockerTagTaskSpec extends Specification {
 
   def setup() {
     project = ProjectBuilder.builder().build()
-    task = project.task('dockerTag', type: DockerTagTask)
+    task = project.tasks.register('dockerTag', DockerTagTask).get()
     task.dockerClient = dockerClient
   }
 

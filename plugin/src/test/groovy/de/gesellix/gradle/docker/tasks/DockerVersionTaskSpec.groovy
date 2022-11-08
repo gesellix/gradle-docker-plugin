@@ -14,7 +14,7 @@ class DockerVersionTaskSpec extends Specification {
 
   def setup() {
     project = ProjectBuilder.builder().build()
-    task = project.task('dockerVersion', type: DockerVersionTask)
+    task = project.tasks.register('dockerVersion', DockerVersionTask).get()
     task.dockerClient = dockerClient
   }
 

@@ -12,7 +12,7 @@ class DockerStopTaskSpec extends Specification {
 
   def setup() {
     project = ProjectBuilder.builder().build()
-    task = project.task('dockerStop', type: DockerStopTask)
+    task = project.tasks.register('dockerStop', DockerStopTask).get()
     task.dockerClient = dockerClient
   }
 

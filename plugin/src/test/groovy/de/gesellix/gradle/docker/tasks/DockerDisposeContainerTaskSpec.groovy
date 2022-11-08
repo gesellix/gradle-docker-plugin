@@ -15,7 +15,7 @@ class DockerDisposeContainerTaskSpec extends Specification {
 
   def setup() {
     project = ProjectBuilder.builder().build()
-    task = project.task('dockerDispose', type: DockerDisposeContainerTask)
+    task = project.tasks.register('dockerDispose', DockerDisposeContainerTask).get()
     task.dockerClient = dockerClient
   }
 

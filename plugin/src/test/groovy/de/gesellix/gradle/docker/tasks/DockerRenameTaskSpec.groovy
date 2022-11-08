@@ -12,7 +12,7 @@ class DockerRenameTaskSpec extends Specification {
 
   def setup() {
     project = ProjectBuilder.builder().build()
-    task = project.task('dockerRename', type: DockerRenameTask)
+    task = project.tasks.register('dockerRename', DockerRenameTask).get()
     task.dockerClient = dockerClient
   }
 

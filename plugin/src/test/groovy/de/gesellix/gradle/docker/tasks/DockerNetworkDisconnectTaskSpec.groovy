@@ -12,7 +12,7 @@ class DockerNetworkDisconnectTaskSpec extends Specification {
 
   def setup() {
     project = ProjectBuilder.builder().build()
-    task = project.task('disconnectNetwork', type: DockerNetworkDisconnectTask)
+    task = project.tasks.register('disconnectNetwork', DockerNetworkDisconnectTask).get()
     task.dockerClient = dockerClient
   }
 

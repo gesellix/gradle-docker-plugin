@@ -13,7 +13,7 @@ class DockerNetworksTaskSpec extends Specification {
 
   def setup() {
     project = ProjectBuilder.builder().build()
-    task = project.task('dockerNetworks', type: DockerNetworksTask)
+    task = project.tasks.register('dockerNetworks', DockerNetworksTask).get()
     task.dockerClient = dockerClient
   }
 

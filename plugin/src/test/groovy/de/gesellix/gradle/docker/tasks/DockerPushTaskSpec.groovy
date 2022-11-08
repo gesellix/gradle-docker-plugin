@@ -17,7 +17,7 @@ class DockerPushTaskSpec extends Specification {
 
   def setup() {
     project = ProjectBuilder.builder().build()
-    task = project.task('dockerPush', type: DockerPushTask)
+    task = project.tasks.register('dockerPush', DockerPushTask).get()
     task.dockerClient = dockerClient
     task.pushTimeout = Duration.of(1, ChronoUnit.SECONDS)
   }

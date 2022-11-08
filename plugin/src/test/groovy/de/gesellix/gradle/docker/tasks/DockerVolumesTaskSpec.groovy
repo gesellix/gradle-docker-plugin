@@ -14,7 +14,7 @@ class DockerVolumesTaskSpec extends Specification {
 
   def setup() {
     project = ProjectBuilder.builder().build()
-    task = project.task('dockerVolumes', type: DockerVolumesTask)
+    task = project.tasks.register('dockerVolumes', DockerVolumesTask).get()
     task.dockerClient = dockerClient
   }
 

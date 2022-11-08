@@ -29,7 +29,7 @@ class DockerPluginSpec extends Specification {
     project.docker.authConfig = new AuthConfig(username: "plain example")
 
     when:
-    def task = project.tasks.create("testTask", TestTask)
+    def task = project.tasks.register("testTask", TestTask).get()
 
     then:
     task.dockerHost.get() == "https://example.org:2376"

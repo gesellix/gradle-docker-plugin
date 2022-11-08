@@ -12,7 +12,7 @@ class DockerVolumeRmTaskSpec extends Specification {
 
   def setup() {
     project = ProjectBuilder.builder().build()
-    task = project.task('dockerRmVolume', type: DockerVolumeRmTask)
+    task = project.tasks.register('dockerRmVolume', DockerVolumeRmTask).get()
     task.dockerClient = dockerClient
   }
 

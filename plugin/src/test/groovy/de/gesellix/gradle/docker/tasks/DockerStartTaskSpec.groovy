@@ -12,7 +12,7 @@ class DockerStartTaskSpec extends Specification {
 
   def setup() {
     project = ProjectBuilder.builder().build()
-    task = project.task('dockerStart', type: DockerStartTask)
+    task = project.tasks.register('dockerStart', DockerStartTask).get()
     task.dockerClient = dockerClient
   }
 

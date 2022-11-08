@@ -15,7 +15,7 @@ class DockerLogsTaskSpec extends Specification {
 
   def setup() {
     project = ProjectBuilder.builder().build()
-    task = project.task('dockerLogs', type: DockerLogsTask)
+    task = project.tasks.register('dockerLogs', DockerLogsTask).get()
     task.dockerClient = dockerClient
     task.logsTimeout = Duration.of(1, ChronoUnit.SECONDS)
   }

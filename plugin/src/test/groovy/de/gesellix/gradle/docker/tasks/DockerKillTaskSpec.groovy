@@ -12,7 +12,7 @@ class DockerKillTaskSpec extends Specification {
 
   def setup() {
     project = ProjectBuilder.builder().build()
-    task = project.task('dockerKill', type: DockerKillTask)
+    task = project.tasks.register('dockerKill', DockerKillTask).get()
     task.dockerClient = dockerClient
   }
 

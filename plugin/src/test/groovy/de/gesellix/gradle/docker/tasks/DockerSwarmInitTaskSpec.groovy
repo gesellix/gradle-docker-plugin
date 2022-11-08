@@ -14,7 +14,7 @@ class DockerSwarmInitTaskSpec extends Specification {
 
   def setup() {
     project = ProjectBuilder.builder().build()
-    task = project.task('initSwarm', type: DockerSwarmInitTask)
+    task = project.tasks.register('initSwarm', DockerSwarmInitTask).get()
     task.dockerClient = dockerClient
   }
 

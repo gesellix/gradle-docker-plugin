@@ -16,7 +16,7 @@ class DockerExecTaskSpec extends Specification {
 
   def setup() {
     project = ProjectBuilder.builder().build()
-    task = project.task('dockerExec', type: DockerExecTask)
+    task = project.tasks.register('dockerExec', DockerExecTask).get()
     task.dockerClient = dockerClient
   }
 

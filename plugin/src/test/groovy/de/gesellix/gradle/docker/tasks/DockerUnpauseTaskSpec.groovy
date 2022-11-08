@@ -12,7 +12,7 @@ class DockerUnpauseTaskSpec extends Specification {
 
   def setup() {
     project = ProjectBuilder.builder().build()
-    task = project.task('dockerUnpause', type: DockerUnpauseTask)
+    task = project.tasks.register('dockerUnpause', DockerUnpauseTask).get()
     task.dockerClient = dockerClient
   }
 

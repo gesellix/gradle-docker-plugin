@@ -17,7 +17,7 @@ class DockerServiceCreateTaskSpec extends Specification {
 
   def setup() {
     project = ProjectBuilder.builder().build()
-    task = project.task('createService', type: DockerServiceCreateTask)
+    task = project.tasks.register('createService', DockerServiceCreateTask).get()
     task.dockerClient = dockerClient
   }
 

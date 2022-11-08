@@ -16,7 +16,7 @@ class DockerInspectImageTaskSpec extends Specification {
 
   def setup() {
     project = ProjectBuilder.builder().build()
-    task = project.task('dockerInspect', type: DockerInspectImageTask)
+    task = project.tasks.register('dockerInspect', DockerInspectImageTask).get()
     task.dockerClient = dockerClient
   }
 

@@ -20,7 +20,7 @@ class DockerBuildTaskSpec extends Specification {
 
   def setup() {
     project = ProjectBuilder.builder().build()
-    task = project.task('dockerBuild', type: DockerBuildTask)
+    task = project.tasks.register('dockerBuild', DockerBuildTask).get()
     task.dockerClient = dockerClient
     task.buildTimeout = Duration.of(1, ChronoUnit.SECONDS)
   }

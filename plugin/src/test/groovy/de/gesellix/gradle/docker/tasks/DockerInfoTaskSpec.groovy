@@ -14,7 +14,7 @@ class DockerInfoTaskSpec extends Specification {
 
   def setup() {
     project = ProjectBuilder.builder().build()
-    task = project.task('dockerInfo', type: DockerInfoTask)
+    task = project.tasks.register('dockerInfo', DockerInfoTask).get()
     task.dockerClient = dockerClient
   }
 

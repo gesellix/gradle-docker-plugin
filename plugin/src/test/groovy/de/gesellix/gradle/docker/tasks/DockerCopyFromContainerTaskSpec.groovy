@@ -13,7 +13,7 @@ class DockerCopyFromContainerTaskSpec extends Specification {
 
   def setup() {
     project = ProjectBuilder.builder().build()
-    task = project.task('dockerCpFromContainer', type: DockerCopyFromContainerTask)
+    task = project.tasks.register('dockerCpFromContainer', DockerCopyFromContainerTask).get()
     task.dockerClient = dockerClient
   }
 

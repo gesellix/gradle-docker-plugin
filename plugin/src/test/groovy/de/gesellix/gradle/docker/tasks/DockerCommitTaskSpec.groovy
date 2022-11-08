@@ -12,7 +12,7 @@ class DockerCommitTaskSpec extends Specification {
 
   def setup() {
     project = ProjectBuilder.builder().build()
-    task = project.task('dockerCommit', type: DockerCommitTask)
+    task = project.tasks.register('dockerCommit', DockerCommitTask).get()
     task.dockerClient = dockerClient
   }
 

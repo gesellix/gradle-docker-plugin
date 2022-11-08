@@ -13,7 +13,7 @@ class DockerPsTaskSpec extends Specification {
 
   def setup() {
     project = ProjectBuilder.builder().build()
-    task = project.task('dockerPs', type: DockerPsTask)
+    task = project.tasks.register('dockerPs', DockerPsTask).get()
     task.dockerClient = dockerClient
   }
 

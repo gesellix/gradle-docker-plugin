@@ -12,7 +12,7 @@ class DockerWaitTaskSpec extends Specification {
 
   def setup() {
     project = ProjectBuilder.builder().build()
-    task = project.task('dockerWait', type: DockerWaitTask)
+    task = project.tasks.register('dockerWait', DockerWaitTask).get()
     task.dockerClient = dockerClient
   }
 

@@ -14,7 +14,7 @@ class DockerImagesTaskSpec extends Specification {
 
   def setup() {
     project = ProjectBuilder.builder().build()
-    task = project.task('dockerImages', type: DockerImagesTask)
+    task = project.tasks.register('dockerImages', DockerImagesTask).get()
     task.dockerClient = dockerClient
   }
 

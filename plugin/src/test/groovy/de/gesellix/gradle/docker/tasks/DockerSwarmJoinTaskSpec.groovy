@@ -14,7 +14,7 @@ class DockerSwarmJoinTaskSpec extends Specification {
 
   def setup() {
     project = ProjectBuilder.builder().build()
-    task = project.task('joinSwarm', type: DockerSwarmJoinTask) as DockerSwarmJoinTask
+    task = project.tasks.register('joinSwarm', DockerSwarmJoinTask).get()
     task.dockerClient = dockerClient
   }
 

@@ -16,7 +16,7 @@ class DockerRunTaskSpec extends Specification {
 
   def setup() {
     project = ProjectBuilder.builder().build()
-    task = project.task('dockerRun', type: DockerRunTask)
+    task = project.tasks.register('dockerRun', DockerRunTask).get()
     task.dockerClient = dockerClient
   }
 

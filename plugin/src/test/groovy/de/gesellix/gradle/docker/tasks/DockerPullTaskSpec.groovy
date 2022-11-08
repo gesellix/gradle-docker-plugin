@@ -16,7 +16,7 @@ class DockerPullTaskSpec extends Specification {
 
   def setup() {
     project = ProjectBuilder.builder().build()
-    task = project.task('dockerPull', type: DockerPullTask)
+    task = project.tasks.register('dockerPull', DockerPullTask).get()
     task.dockerClient = dockerClient
     task.pullTimeout = Duration.of(1, ChronoUnit.SECONDS)
   }

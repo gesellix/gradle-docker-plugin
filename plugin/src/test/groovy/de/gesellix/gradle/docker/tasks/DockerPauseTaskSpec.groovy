@@ -12,7 +12,7 @@ class DockerPauseTaskSpec extends Specification {
 
   def setup() {
     project = ProjectBuilder.builder().build()
-    task = project.task('dockerPause', type: DockerPauseTask)
+    task = project.tasks.register('dockerPause', DockerPauseTask).get()
     task.dockerClient = dockerClient
   }
 

@@ -14,7 +14,7 @@ class DockerInspectContainerTaskSpec extends Specification {
 
   def setup() {
     project = ProjectBuilder.builder().build()
-    task = project.task('dockerInspect', type: DockerInspectContainerTask)
+    task = project.tasks.register('dockerInspect', DockerInspectContainerTask).get()
     task.dockerClient = dockerClient
   }
 
