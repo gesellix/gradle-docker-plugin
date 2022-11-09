@@ -12,7 +12,7 @@ val dependencyVersions = listOf(
   "org.jetbrains:annotations:23.0.0",
   "org.jetbrains.kotlin:kotlin-stdlib:1.6.21",
   "org.jetbrains.kotlin:kotlin-stdlib-common:1.6.21",
-  "org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.21",
+  "org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.7.21",
 )
 
 val dependencyVersionsByGroup = mapOf(
