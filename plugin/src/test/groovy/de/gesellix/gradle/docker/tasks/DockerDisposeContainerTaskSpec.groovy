@@ -5,6 +5,7 @@ import de.gesellix.docker.client.EngineResponseContent
 import de.gesellix.docker.remote.api.ContainerInspectResponse
 import de.gesellix.docker.remote.api.core.ClientException
 import org.gradle.testfixtures.ProjectBuilder
+import spock.lang.FailsWith
 import spock.lang.Specification
 
 class DockerDisposeContainerTaskSpec extends Specification {
@@ -56,7 +57,50 @@ class DockerDisposeContainerTaskSpec extends Specification {
     1 * dockerClient.rmi("an-image-id")
   }
 
-  def "catches DockerClientException when container is not present"() {
+  @FailsWith(RuntimeException)
+  def "fails when removing the parent image has errors"() {
+    given:
+    task.containerId = "4712"
+    task.rmiParentImage = true
+    // default: false
+//    task.rmiParentImageIgnoreError = false
+    dockerClient.inspectContainer("4712") >> new EngineResponseContent<>(new ContainerInspectResponse().tap { image = "an-image-id" })
+
+    when:
+    task.dispose()
+
+    then:
+    1 * dockerClient.stop("4712")
+    then:
+    1 * dockerClient.wait("4712")
+    then:
+    1 * dockerClient.rm("4712", [v: 0])
+    then:
+    1 * dockerClient.rmi("an-image-id") >> { throw new RuntimeException("expected error") }
+  }
+
+  def "can ignore errors when removing the parent image"() {
+    given:
+    task.containerId = "4712"
+    task.rmiParentImage = true
+    task.rmiParentImageIgnoreError = true
+    dockerClient.inspectContainer("4712") >> new EngineResponseContent<>(new ContainerInspectResponse().tap { image = "an-image-id" })
+
+    when:
+    task.dispose()
+
+    then:
+    1 * dockerClient.stop("4712")
+    then:
+    1 * dockerClient.wait("4712")
+    then:
+    1 * dockerClient.rm("4712", [v: 0])
+    then:
+    1 * dockerClient.rmi("an-image-id") >> { throw new RuntimeException("expected error") }
+    notThrown(Exception)
+  }
+
+  def "catches ClientException when container is not present"() {
     given:
     task.containerId = "4711"
 
