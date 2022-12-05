@@ -30,6 +30,14 @@ public class DockerDisposeContainerTask extends GenericDockerTask {
     return rmiParentImage;
   }
 
+  private final Property<Boolean> rmiParentImageIgnoreError;
+
+  @Input
+  @Optional
+  public Property<Boolean> getRmiParentImageIgnoreError() {
+    return rmiParentImageIgnoreError;
+  }
+
   private final Property<Boolean> removeVolumes;
 
   @Input
@@ -46,6 +54,8 @@ public class DockerDisposeContainerTask extends GenericDockerTask {
     containerId = objectFactory.property(String.class);
     rmiParentImage = objectFactory.property(Boolean.class);
     rmiParentImage.convention(false);
+    rmiParentImageIgnoreError = objectFactory.property(Boolean.class);
+    rmiParentImageIgnoreError.convention(false);
     removeVolumes = objectFactory.property(Boolean.class);
     removeVolumes.convention(false);
   }
@@ -58,8 +68,7 @@ public class DockerDisposeContainerTask extends GenericDockerTask {
     ContainerInspectResponse containerDetails;
     try {
       containerDetails = getDockerClient().inspectContainer(containerId).getContent();
-    }
-    catch (ClientException e) {
+    } catch (ClientException e) {
       if (e.getStatusCode() == HttpURLConnection.HTTP_NOT_FOUND) {
         getLogger().info("couldn't dispose container because it doesn't exist");
         return;
@@ -73,7 +82,19 @@ public class DockerDisposeContainerTask extends GenericDockerTask {
     query.put("v", getRemoveVolumes().getOrElse(false) ? 1 : 0);
     getDockerClient().rm(containerId, query);
     if (getRmiParentImage().getOrElse(false)) {
-      getDockerClient().rmi(containerDetails.getImage());
+      try {
+        getDockerClient().rmi(containerDetails.getImage());
+      } catch (Exception e) {
+        if (!rmiParentImageIgnoreError.get()) {
+          throw new RuntimeException(e);
+        } else {
+          if (getLogger().isInfoEnabled()) {
+            getLogger().warn("docker image rm " + containerDetails.getImage() + " failed", e);
+          } else {
+            getLogger().warn("docker image rm " + containerDetails.getImage() + " failed");
+          }
+        }
+      }
     }
   }
 }
