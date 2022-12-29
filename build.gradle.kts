@@ -12,7 +12,7 @@ val dependencyVersions = listOf(
   "org.jetbrains:annotations:23.1.0",
   "org.jetbrains.kotlin:kotlin-reflect:1.7.22",
   "org.jetbrains.kotlin:kotlin-stdlib:1.7.22",
-  "org.jetbrains.kotlin:kotlin-stdlib-common:1.7.22",
+  "org.jetbrains.kotlin:kotlin-stdlib-common:1.8.0",
   "org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.7.22",
   "org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.0",
 )
