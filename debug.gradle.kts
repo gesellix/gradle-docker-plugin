@@ -21,7 +21,7 @@ buildscript {
   }
 
   dependencies {
-    classpath("de.gesellix:docker-client:2023-01-11T19-35-00")
+    classpath("de.gesellix:docker-client:2023-03-28T00-05-00")
   }
 }
 
