@@ -167,6 +167,7 @@ tasks.register("publishTo${localRepositoryName}") {
   dependsOn(tasks.withType<PublishToMavenRepository>().matching {
     it.repository == publishing.repositories[localRepositoryName]
   })
+  mustRunAfter(tasks.withType<Sign>())
 }
 
 tasks.register("publishTo${gitHubPackagesRepositoryName}") {
@@ -175,6 +176,7 @@ tasks.register("publishTo${gitHubPackagesRepositoryName}") {
   dependsOn(tasks.withType<PublishToMavenRepository>().matching {
     it.repository == publishing.repositories[gitHubPackagesRepositoryName]
   })
+  mustRunAfter(tasks.withType<Sign>())
 }
 
 val isLocalRepo = { repository: MavenArtifactRepository ->
