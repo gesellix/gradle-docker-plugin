@@ -491,6 +491,7 @@ class DockerPluginIntegrationTest extends Specification {
     }
     catch (Exception ignored) {
     }
+    dockerClient.rmi("gesellix/run-with-data-volumes:latest")
   }
 
   def "test swarm with services"() {
