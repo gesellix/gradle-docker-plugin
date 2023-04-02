@@ -139,13 +139,10 @@ signing {
   sign(publishing.publications[publicationName])
 }
 
-pluginBundle {
-  website = "https://github.com/gesellix/gradle-docker-plugin"
-  vcsUrl = "https://github.com/gesellix/gradle-docker-plugin.git"
-  tags = listOf("docker", "remote api", "client")
-}
-
 gradlePlugin {
+  website.set("https://github.com/gesellix/gradle-docker-plugin")
+  vcsUrl.set("https://github.com/gesellix/gradle-docker-plugin.git")
+
   plugins {
     register(publicationName) {
       id = "de.gesellix.docker"
@@ -153,13 +150,14 @@ gradlePlugin {
       description = "A Docker plugin for Gradle"
       implementationClass = "de.gesellix.gradle.docker.DockerPlugin"
       version = artifactVersion
+      tags.set(listOf("docker", "remote api", "client"))
     }
   }
 }
 
 tasks.withType<ValidateMavenPom>().configureEach {
   ignoreFailures = System.getenv()["IGNORE_INVALID_POMS"] == "true"
-      || name.contains("For${publicationName.capitalize()}PluginMarkerMaven")
+      || name.contains("For${publicationName.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}PluginMarkerMaven")
       || name.contains("ForPluginMavenPublication")
 }
 
