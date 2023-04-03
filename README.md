@@ -1,4 +1,4 @@
-[![Build Status](https://img.shields.io/github/workflow/status/gesellix/gradle-docker-plugin/Publish?style=for-the-badge)](https://github.com/gesellix/gradle-docker-plugin/actions)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/gesellix/gradle-docker-plugin/cd.yml?branch=main&style=for-the-badge)](https://github.com/gesellix/gradle-docker-plugin/actions)
 [![Maven Central](https://img.shields.io/maven-central/v/de.gesellix/gradle-docker-plugin.svg?style=for-the-badge&maxAge=86400)](https://search.maven.org/search?q=g:de.gesellix%20AND%20a:gradle-docker-plugin)
 [![API Coverage](https://img.shields.io/static/v1?label=Gradle%20Plugin%20Portal&message=latest%20version&color=blue&style=for-the-badge)](https://plugins.gradle.org/plugin/de.gesellix.docker)
 
