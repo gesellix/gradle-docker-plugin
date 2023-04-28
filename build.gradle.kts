@@ -56,7 +56,7 @@ project.apply("debug.gradle.kts")
 
 // https://gradle.org/release-checksums/
 tasks.wrapper {
-  gradleVersion = "8.0.2"
+  gradleVersion = "8.1.1"
   distributionType = Wrapper.DistributionType.BIN
-  distributionSha256Sum = "ff7bf6a86f09b9b2c40bb8f48b25fc19cf2b2664fd1d220cd7ab833ec758d0d7"
+  distributionSha256Sum = "e111cb9948407e26351227dabce49822fb88c37ee72f1d1582a69c68af2e702f"
 }
