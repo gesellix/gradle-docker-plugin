@@ -19,7 +19,7 @@ val dependencyVersions = listOf(
 )
 
 val dependencyVersionsByGroup = mapOf(
-  "org.codehaus.groovy" to "3.0.13",
+  "org.codehaus.groovy" to "3.0.17",
 )
 
 subprojects {
@@ -57,7 +57,7 @@ project.apply("debug.gradle.kts")
 
 // https://gradle.org/release-checksums/
 tasks.wrapper {
-  gradleVersion = "8.1.1"
+  gradleVersion = "8.2"
   distributionType = Wrapper.DistributionType.BIN
-  distributionSha256Sum = "e111cb9948407e26351227dabce49822fb88c37ee72f1d1582a69c68af2e702f"
+  distributionSha256Sum = "38f66cd6eef217b4c35855bb11ea4e9fbc53594ccccb5fb82dfd317ef8c2c5a3"
 }
