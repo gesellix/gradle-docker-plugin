@@ -15,7 +15,7 @@ val dependencyVersions = listOf(
   "org.jetbrains.kotlin:kotlin-stdlib:1.9.0",
   "org.jetbrains.kotlin:kotlin-stdlib-common:1.9.0",
   "org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.9.0",
-  "org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.9.0",
+  "org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.9.10",
 )
 
 val dependencyVersionsByGroup = mapOf(
