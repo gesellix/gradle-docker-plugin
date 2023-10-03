@@ -53,11 +53,11 @@ nexusPublishing {
   }
 }
 
-project.apply("debug.gradle.kts")
+//project.apply("debug.gradle.kts")
 
 // https://gradle.org/release-checksums/
 tasks.wrapper {
-  gradleVersion = "8.2"
+  gradleVersion = "8.3"
   distributionType = Wrapper.DistributionType.BIN
-  distributionSha256Sum = "38f66cd6eef217b4c35855bb11ea4e9fbc53594ccccb5fb82dfd317ef8c2c5a3"
+  distributionSha256Sum = "591855b517fc635b9e04de1d05d5e76ada3f89f5fc76f87978d1b245b4f69225"
 }
