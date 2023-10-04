@@ -62,7 +62,7 @@ public class DockerExecTask extends GenericDockerTask {
     getLogger().debug("exec cmd: '" + execCreateConfig.getCmd() + "'");
     String execId = getDockerClient().createExec(containerId.get(), execCreateConfig).getContent().getId();
 
-    ExecStartConfig execStartConfig = new ExecStartConfig(false, false);
+    ExecStartConfig execStartConfig = new ExecStartConfig(false, false, null);
     getDockerClient().startExec(execId, execStartConfig, null, null);
   }
 }

@@ -27,7 +27,7 @@ class DockerInspectImageTaskSpec extends Specification {
         "sha256:1234", null, null, "parent", "", "", "",
         null, "", "", null, "", "", "", "",
         0, 0, new GraphDriverData("", [:]),
-        new ImageInspectRootFS("", [], ""),
+        new ImageInspectRootFS("", []),
         null
     ))
 
