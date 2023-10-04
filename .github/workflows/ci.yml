@@ -53,8 +53,8 @@ jobs:
         run: docker info
       - name: java version
         run: java -version
-      - name: Debug
-        run: ./gradlew checkDockerAvailability --info --stacktrace
+#      - name: Debug
+#        run: ./gradlew checkDockerAvailability --info --stacktrace
       - name: clean build
         run: ./gradlew clean build --no-daemon --info --stacktrace
       - name: Upload Test Results
