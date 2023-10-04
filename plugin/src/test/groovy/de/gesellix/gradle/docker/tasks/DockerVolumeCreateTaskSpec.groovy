@@ -25,7 +25,7 @@ class DockerVolumeCreateTaskSpec extends Specification {
       volumeConfig = config
     }
     def expectedResult = new EngineResponseContent(new Volume(
-        "foo", "overlay", "", null, null, null, null, null, null
+        "foo", "overlay", "", null, null, null, null, null, null, null
     ))
 
     when:

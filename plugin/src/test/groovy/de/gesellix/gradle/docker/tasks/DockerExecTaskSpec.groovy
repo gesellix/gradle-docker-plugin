@@ -41,7 +41,7 @@ class DockerExecTaskSpec extends Specification {
 
     then:
     1 * dockerClient.createExec(containerId, execConfig) >> new EngineResponseContent(new IdResponse("exec-id"))
-    1 * dockerClient.startExec("exec-id", new ExecStartConfig(false, false), null, null)
+    1 * dockerClient.startExec("exec-id", new ExecStartConfig(false, false, null), null, null)
   }
 
   def "delegates exec commands to dockerClient and saves result"() {
@@ -65,6 +65,6 @@ class DockerExecTaskSpec extends Specification {
 
     then:
     1 * dockerClient.createExec(containerId, execConfig) >> new EngineResponseContent(new IdResponse("exec-id"))
-    1 * dockerClient.startExec("exec-id", new ExecStartConfig(false, false), null, null)
+    1 * dockerClient.startExec("exec-id", new ExecStartConfig(false, false, null), null, null)
   }
 }

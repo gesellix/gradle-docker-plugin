@@ -24,7 +24,7 @@ class DockerImagesTaskSpec extends Specification {
 
     then:
     1 * dockerClient.images() >> new EngineResponseContent([new ImageSummary(
-        "image", "parent", -1, 1, 10, 0, 1, null, null, null
+        "image", "parent", -1, 1, 10, 0, null, null,  null, null
     )])
 
     and:
