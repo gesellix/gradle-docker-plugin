@@ -33,7 +33,11 @@ class GenericDockerTaskSpec extends Specification {
     DockerClientImpl dockerClient = task.dockerClient
 
     then:
-    dockerClient.env.dockerHost == DockerEnv.getDefaultDockerHost()
+    dockerClient.env.dockerHost in [
+        DockerEnv.getDefaultDockerHost(),
+        // for GitHub, where integration tests use a Colima based Docker engine
+        "unix:///Users/runner/.colima/default/docker.sock"
+    ]
   }
 
   def "delegates to dockerClient with configured dockerHost"() {
