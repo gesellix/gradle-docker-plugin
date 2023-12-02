@@ -107,7 +107,7 @@ class DockerPluginIntegrationTest extends Specification {
     result.task(':dockerPullPrivate').outcome == TaskOutcome.SUCCESS
   }
 
-  def "test push"() {
+  def "test push to the official registry"() {
     given:
     def dockerClient = new DockerClientImpl()
     dockerClient.tag(testImage.imageWithTag, "gesellix/example")
