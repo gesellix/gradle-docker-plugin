@@ -35,7 +35,7 @@ repositories {
 dependencies {
   api(gradleApi())
 
-  api("de.gesellix:docker-client:2023-12-01T19-40-00")
+  api("de.gesellix:docker-client:2023-12-01T19-40-00-groovy-4")
 
   testImplementation(localGroovy())
   testImplementation("org.spockframework:spock-core:2.3-groovy-3.0")
