@@ -7,6 +7,8 @@ plugins {
   id("io.github.gradle-nexus.publish-plugin") version "1.3.0"
 }
 
+val groovyVersion = "4.0.15"
+
 val dependencyVersions = listOf(
   "com.squareup.okio:okio:3.8.0",
   "com.squareup.okio:okio-jvm:3.8.0",
@@ -19,7 +21,7 @@ val dependencyVersions = listOf(
 )
 
 val dependencyVersionsByGroup = mapOf(
-  "org.codehaus.groovy" to "3.0.17",
+  "org.apache.groovy" to groovyVersion,
 )
 
 subprojects {
@@ -31,6 +33,19 @@ subprojects {
         val forcedVersion = dependencyVersionsByGroup[requested.group]
         if (forcedVersion != null) {
           useVersion(forcedVersion)
+        }
+      }
+      dependencySubstitution {
+        all {
+          requested.let {
+            if (it is ModuleComponentSelector && it.group == "org.codehaus.groovy") {
+              logger.lifecycle("substituting $it with 'org.apache.groovy:*:${groovyVersion}'")
+              useTarget(
+                  "org.apache.groovy:${it.module}:${groovyVersion}",
+                  "Changed Maven coordinates since Groovy 4"
+              )
+            }
+          }
         }
       }
     }
