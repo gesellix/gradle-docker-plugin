@@ -11,11 +11,11 @@ val dependencyVersions = listOf(
   "com.squareup.okio:okio:3.8.0",
   "com.squareup.okio:okio-jvm:3.8.0",
   "org.jetbrains:annotations:24.1.0",
-  "org.jetbrains.kotlin:kotlin-reflect:1.9.22",
-  "org.jetbrains.kotlin:kotlin-stdlib:1.9.22",
-  "org.jetbrains.kotlin:kotlin-stdlib-common:1.9.22",
-  "org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.9.22",
-  "org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.9.22",
+  "org.jetbrains.kotlin:kotlin-reflect:1.9.23",
+  "org.jetbrains.kotlin:kotlin-stdlib:1.9.23",
+  "org.jetbrains.kotlin:kotlin-stdlib-common:1.9.23",
+  "org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.9.23",
+  "org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.9.23",
 )
 
 val dependencyVersionsByGroup = mapOf(
