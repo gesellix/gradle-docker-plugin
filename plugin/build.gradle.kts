@@ -38,7 +38,7 @@ dependencies {
   api("de.gesellix:docker-client:2024-07-30T11-05-00")
 
   testImplementation(localGroovy())
-  testImplementation("org.spockframework:spock-core:2.3-groovy-3.0")
+  testImplementation("org.spockframework:spock-core:2.3-groovy-4.0")
   testImplementation("cglib:cglib-nodep:3.3.0")
 
   // see https://docs.gradle.org/current/userguide/test_kit.html
