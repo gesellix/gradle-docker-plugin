@@ -20,3 +20,6 @@ updates:
       kotlin:
         patterns:
           - "org.jetbrains.kotlin:*"
+      okio:
+        patterns:
+          - "com.squareup.okio:*"
