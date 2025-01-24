@@ -1,6 +1,6 @@
 plugins {
   id("maven-publish")
-  id("com.github.ben-manes.versions") version "0.51.0"
+  id("com.github.ben-manes.versions") version "0.52.0"
   id("net.ossindex.audit") version "0.4.11"
   id("com.gradle.plugin-publish") version "1.3.0" apply false
   id("io.freefair.maven-central.validate-poms") version "8.12"
