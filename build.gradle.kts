@@ -3,7 +3,7 @@ plugins {
   id("com.github.ben-manes.versions") version "0.52.0"
   id("net.ossindex.audit") version "0.4.11"
   id("com.gradle.plugin-publish") version "1.3.1" apply false
-  id("io.freefair.maven-central.validate-poms") version "8.13"
+  id("io.freefair.maven-central.validate-poms") version "8.13.1"
   id("io.github.gradle-nexus.publish-plugin") version "2.0.0"
 }
 
