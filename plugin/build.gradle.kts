@@ -33,13 +33,32 @@ repositories {
 }
 
 dependencies {
+  constraints {
+    listOf(
+      "org.apache.groovy:groovy",
+      "org.apache.groovy:groovy-json",
+    ).forEach {
+      implementation(it) {
+        version {
+          strictly("[4,5)")
+        }
+      }
+    }
+    testImplementation("org.junit:junit-bom") {
+      version {
+        strictly("[5,6)")
+        prefer("5.13.4")
+      }
+    }
+  }
   api(gradleApi())
 
-  api("de.gesellix:docker-client:2025-07-26T19-45-00")
+  api("de.gesellix:docker-client:2025-07-26T19-45-00-groovy-4")
 
   testImplementation(localGroovy())
   testImplementation("org.spockframework:spock-core:2.3-groovy-3.0")
   testImplementation("cglib:cglib-nodep:3.3.0")
+  testRuntimeOnly("org.junit.platform:junit-platform-launcher:1.13.4")
 
   // see https://docs.gradle.org/current/userguide/test_kit.html
   testImplementation(gradleTestKit())
@@ -47,7 +66,7 @@ dependencies {
 
 java {
   toolchain {
-    languageVersion.set(JavaLanguageVersion.of(8))
+    languageVersion.set(JavaLanguageVersion.of(17))
   }
 }
 
