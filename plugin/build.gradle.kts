@@ -56,7 +56,7 @@ dependencies {
   api("de.gesellix:docker-client:2025-07-26T19-45-00-groovy-4")
 
   testImplementation(localGroovy())
-  testImplementation("org.spockframework:spock-core:2.3-groovy-3.0")
+  testImplementation("org.spockframework:spock-core:2.3-groovy-4.0")
   testImplementation("cglib:cglib-nodep:3.3.0")
   testRuntimeOnly("org.junit.platform:junit-platform-launcher:1.13.4")
 
