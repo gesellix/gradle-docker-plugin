@@ -144,7 +144,10 @@ class DockerPluginIntegrationTest extends Specification {
     //pushResult.status ==~ "Pushing tag for rev \\[[a-z0-9]+\\] on \\{https://registry-1.docker.io/v1/repositories/gesellix/example/tags/latest\\}"
     //pushResult.error ==~ "Error: Status 401 trying to push repository gesellix/example: \"\""
     Exception exc = thrown(Exception)
-    exc.message.readLines().find { it.matches(".*error=Get \"?https://example.com:5000/v2/.*") }
+    exc.message.readLines().any {
+      it.matches(".*error=Get \"?https://example.com:5000/v2/.*")
+          || it.matches(".*error=failed to do request: Head \"?https://example.com:5000/v2/gesellix/example.*")
+    }
 
     cleanup:
     dockerClient.rmi("gesellix/example")
@@ -519,7 +522,7 @@ class DockerPluginIntegrationTest extends Specification {
                   image = "nginx"
                 }
                 restartPolicy = new de.gesellix.docker.remote.api.TaskSpecRestartPolicy().tap {
-                  condition = de.gesellix.docker.remote.api.TaskSpecRestartPolicy.Condition.OnMinusFailure
+                  condition = de.gesellix.docker.remote.api.TaskSpecRestartPolicy.Condition.OnFailure
                 }
               }
               mode = new de.gesellix.docker.remote.api.ServiceSpecMode().tap {
