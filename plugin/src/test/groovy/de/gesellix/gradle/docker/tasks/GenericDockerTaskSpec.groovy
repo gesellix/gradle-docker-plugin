@@ -34,11 +34,16 @@ class GenericDockerTaskSpec extends Specification {
 
     then:
     dockerClient.env.dockerHost in [
+        // well-known default
         DockerEnv.getDefaultDockerHost(),
+        // context-aware default
+        new DockerEnv().dockerHost,
         // 'DockerEnv.getDefaultDockerHost()' should respect the docker context
         "npipe:////./pipe/dockerDesktopLinuxEngine",
         // for GitHub, where integration tests use a Colima based Docker engine
-        "unix:///Users/runner/.colima/default/docker.sock"
+        "unix:///Users/runner/.colima/default/docker.sock",
+        // pattern for context-aware default on unix
+//        "unix://${System.getProperty("user.home")}/.docker/run/docker.sock".toString()
     ]
   }
 
