@@ -8,7 +8,7 @@ plugins {
   id("maven-publish")
   id("signing")
   id("com.github.ben-manes.versions")
-  id("net.ossindex.audit")
+  id("org.sonatype.gradle.plugins.scan")
   id("com.gradle.plugin-publish")
   id("io.freefair.maven-central.validate-poms")
 }
@@ -91,6 +91,11 @@ val sourcesJar by tasks.registering(Jar::class) {
 artifacts {
   add("archives", sourcesJar.get())
   add("archives", javadocJar.get())
+}
+
+ossIndexAudit {
+  username = System.getenv("SONATYPE_INDEX_USERNAME") ?: findProperty("sonatype.index.username")
+  password = System.getenv("SONATYPE_INDEX_PASSWORD") ?: findProperty("sonatype.index.password")
 }
 
 fun findProperty(s: String) = project.findProperty(s) as String?
