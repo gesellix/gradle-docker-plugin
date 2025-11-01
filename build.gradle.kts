@@ -58,7 +58,7 @@ nexusPublishing {
 //project.apply("debug.gradle.kts")
 
 // Updating the Gradle Wrapper:
-// ./gradlew wrapper --gradle-version=9.1.0 --distribution-type=bin --gradle-distribution-sha256-sum=a17ddd85a26b6a7f5ddb71ff8b05fc5104c0202c6e64782429790c933686c806
+// ./gradlew wrapper --gradle-version=9.2.0 --distribution-type=bin --gradle-distribution-sha256-sum=df67a32e86e3276d011735facb1535f64d0d88df84fa87521e90becc2d735444
 // https://gradle.org/whats-new/gradle-9/
 // Releases: https://gradle.org/releases/
 // SHA265 checksum reference: https://gradle.org/release-checksums/
@@ -68,7 +68,7 @@ nexusPublishing {
 // https://docs.gradle.org/current/userguide/gradle_daemon.html#sec:daemon_jvm_criteria
 // ./gradlew updateDaemonJvm --jvm-version=17 --jvm-vendor=corretto
 tasks.wrapper {
-  gradleVersion = "9.1.0"
+  gradleVersion = "9.2.0"
   distributionType = Wrapper.DistributionType.BIN
-  distributionSha256Sum = "a17ddd85a26b6a7f5ddb71ff8b05fc5104c0202c6e64782429790c933686c806"
+  distributionSha256Sum = "df67a32e86e3276d011735facb1535f64d0d88df84fa87521e90becc2d735444"
 }
