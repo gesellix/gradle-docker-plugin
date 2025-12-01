@@ -186,9 +186,18 @@ class DockerPluginIntegrationTest extends Specification {
 
     cleanup:
     def dockerClient = new DockerClientImpl()
-    try { dockerClient.stop('test-run') } catch (ClientException ignored) {}
-    try { dockerClient.wait('test-run') } catch (ClientException ignored) {}
-    try { dockerClient.rm('test-run') } catch (ClientException ignored) {}
+    try {
+      dockerClient.stop('test-run')
+    } catch (ClientException ignored) {
+    }
+    try {
+      dockerClient.wait('test-run')
+    } catch (ClientException ignored) {
+    }
+    try {
+      dockerClient.rm('test-run')
+    } catch (ClientException ignored) {
+    }
   }
 
   def "test stop"() {
@@ -224,9 +233,18 @@ class DockerPluginIntegrationTest extends Specification {
     result.task(':dockerStop').outcome == TaskOutcome.SUCCESS
 
     cleanup:
-    try { dockerClient.stop('test-stop') } catch (ClientException ignored) {}
-    try { dockerClient.wait('test-stop') } catch (ClientException ignored) {}
-    try { dockerClient.rm('test-stop') } catch (ClientException ignored) {}
+    try {
+      dockerClient.stop('test-stop')
+    } catch (ClientException ignored) {
+    }
+    try {
+      dockerClient.wait('test-stop')
+    } catch (ClientException ignored) {
+    }
+    try {
+      dockerClient.rm('test-stop')
+    } catch (ClientException ignored) {
+    }
   }
 
   def "test rm"() {
@@ -262,9 +280,18 @@ class DockerPluginIntegrationTest extends Specification {
     result.task(':dockerRm').outcome == TaskOutcome.SUCCESS
 
     cleanup:
-    try { dockerClient.stop('test-rm') } catch (ClientException ignored) {}
-    try { dockerClient.wait('test-rm') } catch (ClientException ignored) {}
-    try { dockerClient.rm('test-rm') } catch (ClientException ignored) {}
+    try {
+      dockerClient.stop('test-rm')
+    } catch (ClientException ignored) {
+    }
+    try {
+      dockerClient.wait('test-rm')
+    } catch (ClientException ignored) {
+    }
+    try {
+      dockerClient.rm('test-rm')
+    } catch (ClientException ignored) {
+    }
   }
 
   def "test start"() {
@@ -301,8 +328,14 @@ class DockerPluginIntegrationTest extends Specification {
 
     cleanup:
     dockerClient.stop('test-start')
-    try { dockerClient.wait('test-start') } catch (ClientException ignored) {}
-    try { dockerClient.rm('test-start') } catch (ClientException ignored) {}
+    try {
+      dockerClient.wait('test-start')
+    } catch (ClientException ignored) {
+    }
+    try {
+      dockerClient.rm('test-start')
+    } catch (ClientException ignored) {
+    }
   }
 
   def "test ps"() {
@@ -318,8 +351,10 @@ class DockerPluginIntegrationTest extends Specification {
           task dockerPs(type: de.gesellix.gradle.docker.tasks.DockerPsTask) {
               doLast {
                   logger.lifecycle("request successful: " + (containers.content instanceof java.util.List))
-                  boolean found = containers.content.findAll {
-                      it.Names.first() == '/test-ps'
+                  def names = containers.content.names
+                  logger.lifecycle("names: " + names)
+                  boolean found = names.findAll {
+                      it.contains('/test-ps')
                   }.size() == 1
                   logger.lifecycle("found: " + found)
               }
@@ -424,12 +459,30 @@ class DockerPluginIntegrationTest extends Specification {
     result.task(':dockerRun').outcome == TaskOutcome.SUCCESS
 
     cleanup:
-    try { dockerClient.stop("the-service-example") } catch (ClientException ignored) {}
-    try { dockerClient.wait("the-service-example") } catch (ClientException ignored) {}
-    try { dockerClient.rm("the-service-example") } catch (ClientException ignored) {}
-    try { dockerClient.stop("the-data-example") } catch (ClientException ignored) {}
-    try { dockerClient.wait("the-data-example") } catch (ClientException ignored) {}
-    try { dockerClient.rm("the-data-example") } catch (ClientException ignored) {}
+    try {
+      dockerClient.stop("the-service-example")
+    } catch (ClientException ignored) {
+    }
+    try {
+      dockerClient.wait("the-service-example")
+    } catch (ClientException ignored) {
+    }
+    try {
+      dockerClient.rm("the-service-example")
+    } catch (ClientException ignored) {
+    }
+    try {
+      dockerClient.stop("the-data-example")
+    } catch (ClientException ignored) {
+    }
+    try {
+      dockerClient.wait("the-data-example")
+    } catch (ClientException ignored) {
+    }
+    try {
+      dockerClient.rm("the-data-example")
+    } catch (ClientException ignored) {
+    }
     dockerClient.rmi("gesellix/run-with-data-volumes:latest")
   }
 
@@ -453,11 +506,11 @@ class DockerPluginIntegrationTest extends Specification {
 
     buildFile << """
           task dockerVolumeCreate(type: de.gesellix.gradle.docker.tasks.DockerVolumeCreateTask) {
-              volumeConfig = [
-                  Name      : "my-volume",
-                  Driver    : "local",
-                  DriverOpts: [:]
-              ]
+              volumeConfig = new de.gesellix.docker.remote.api.VolumeCreateOptions(
+                  name      : "my-volume",
+                  driver    : "local",
+                  driverOpts: [:]
+              )
 
               doLast {
                   logger.lifecycle("task 1 successful: " + (response.content instanceof de.gesellix.docker.remote.api.Volume))
@@ -507,12 +560,12 @@ class DockerPluginIntegrationTest extends Specification {
     buildFile << """
             task createNetwork(type: de.gesellix.gradle.docker.tasks.DockerNetworkCreateTask) {
                 networkName = "my-network"
-                networkConfig = [
-                    Driver: "overlay",
-                    "IPAM": [
-                        "Driver": "default"
-                    ]
-                ]
+                networkConfig = new de.gesellix.docker.remote.api.NetworkCreateRequest(
+                    "my-network", null,
+                    "overlay", null, null, null, null, null, null,
+                    new de.gesellix.docker.remote.api.IPAM("default", null, null),
+                    null, null, null
+                )
             }
 
             def config = new de.gesellix.docker.remote.api.ServiceCreateRequest().tap {

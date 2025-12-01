@@ -19,13 +19,18 @@ class DockerImagesTaskSpec extends Specification {
   }
 
   def "delegates to dockerClient and saves result"() {
+    given:
+    def summary = new ImageSummary(
+        "image", "parent",
+        -1, 1, 10, 0,
+        null, null, null
+    )
+
     when:
     task.images()
 
     then:
-    1 * dockerClient.images() >> new EngineResponseContent([new ImageSummary(
-        "image", "parent", -1, 1, 10, 0, null, null,  null, null
-    )])
+    1 * dockerClient.images() >> new EngineResponseContent([summary])
 
     and:
     task.images.content.id == ["image"]

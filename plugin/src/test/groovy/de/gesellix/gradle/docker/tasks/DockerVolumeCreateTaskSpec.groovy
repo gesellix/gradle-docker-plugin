@@ -3,6 +3,7 @@ package de.gesellix.gradle.docker.tasks
 import de.gesellix.docker.client.DockerClient
 import de.gesellix.docker.client.EngineResponseContent
 import de.gesellix.docker.remote.api.Volume
+import de.gesellix.docker.remote.api.VolumeCreateOptions
 import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.Specification
 
@@ -20,7 +21,9 @@ class DockerVolumeCreateTaskSpec extends Specification {
 
   def "delegates to dockerClient and saves result"() {
     given:
-    def config = [Name: "foo"]
+    def config = new VolumeCreateOptions().tap {
+      it.name = "foo"
+    }
     task.configure {
       volumeConfig = config
     }
