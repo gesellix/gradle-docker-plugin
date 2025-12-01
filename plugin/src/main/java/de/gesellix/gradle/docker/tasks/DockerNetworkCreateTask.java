@@ -1,30 +1,35 @@
 package de.gesellix.gradle.docker.tasks;
 
+import java.util.Objects;
+
 import de.gesellix.docker.client.EngineResponseContent;
+import de.gesellix.docker.remote.api.NetworkCreateRequest;
 import de.gesellix.docker.remote.api.NetworkCreateResponse;
+
 import org.gradle.api.model.ObjectFactory;
-import org.gradle.api.provider.MapProperty;
 import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.Internal;
+import org.gradle.api.tasks.Optional;
 import org.gradle.api.tasks.TaskAction;
 
 import javax.inject.Inject;
-import java.util.HashMap;
 
 public class DockerNetworkCreateTask extends GenericDockerTask {
 
   private final Property<String> networkName;
 
   @Input
+  @Optional
   public Property<String> getNetworkName() {
     return networkName;
   }
 
-  private final MapProperty<String, Object> networkConfig;
+  private final Property<NetworkCreateRequest> networkConfig;
 
   @Input
-  public MapProperty<String, Object> getNetworkConfig() {
+  @Optional
+  public Property<NetworkCreateRequest> getNetworkConfig() {
     return networkConfig;
   }
 
@@ -41,12 +46,36 @@ public class DockerNetworkCreateTask extends GenericDockerTask {
     setDescription("Create a new network");
 
     networkName = objectFactory.property(String.class);
-    networkConfig = objectFactory.mapProperty(String.class, Object.class);
+    networkConfig = objectFactory.property(NetworkCreateRequest.class);
   }
 
   @TaskAction
   public void createNetwork() {
     getLogger().info("docker network create");
-    response = getDockerClient().createNetwork(getNetworkName().get(), new HashMap<>(getNetworkConfig().getOrElse(new HashMap<>())));
+
+    if (networkName.isPresent() && !networkConfig.isPresent()) {
+      response = getDockerClient().createNetwork(networkName.get());
+      return;
+    }
+
+    if (networkName.isPresent() && networkConfig.isPresent()) {
+      NetworkCreateRequest networkCreateRequest = networkConfig.get();
+      if (networkCreateRequest.getName() == null) {
+        networkCreateRequest.setName(networkName.get());
+      } else {
+        if (!Objects.equals(networkCreateRequest.getName(), networkName.get())) {
+          throw new IllegalArgumentException("NetworkName and NetworkConfig are mutually exclusive. Please specify only one of them or keep the network name consistent.");
+        }
+      }
+      response = getDockerClient().createNetwork(networkCreateRequest);
+    }
+
+    if (!networkName.isPresent() && networkConfig.isPresent()) {
+      response = getDockerClient().createNetwork(networkConfig.get());
+    }
+
+    if (!networkName.isPresent() && !networkConfig.isPresent()) {
+      throw new IllegalArgumentException("Either NetworkName or NetworkConfig must be specified.");
+    }
   }
 }

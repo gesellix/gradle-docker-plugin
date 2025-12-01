@@ -2,6 +2,8 @@ package de.gesellix.gradle.docker.tasks
 
 import de.gesellix.docker.client.DockerClient
 import de.gesellix.docker.client.EngineResponseContent
+import de.gesellix.docker.remote.api.IPAM
+import de.gesellix.docker.remote.api.NetworkCreateRequest
 import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.Specification
 
@@ -20,21 +22,22 @@ class DockerNetworkCreateTaskSpec extends Specification {
   def "delegates to dockerClient and saves result"() {
     given:
     task.networkName = "a-network"
-    task.networkConfig = [
-        Driver: "overlay",
-        "IPAM": ["Driver": "default"]
-    ]
+    task.networkConfig = new NetworkCreateRequest(
+        "a-network", null,
+        "overlay", null, null, null, null, null, null,
+        new IPAM("default", null, null),
+        null, null, null)
     def expectedResult = new EngineResponseContent("result")
 
     when:
     task.createNetwork()
 
     then:
-    1 * dockerClient.createNetwork("a-network", [
-        Driver: "overlay",
-        "IPAM": [
-            "Driver": "default"
-        ]]) >> expectedResult
+    1 * dockerClient.createNetwork(new NetworkCreateRequest(
+        "a-network", null,
+        "overlay", null, null, null, null, null, null,
+        new IPAM("default", null, null),
+        null, null, null)) >> expectedResult
 
     and:
     task.response == expectedResult
