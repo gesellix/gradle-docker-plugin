@@ -186,7 +186,7 @@ public class DockerBuildTask extends GenericDockerTask {
 
     List<BuildInfo> infos = new ArrayList<>();
     CountDownLatch buildFinished = new CountDownLatch(1);
-    StreamCallback<BuildInfo> callback = new StreamCallback<BuildInfo>() {
+    StreamCallback<BuildInfo> callback = new StreamCallback<>() {
       Cancellable cancellable;
 
       @Override

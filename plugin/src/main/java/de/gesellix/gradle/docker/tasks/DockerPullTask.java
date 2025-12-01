@@ -78,7 +78,7 @@ public class DockerPullTask extends GenericDockerTask {
     CountDownLatch pullFinished = new CountDownLatch(1);
 
     getDockerClient().pull(
-        new StreamCallback<CreateImageInfo>() {
+        new StreamCallback<>() {
           @Override
           public void onNext(CreateImageInfo element) {
             if (element != null) {

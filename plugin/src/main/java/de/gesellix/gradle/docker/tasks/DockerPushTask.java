@@ -58,7 +58,7 @@ public class DockerPushTask extends GenericDockerTask {
     getLogger().info("docker push");
     List<PushImageInfo> infos = new ArrayList<>();
     CountDownLatch pushFinished = new CountDownLatch(1);
-    StreamCallback<PushImageInfo> callback = new StreamCallback<PushImageInfo>() {
+    StreamCallback<PushImageInfo> callback = new StreamCallback<>() {
 
       private Cancellable cancellable;
 
