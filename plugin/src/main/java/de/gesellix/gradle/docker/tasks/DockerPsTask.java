@@ -6,10 +6,12 @@ import de.gesellix.docker.remote.api.ContainerSummary;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.TaskAction;
+import org.gradle.work.DisableCachingByDefault;
 
 import javax.inject.Inject;
 import java.util.List;
 
+@DisableCachingByDefault(because = "Delegate caching to Docker")
 public class DockerPsTask extends GenericDockerTask {
 
   private EngineResponseContent<List<ContainerSummary>> containers;

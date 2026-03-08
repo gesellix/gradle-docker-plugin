@@ -8,10 +8,12 @@ import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.Optional;
 import org.gradle.api.tasks.TaskAction;
+import org.gradle.work.DisableCachingByDefault;
 
 import javax.inject.Inject;
 import java.util.HashMap;
 
+@DisableCachingByDefault(because = "Delegate caching to Docker")
 public class DockerVolumesTask extends GenericDockerTask {
 
   private final MapProperty<String, Object> query;

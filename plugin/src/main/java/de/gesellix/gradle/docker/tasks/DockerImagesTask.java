@@ -5,10 +5,12 @@ import de.gesellix.docker.remote.api.ImageSummary;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.TaskAction;
+import org.gradle.work.DisableCachingByDefault;
 
 import javax.inject.Inject;
 import java.util.List;
 
+@DisableCachingByDefault(because = "Delegate caching to Docker")
 public class DockerImagesTask extends GenericDockerTask {
 
   private EngineResponseContent<List<ImageSummary>> images;

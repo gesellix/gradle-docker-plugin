@@ -7,12 +7,14 @@ import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.Optional;
 import org.gradle.api.tasks.TaskAction;
+import org.gradle.work.DisableCachingByDefault;
 
 import javax.inject.Inject;
 import java.net.HttpURLConnection;
 import java.util.HashMap;
 import java.util.Map;
 
+@DisableCachingByDefault(because = "Delegate caching to Docker")
 public class DockerDisposeContainerTask extends GenericDockerTask {
 
   private final Property<String> containerId;
