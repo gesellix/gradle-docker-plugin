@@ -5,9 +5,11 @@ import de.gesellix.docker.remote.api.SystemInfo;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.TaskAction;
+import org.gradle.work.DisableCachingByDefault;
 
 import javax.inject.Inject;
 
+@DisableCachingByDefault(because = "Delegate caching to Docker")
 public class DockerInfoTask extends GenericDockerTask {
 
   private EngineResponseContent<SystemInfo> info;

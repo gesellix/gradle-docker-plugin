@@ -16,7 +16,10 @@ import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputDirectory;
 import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.Optional;
+import org.gradle.api.tasks.PathSensitive;
+import org.gradle.api.tasks.PathSensitivity;
 import org.gradle.api.tasks.TaskAction;
+import org.gradle.work.DisableCachingByDefault;
 import org.gradle.workers.WorkerExecutor;
 
 import javax.inject.Inject;
@@ -34,6 +37,7 @@ import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+@DisableCachingByDefault(because = "Delegate caching to Docker")
 public class DockerBuildTask extends GenericDockerTask {
 
   private final Property<String> imageName;
@@ -47,6 +51,7 @@ public class DockerBuildTask extends GenericDockerTask {
   private final DirectoryProperty buildContextDirectory;
 
   @InputDirectory
+  @PathSensitive(PathSensitivity.ABSOLUTE)
   @Optional
   public DirectoryProperty getBuildContextDirectory() {
     return buildContextDirectory;

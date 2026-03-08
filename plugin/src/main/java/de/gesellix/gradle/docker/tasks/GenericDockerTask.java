@@ -10,12 +10,14 @@ import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.Optional;
+import org.gradle.work.DisableCachingByDefault;
 
 import javax.inject.Inject;
 import java.net.Proxy;
 
 import static java.net.Proxy.NO_PROXY;
 
+@DisableCachingByDefault(because = "Delegate caching to Docker")
 public class GenericDockerTask extends DefaultTask {
 
   Property<String> dockerHost;

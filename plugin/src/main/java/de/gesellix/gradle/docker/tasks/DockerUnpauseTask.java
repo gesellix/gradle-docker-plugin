@@ -4,9 +4,11 @@ import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.TaskAction;
+import org.gradle.work.DisableCachingByDefault;
 
 import javax.inject.Inject;
 
+@DisableCachingByDefault(because = "Delegate caching to Docker")
 public class DockerUnpauseTask extends GenericDockerTask {
 
   private final Property<String> containerId;
