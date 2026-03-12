@@ -8,14 +8,14 @@ plugins {
 }
 
 val dependencyVersions = listOf(
-  "com.squareup.okio:okio:3.16.2",
-  "com.squareup.okio:okio-jvm:3.16.2",
+  "com.squareup.okio:okio:${libs.versions.okio.get()}",
+  "com.squareup.okio:okio-jvm:${libs.versions.okio.get()}",
   "org.jetbrains:annotations:26.1.0",
-  "org.jetbrains.kotlin:kotlin-reflect:2.1.0",
-  "org.jetbrains.kotlin:kotlin-stdlib:2.1.0",
-  "org.jetbrains.kotlin:kotlin-stdlib-common:2.1.0",
-  "org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.1.0",
-  "org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.1.0",
+  "org.jetbrains.kotlin:kotlin-reflect:${libs.versions.kotlin.get()}",
+  "org.jetbrains.kotlin:kotlin-stdlib:${libs.versions.kotlin.get()}",
+  "org.jetbrains.kotlin:kotlin-stdlib-common:${libs.versions.kotlin.get()}",
+  "org.jetbrains.kotlin:kotlin-stdlib-jdk7:${libs.versions.kotlin.get()}",
+  "org.jetbrains.kotlin:kotlin-stdlib-jdk8:${libs.versions.kotlin.get()}",
 )
 
 val dependencyVersionsByGroup = mapOf(
