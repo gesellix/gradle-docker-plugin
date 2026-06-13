@@ -118,7 +118,7 @@ class DockerBuildTaskFunctionalTest extends Specification {
 
     then:
     Exception exception = thrown()
-    exception.message.contains("Execution failed for task ':dockerBuild'.")
+    exception.message.contains("Execution failed for task ':dockerBuild'")
   }
 
   def "accepts exactly one of buildContext or buildContextDirectory"() {
@@ -142,6 +142,6 @@ class DockerBuildTaskFunctionalTest extends Specification {
 
     then:
     Exception exception = thrown()
-    exception.message.contains("Execution failed for task ':dockerBuild'.")
+    exception.message.contains("Execution failed for task ':dockerBuild'")
   }
 }
