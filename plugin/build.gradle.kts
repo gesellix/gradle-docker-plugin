@@ -46,8 +46,8 @@ dependencies {
     }
     testImplementation("org.junit:junit-bom") {
       version {
-        strictly("[5,6)")
-        prefer("5.13.4")
+        strictly("[5,7)")
+        prefer("6.1.0")
       }
     }
   }
