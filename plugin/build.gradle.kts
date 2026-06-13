@@ -47,7 +47,7 @@ dependencies {
     testImplementation("org.junit:junit-bom") {
       version {
         strictly("[5,7)")
-        prefer("6.1.0")
+        prefer(libs.versions.junitPlatform.get())
       }
     }
   }
@@ -58,7 +58,7 @@ dependencies {
   testImplementation(localGroovy())
   testImplementation("org.spockframework:spock-core:2.3-groovy-4.0")
   testImplementation("cglib:cglib-nodep:3.3.0")
-  testRuntimeOnly("org.junit.platform:junit-platform-launcher:6.1.0")
+  testRuntimeOnly("org.junit.platform:junit-platform-launcher:${libs.versions.junitPlatform.get()}")
 
   // see https://docs.gradle.org/current/userguide/test_kit.html
   testImplementation(gradleTestKit())
