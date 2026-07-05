@@ -21,7 +21,7 @@ buildscript {
   }
 
   dependencies {
-    classpath("de.gesellix:docker-client:[2.0.0-202606131856-groovy-4,)")
+    classpath("de.gesellix:docker-client:[2.0.202607051238-groovy-4,)")
   }
 }
 
