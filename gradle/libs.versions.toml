@@ -1,7 +1,7 @@
 [versions]
 groovy3 = "3.0.25"
 groovy3Versionrange = "[3,4)"
-groovy4 = "4.0.28"
+groovy4 = "5.0.7"
 groovy4Versionrange = "[4,5)"
 groovy5 = "5.0.7"
 groovy5Versionrange = "[5,)"
