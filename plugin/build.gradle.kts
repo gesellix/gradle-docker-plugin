@@ -53,7 +53,7 @@ dependencies {
   }
   api(gradleApi())
 
-  api("de.gesellix:docker-client:2.0.0-202606131856-groovy-4")
+  api("de.gesellix:docker-client:2.0.202607051238-groovy-4")
 
   testImplementation(localGroovy())
   testImplementation("org.spockframework:spock-core:2.4-groovy-4.0")
